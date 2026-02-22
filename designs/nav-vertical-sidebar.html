@@ -11,14 +11,14 @@ body{font-family:var(--f);display:flex;min-height:100dvh;background:var(--mb);co
 svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 
 /* Sidebar */
-.s{position:relative;display:flex;flex-direction:column;width:var(--sw);min-height:100dvh;background:var(--bg);transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0;z-index:100}
+.s{position:relative;display:flex;flex-direction:column;width:var(--sw);min-height:100dvh;background:var(--bg);overflow:hidden;flex-shrink:0;z-index:100}
 .s.c{width:var(--cw)}
 
 /* Header */
 .hd{display:flex;align-items:center;gap:12px;padding:20px 16px 16px;border-bottom:1px solid rgba(148,163,184,.12)}
 .lo{flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--a),#14B8A6);border-radius:8px}
 .lo svg{width:16px;height:16px;stroke:#fff}
-.tt{font-size:15px;font-weight:700;color:var(--t);white-space:nowrap;transition:opacity .15s ease-out;letter-spacing:-.01em}
+.tt{font-size:15px;font-weight:700;color:var(--t);white-space:nowrap;letter-spacing:-.01em}
 .s.c .tt,.s.c .lb,.s.c .ui,.s.c .sl,.s.c .si{opacity:0;pointer-events:none}
 
 /* Buttons */
@@ -27,16 +27,15 @@ svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .nb:focus-visible,.tb:focus-visible,.st:focus-visible{outline-offset:-2px}
 
 /* Collapse */
-.cb{margin-left:auto;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background-color .15s ease-out,color .15s ease-out}
-.cb:hover{background:var(--hv);color:var(--t)}
-.cb svg{width:18px;height:18px;stroke:currentColor;transition:transform .2s ease-out}
-.s.c .cb svg{transform:rotate(180deg)}.s.c .cb{margin-left:0}
+.cb{margin-left:auto;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.cb svg{width:18px;height:18px;stroke:currentColor}
+.s.c .cb{margin-left:0}
 
 /* Search */
 .sr{padding:12px 12px 4px}
 .sw{position:relative;display:flex;align-items:center}
 .ic{position:absolute;left:10px;width:16px;height:16px;color:var(--m);pointer-events:none;stroke:currentColor}
-.si{width:100%;padding:8px 12px 8px 32px;background:var(--hv);border:1px solid transparent;border-radius:8px;color:var(--t);font-family:var(--f);font-size:13px;outline:none;transition:opacity .15s ease-out,border-color .15s ease-out}
+.si{width:100%;padding:8px 12px 8px 32px;background:var(--hv);border:1px solid transparent;border-radius:8px;color:var(--t);font-family:var(--f);font-size:13px;outline:none}
 .si::placeholder{color:var(--m)}.si:focus-visible{border-color:var(--a)}
 .s.c .ic{left:50%;transform:translateX(-50%)}
 
@@ -44,10 +43,9 @@ svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .nv{padding:8px;flex:1}
 .nl{list-style:none;display:flex;flex-direction:column;gap:2px}
 .ni{position:relative}
-.nb{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:500;white-space:nowrap;transition:background-color .15s ease-out,color .15s ease-out;text-align:left}
-.nb:hover{background:var(--hv);color:var(--t)}
+.nb{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:500;white-space:nowrap;text-align:left}
 .nb svg{width:20px;height:20px;flex-shrink:0;stroke:currentColor}
-.lb{transition:opacity .15s ease-out}
+/* .lb — opacity animated by GSAP */
 
 /* Active */
 .ni.a .nb{background:rgba(16,185,129,.08);color:var(--a)}
@@ -59,42 +57,39 @@ svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 
 /* Teams */
 .sc{padding:4px 8px 8px}
-.st{display:flex;align-items:center;width:100%;padding:8px 12px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:color .15s ease-out}
-.st:hover{color:var(--t)}.st:focus-visible{border-radius:6px}
-.sl{transition:opacity .15s ease-out}
-.ch{margin-left:auto;width:14px;height:14px;stroke:currentColor;transition:transform .2s ease-out,opacity .15s ease-out}
+.st{display:flex;align-items:center;width:100%;padding:8px 12px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.st:focus-visible{border-radius:6px}
+.ch{margin-left:auto;width:14px;height:14px;stroke:currentColor}
 .st[aria-expanded="true"] .ch{transform:rotate(180deg)}
 .s.c .ch{opacity:0}
-.tl{list-style:none;display:flex;flex-direction:column;gap:2px;overflow:hidden;max-height:200px;transition:max-height .2s ease-out,opacity .15s ease-out}
+.tl{list-style:none;display:flex;flex-direction:column;gap:2px;overflow:hidden;max-height:200px}
 .tl.h{max-height:0;opacity:0}.s.c .tl{max-height:0;opacity:0}
-.tb{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;transition:background-color .15s ease-out,color .15s ease-out;white-space:nowrap;text-align:left}
-.tb:hover{background:var(--hv);color:var(--t)}
+.tb{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;text-align:left}
 .sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sd.on{background:var(--a)}.sd.aw{background:#F59E0B}.sd.bs{background:#EF4444}
 
 /* User */
 .us{margin-top:auto;padding:12px;border-top:1px solid rgba(148,163,184,.12)}
-.uc{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;transition:background-color .15s ease-out;cursor:default}
-.uc:hover{background:var(--hv)}
+.uc{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:default}
 .ua{position:relative;flex-shrink:0;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--a),#14B8A6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
 .uo{position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:var(--a);border:2px solid var(--bg)}
-.ui{display:flex;flex-direction:column;min-width:0;transition:opacity .15s ease-out}
+.ui{display:flex;flex-direction:column;min-width:0}
 .un{font-size:13px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ur{font-size:11px;color:var(--m)}
 
 /* Main */
 .mc{flex:1;min-width:0;padding:32px 40px}
-.mi{display:none;width:40px;height:40px;align-items:center;justify-content:center;background:#fff;border:1px solid #CBD5E1;border-radius:8px;color:#475569;margin-bottom:24px;transition:background-color .15s ease-out,color .15s ease-out}
-.mi:hover{background:#F8FAFC;color:#1E293B}.mi svg{width:20px;height:20px;stroke:currentColor}
+.mi{display:none;width:40px;height:40px;align-items:center;justify-content:center;background:#fff;border:1px solid #CBD5E1;border-radius:8px;color:#475569;margin-bottom:24px}
+.mi svg{width:20px;height:20px;stroke:currentColor}
 .mh{font-size:28px;font-weight:800;color:#0F172A;letter-spacing:-.02em;text-wrap:balance}
 .ms{font-size:15px;color:#64748B;margin-top:6px;line-height:1.5}
 
 /* Backdrop */
-.bk{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s ease-out}
+.bk{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:90;opacity:0;pointer-events:none}
 .bk.v{opacity:1;pointer-events:auto}
 
 @media(max-width:768px){
-  .s{position:fixed;top:0;left:0;height:100dvh;width:var(--sw);transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:none}
+  .s{position:fixed;top:0;left:0;height:100dvh;width:var(--sw);transform:translateX(-100%);box-shadow:none}
   .s.c{width:var(--sw)}
   .s.c .lb,.s.c .tt,.s.c .ui,.s.c .sl,.s.c .si{opacity:1;pointer-events:auto}
   .s.c .ch{opacity:1}
@@ -104,7 +99,7 @@ svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   .s.mo{transform:translateX(0);box-shadow:0 8px 32px rgba(15,23,42,.35)}
   .bk{display:block}.mi{display:flex}.mc{padding:20px 16px}
 }
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+/* Reduced motion — GSAP checks UV.prefersReducedMotion */
 </style>
 </head>
 <body>
@@ -142,14 +137,185 @@ svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   <p class="ms">Welcome back, Jane. Here is what is happening today.</p>
 </main>
 <script>
-!function(){var s=document.getElementById('s'),cb=document.getElementById('cb'),st=document.getElementById('st'),tl=document.getElementById('tl'),mi=document.getElementById('mi'),bk=document.getElementById('bk'),mq=matchMedia('(max-width:768px)');
-cb.onclick=function(){if(mq.matches){cl();return}var c=s.classList.toggle('c');cb.setAttribute('aria-expanded',!c+'');cb.setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');if(c){tl.classList.add('h');st.setAttribute('aria-expanded','false')}};
-st.onclick=function(){if(s.classList.contains('c')&&!mq.matches)return;var e=st.getAttribute('aria-expanded')==='true';st.setAttribute('aria-expanded',!e+'');tl.classList.toggle('h',e)};
-function op(){s.classList.add('mo');bk.classList.add('v');bk.setAttribute('aria-hidden','false');mi.setAttribute('aria-expanded','true');cb.focus()}
-function cl(){s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true');mi.setAttribute('aria-expanded','false');mi.focus()}
-mi.onclick=op;bk.onclick=cl;
-document.onkeydown=function(e){if(e.key==='Escape'&&s.classList.contains('mo'))cl()};
-mq.onchange=function(){if(!mq.matches){s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true')}}}()
+!function(){
+  var s=document.getElementById('s'),cb=document.getElementById('cb'),st=document.getElementById('st'),tl=document.getElementById('tl'),mi=document.getElementById('mi'),bk=document.getElementById('bk'),mq=matchMedia('(max-width:768px)');
+  var dur=0.25,ease='power3.inOut';
+  var useGsap=false; // set to true after GSAP loads
+
+  cb.onclick=function(){
+    if(mq.matches){cl();return}
+    var c=s.classList.toggle('c');
+    cb.setAttribute('aria-expanded',!c+'');
+    cb.setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');
+    if(useGsap && !UV.prefersReducedMotion){
+      /* GSAP: animate sidebar width */
+      gsap.to(s, { width: c ? 'var(--cw)' : 'var(--sw)', duration: dur, ease: ease });
+      /* GSAP: animate collapse icon rotation */
+      gsap.to(cb.querySelector('svg'), { rotation: c ? 180 : 0, duration: 0.2, ease: 'power2.out' });
+      /* GSAP: fade labels */
+      var labels = s.querySelectorAll('.tt,.lb,.ui,.sl,.si');
+      gsap.to(labels, { opacity: c ? 0 : 1, duration: 0.15, ease: 'power2.out' });
+      /* GSAP: chevron */
+      gsap.to(s.querySelector('.ch'), { opacity: c ? 0 : 1, duration: 0.15 });
+    }
+    if(c){tl.classList.add('h');st.setAttribute('aria-expanded','false');
+      if(useGsap && !UV.prefersReducedMotion){ gsap.to(tl, { maxHeight: 0, opacity: 0, duration: 0.2, ease: ease }); }
+    }
+  };
+
+  st.onclick=function(){
+    if(s.classList.contains('c')&&!mq.matches)return;
+    var e=st.getAttribute('aria-expanded')==='true';
+    st.setAttribute('aria-expanded',!e+'');
+    tl.classList.toggle('h',e);
+    if(useGsap && !UV.prefersReducedMotion){
+      /* GSAP: animate teams list expand/collapse */
+      gsap.to(tl, { maxHeight: e ? 0 : 200, opacity: e ? 0 : 1, duration: 0.2, ease: ease });
+      /* GSAP: rotate chevron */
+      gsap.to(st.querySelector('.ch'), { rotation: e ? 0 : 180, duration: 0.2, ease: 'power2.out' });
+    }
+  };
+
+  function op(){
+    s.classList.add('mo');bk.classList.add('v');
+    bk.setAttribute('aria-hidden','false');mi.setAttribute('aria-expanded','true');
+    if(useGsap && !UV.prefersReducedMotion){
+      /* GSAP: mobile drawer slide in + backdrop fade */
+      gsap.to(s, { x: '100%', duration: dur, ease: ease });
+      gsap.to(bk, { opacity: 1, duration: 0.2, ease: 'power2.out', onStart: function(){ bk.style.pointerEvents='auto'; } });
+    } else {
+      bk.style.opacity='1'; bk.style.pointerEvents='auto';
+    }
+    cb.focus();
+  }
+
+  function cl(){
+    if(useGsap && !UV.prefersReducedMotion){
+      gsap.to(s, { x: '0%', duration: dur, ease: ease, onComplete: function(){ s.classList.remove('mo'); } });
+      gsap.to(bk, { opacity: 0, duration: 0.2, ease: 'power2.out', onComplete: function(){
+        bk.classList.remove('v'); bk.style.pointerEvents='none'; bk.setAttribute('aria-hidden','true');
+      }});
+    } else {
+      s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true');
+      bk.style.opacity='0'; bk.style.pointerEvents='none';
+    }
+    mi.setAttribute('aria-expanded','false');mi.focus();
+  }
+
+  mi.onclick=op;bk.onclick=cl;
+  document.onkeydown=function(e){if(e.key==='Escape'&&s.classList.contains('mo'))cl()};
+  mq.onchange=function(){if(!mq.matches){s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true');
+    if(useGsap) gsap.set(s, { x: '0%' });
+  }};
+
+  /* Expose flag setter for post-GSAP init */
+  window._sidebarEnableGsap = function(){ useGsap = true; };
+}()
+</script>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* Enable GSAP in the sidebar script */
+  if (window._sidebarEnableGsap) window._sidebarEnableGsap();
+
+  if (!UV.prefersReducedMotion) {
+
+    /* ── 1. Sidebar entrance animation ── */
+    UV.fadeIn('.s', { y: 0, duration: 0.4 });
+
+    /* ── 2. Nav items stagger entrance ── */
+    UV.staggerSequence('.ni', { y: 15, duration: 0.35, stagger: 0.05 });
+
+    /* ── 3. User card entrance ── */
+    UV.fadeIn('.us', { y: 10, duration: 0.4, delay: 0.3 });
+
+    /* ── 4. Nav button hovers (replaces CSS transition .nb) ── */
+    document.querySelectorAll('.nb').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { backgroundColor: '#334155', color: '#F8FAFC', duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        var isActive = btn.closest('.ni') && btn.closest('.ni').classList.contains('a');
+        gsap.to(btn, {
+          backgroundColor: isActive ? 'rgba(16,185,129,0.08)' : 'transparent',
+          color: isActive ? '#10B981' : '#94A3B8',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+    });
+
+    /* ── 5. Collapse button hover (replaces CSS transition .cb) ── */
+    document.querySelectorAll('.cb').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { backgroundColor: '#334155', color: '#F8FAFC', duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { backgroundColor: 'transparent', color: '#94A3B8', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 6. Team buttons hover (replaces CSS transition .tb) ── */
+    document.querySelectorAll('.tb').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { backgroundColor: '#334155', color: '#F8FAFC', duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { backgroundColor: 'transparent', color: '#94A3B8', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 7. Section title hover (replaces CSS transition .st) ── */
+    document.querySelectorAll('.st').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { color: '#F8FAFC', duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { color: '#94A3B8', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 8. User card hover (replaces CSS transition .uc) ── */
+    document.querySelectorAll('.uc').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        gsap.to(el, { backgroundColor: '#334155', duration: 0.15, ease: 'power2.out' });
+      });
+      el.addEventListener('mouseleave', function () {
+        gsap.to(el, { backgroundColor: 'transparent', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 9. Mobile menu button hover (replaces CSS transition .mi) ── */
+    document.querySelectorAll('.mi').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { backgroundColor: '#F8FAFC', color: '#1E293B', duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { backgroundColor: '#fff', color: '#475569', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 10. Search input focus (replaces CSS transition .si) ── */
+    document.querySelectorAll('.si').forEach(function (input) {
+      input.addEventListener('focus', function () {
+        gsap.to(input, { borderColor: '#10B981', duration: 0.15, ease: 'power2.out' });
+      });
+      input.addEventListener('blur', function () {
+        gsap.to(input, { borderColor: 'transparent', duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+
+  /* ── Control panel ── */
+  UV.addControlPanel();
+})();
 </script>
 </body>
 </html>

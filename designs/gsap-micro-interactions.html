@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSAP Micro-Interactions — UI Vault</title>
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg: #0a0a0a;
+  --color-surface: #141416;
+  --color-surface-raised: #1c1c20;
+  --color-border: #2a2a30;
+  --color-border-hover: #3a3a42;
+  --color-text: #e8e8ec;
+  --color-text-muted: #8a8a96;
+  --color-text-dim: #5a5a66;
+
+  --color-violet: #8b5cf6;
+  --color-violet-dim: rgba(139, 92, 246, 0.15);
+  --color-violet-glow: rgba(139, 92, 246, 0.4);
+  --color-emerald: #34d399;
+  --color-emerald-dim: rgba(52, 211, 153, 0.15);
+  --color-rose: #fb7185;
+  --color-rose-dim: rgba(251, 113, 133, 0.15);
+  --color-amber: #fbbf24;
+  --color-amber-dim: rgba(251, 191, 36, 0.15);
+  --color-sky: #38bdf8;
+  --color-sky-dim: rgba(56, 189, 248, 0.15);
+
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px var(--color-border);
+  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px var(--color-border-hover);
+}
+
+html {
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px 120px;
+}
+
+/* ============================================================
+   HERO / PAGE HEADER
+   ============================================================ */
+.page-header {
+  padding: 80px 0 64px;
+  text-align: center;
+}
+
+.page-header__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-violet);
+  margin-bottom: 16px;
+}
+
+.page-header__title {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  text-wrap: balance;
+}
+
+.page-header__desc {
+  font-size: 17px;
+  color: var(--color-text-muted);
+  max-width: 56ch;
+  margin: 0 auto;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   SECTION
+   ============================================================ */
+.section {
+  margin-bottom: 80px;
+}
+
+.section__header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section__number {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-violet);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.section__title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.section__desc {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   DEMO GRID
+   ============================================================ */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 20px;
+}
+
+.demo-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+/* ============================================================
+   DEMO CARD (container for each demo)
+   ============================================================ */
+.demo-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-card__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-card__info {
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.demo-card__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.demo-card__hint {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   BUTTON DEMOS
+   ============================================================ */
+
+/* --- Shared button base --- */
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* --- Magnetic --- */
+.btn-magnetic {
+  background: var(--color-violet);
+  color: #fff;
+}
+
+/* --- Ripple --- */
+.btn-ripple {
+  background: var(--color-sky);
+  color: #0c1929;
+}
+
+.ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  transform: scale(0);
+}
+
+/* --- Elastic --- */
+.btn-elastic {
+  background: var(--color-emerald);
+  color: #0a1f18;
+}
+
+/* --- Glow Pulse --- */
+.btn-glow {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* ============================================================
+   TOGGLE DEMOS
+   ============================================================ */
+.toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--color-text-dim);
+}
+
+.demo-toggle {
+  width: 56px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  cursor: pointer;
+  position: relative;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.demo-toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* ============================================================
+   INPUT DEMOS
+   ============================================================ */
+.input-demo-wrap {
+  width: 100%;
+  max-width: 260px;
+}
+
+/* --- Floating Label --- */
+.floating-field {
+  position: relative;
+  width: 100%;
+}
+
+.floating-field__input {
+  width: 100%;
+  padding: 20px 14px 8px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  color: var(--color-text);
+  outline: none;
+}
+
+.floating-field__label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--color-text-dim);
+  pointer-events: none;
+  transform-origin: left center;
+}
+
+/* --- Underline Expand --- */
+.underline-field {
+  position: relative;
+  width: 100%;
+}
+
+.underline-field__input {
+  width: 100%;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  font-size: 15px;
+  color: var(--color-text);
+  outline: none;
+}
+
+.underline-field__input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.underline-field__line {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--color-violet);
+  transform: translateX(-50%);
+}
+
+/* --- Shake on Error --- */
+.shake-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.shake-form__input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text);
+  outline: none;
+}
+
+.shake-form__input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.shake-form__input.has-error {
+  border-color: var(--color-rose);
+}
+
+.shake-form__submit {
+  padding: 10px 20px;
+  background: var(--color-rose);
+  color: #1a0a0d;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* ============================================================
+   CARD INTERACTION DEMOS
+   ============================================================ */
+
+/* --- Tilt Card --- */
+.tilt-card {
+  width: 200px;
+  height: 140px;
+  background: linear-gradient(135deg, var(--color-surface-raised) 0%, var(--color-surface) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: default;
+  transform-style: preserve-3d;
+  perspective: 600px;
+}
+
+.tilt-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-violet-dim);
+  display: grid;
+  place-items: center;
+  color: var(--color-violet);
+}
+
+.tilt-card__text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* --- Flip Card --- */
+.flip-card {
+  width: 200px;
+  height: 140px;
+  cursor: pointer;
+  perspective: 800px;
+}
+
+.flip-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flip-card__face {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card__front {
+  background: var(--color-surface-raised);
+}
+
+.flip-card__back {
+  background: var(--color-violet-dim);
+  border-color: var(--color-violet);
+  transform: rotateY(180deg);
+}
+
+.flip-card__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.flip-card__back-text {
+  font-size: 12px;
+  color: var(--color-violet);
+  font-weight: 600;
+  text-align: center;
+  padding: 0 16px;
+}
+
+/* --- Expand Card --- */
+.expand-card {
+  width: 200px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.expand-card__header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expand-card__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  flex-shrink: 0;
+}
+
+.expand-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.expand-card__body {
+  padding: 0 20px;
+  height: 0;
+  overflow: hidden;
+}
+
+.expand-card__body-inner {
+  padding-bottom: 20px;
+}
+
+.expand-card__body p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.expand-card__tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--color-amber-dim);
+  color: var(--color-amber);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+/* ============================================================
+   LOADING DEMOS
+   ============================================================ */
+
+/* --- Dot Bounce --- */
+.dot-bounce {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot-bounce__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-violet);
+}
+
+/* --- Spinner Grow --- */
+.spinner-grow {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.spinner-grow__circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--color-emerald);
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* --- Bar Progress --- */
+.bar-progress {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar-progress__track {
+  width: 100%;
+  height: 8px;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-progress__fill {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-sky), var(--color-violet));
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-progress__stripes {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(255,255,255,0.15) 6px,
+    rgba(255,255,255,0.15) 12px
+  );
+  background-size: 17px 100%;
+}
+
+.bar-progress__label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   CODE HINT BADGE
+   ============================================================ */
+.code-badge {
+  display: inline-flex;
+  padding: 3px 8px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-dim);
+  margin-top: 4px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .page {
+    padding: 0 20px 80px;
+  }
+
+  .page-header {
+    padding: 48px 0 40px;
+  }
+
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .demo-card__stage {
+    min-height: 160px;
+    padding: 24px 16px;
+  }
+
+  .tilt-card,
+  .flip-card,
+  .expand-card {
+    width: 180px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ============================================================
+       PAGE HEADER
+       ============================================================ -->
+  <header class="page-header">
+    <p class="page-header__eyebrow">UI Vault / Interactions</p>
+    <h1 class="page-header__title">GSAP Micro-Interactions</h1>
+    <p class="page-header__desc">A reference collection of hover, click, and input animations. Every animation on this page is powered by GSAP — zero CSS transitions or keyframes.</p>
+  </header>
+
+  <!-- ============================================================
+       SECTION 1 — BUTTONS
+       ============================================================ -->
+  <section class="section" id="section-buttons">
+    <div class="section__header">
+      <div class="section__number">01 — Buttons</div>
+      <h2 class="section__title">Button Effects</h2>
+      <p class="section__desc">Magnetic pull, ripple clicks, elastic presses, and glow hover states.</p>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Magnetic -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <button class="demo-btn btn-magnetic" id="btnMagnetic">Magnetic</button>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Magnetic Button</div>
+          <div class="demo-card__hint">Hover near the button</div>
+        </div>
+      </div>
+
+      <!-- Ripple -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <button class="demo-btn btn-ripple" id="btnRipple">Ripple Click</button>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Ripple Button</div>
+          <div class="demo-card__hint">Click the button</div>
+        </div>
+      </div>
+
+      <!-- Elastic -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <button class="demo-btn btn-elastic" id="btnElastic">Elastic Press</button>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Elastic Button</div>
+          <div class="demo-card__hint">Click the button</div>
+        </div>
+      </div>
+
+      <!-- Glow Pulse -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <button class="demo-btn btn-glow" id="btnGlow">Glow Pulse</button>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Glow Pulse Button</div>
+          <div class="demo-card__hint">Hover the button</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2 — TOGGLES
+       ============================================================ -->
+  <section class="section" id="section-toggles">
+    <div class="section__header">
+      <div class="section__number">02 — Toggles</div>
+      <h2 class="section__title">Toggle Switches</h2>
+      <p class="section__desc">Slide, bounce, and liquid morph toggle effects.</p>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Slide Toggle -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="toggle-wrap">
+            <button class="demo-toggle" id="toggleSlide" aria-label="Slide toggle" aria-checked="false" role="switch">
+              <div class="demo-toggle__knob"></div>
+            </button>
+            <span class="toggle-label">Slide</span>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Slide Toggle</div>
+          <div class="demo-card__hint">Click to toggle</div>
+        </div>
+      </div>
+
+      <!-- Bounce Toggle -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="toggle-wrap">
+            <button class="demo-toggle" id="toggleBounce" aria-label="Bounce toggle" aria-checked="false" role="switch">
+              <div class="demo-toggle__knob"></div>
+            </button>
+            <span class="toggle-label">Bounce</span>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Bounce Toggle</div>
+          <div class="demo-card__hint">Click to toggle</div>
+        </div>
+      </div>
+
+      <!-- Liquid Toggle -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="toggle-wrap">
+            <button class="demo-toggle" id="toggleLiquid" aria-label="Liquid toggle" aria-checked="false" role="switch">
+              <div class="demo-toggle__knob"></div>
+            </button>
+            <span class="toggle-label">Liquid</span>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Liquid Toggle</div>
+          <div class="demo-card__hint">Click to toggle</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 — INPUTS
+       ============================================================ -->
+  <section class="section" id="section-inputs">
+    <div class="section__header">
+      <div class="section__number">03 — Inputs</div>
+      <h2 class="section__title">Input Effects</h2>
+      <p class="section__desc">Floating labels, expanding underlines, and error shakes.</p>
+    </div>
+
+    <div class="demo-grid demo-grid--wide">
+      <!-- Floating Label -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="input-demo-wrap">
+            <div class="floating-field" id="floatingField">
+              <input type="text" class="floating-field__input" id="floatingInput" autocomplete="off">
+              <label class="floating-field__label" id="floatingLabel">Email address</label>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Floating Label</div>
+          <div class="demo-card__hint">Focus the input</div>
+        </div>
+      </div>
+
+      <!-- Underline Expand -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="input-demo-wrap">
+            <div class="underline-field" id="underlineField">
+              <input type="text" class="underline-field__input" placeholder="Type something..." id="underlineInput" autocomplete="off">
+              <div class="underline-field__line" id="underlineLine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Underline Expand</div>
+          <div class="demo-card__hint">Focus the input</div>
+        </div>
+      </div>
+
+      <!-- Shake on Error -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="input-demo-wrap">
+            <form class="shake-form" id="shakeForm">
+              <input type="text" class="shake-form__input" id="shakeInput" placeholder="Leave empty and submit" autocomplete="off">
+              <button type="submit" class="shake-form__submit">Submit</button>
+            </form>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Shake on Error</div>
+          <div class="demo-card__hint">Submit with empty input</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4 — CARD INTERACTIONS
+       ============================================================ -->
+  <section class="section" id="section-cards">
+    <div class="section__header">
+      <div class="section__number">04 — Cards</div>
+      <h2 class="section__title">Card Interactions</h2>
+      <p class="section__desc">3D tilt tracking, flip reveals, and content expansion.</p>
+    </div>
+
+    <div class="demo-grid demo-grid--wide">
+      <!-- Tilt Card -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="tilt-card" id="tiltCard">
+            <div class="tilt-card__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18"/>
+                <path d="M9 21V9"/>
+              </svg>
+            </div>
+            <span class="tilt-card__text">Hover to tilt</span>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Tilt on Hover</div>
+          <div class="demo-card__hint">Move mouse over card</div>
+        </div>
+      </div>
+
+      <!-- Flip Card -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="flip-card" id="flipCard">
+            <div class="flip-card__inner" id="flipCardInner">
+              <div class="flip-card__face flip-card__front">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-muted)">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+                <span class="flip-card__label">Click to flip</span>
+              </div>
+              <div class="flip-card__face flip-card__back">
+                <span class="flip-card__back-text">Back side revealed with GSAP rotateY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Flip Card</div>
+          <div class="demo-card__hint">Click to flip / click again</div>
+        </div>
+      </div>
+
+      <!-- Expand Card -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="expand-card" id="expandCard">
+            <div class="expand-card__header">
+              <div class="expand-card__dot"></div>
+              <span class="expand-card__title">Click to expand</span>
+            </div>
+            <div class="expand-card__body" id="expandBody">
+              <div class="expand-card__body-inner">
+                <p>Additional content revealed with a smooth GSAP height animation. No CSS transitions involved.</p>
+                <span class="expand-card__tag">Expanded</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Expand Card</div>
+          <div class="demo-card__hint">Click to expand / collapse</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5 — LOADING ANIMATIONS
+       ============================================================ -->
+  <section class="section" id="section-loading">
+    <div class="section__header">
+      <div class="section__number">05 — Loading</div>
+      <h2 class="section__title">Loading Animations</h2>
+      <p class="section__desc">Bouncing dots, growing spinners, and striped progress bars.</p>
+    </div>
+
+    <div class="demo-grid demo-grid--wide">
+      <!-- Dot Bounce -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="dot-bounce" id="dotBounce">
+            <div class="dot-bounce__dot"></div>
+            <div class="dot-bounce__dot"></div>
+            <div class="dot-bounce__dot"></div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Dot Bounce</div>
+          <div class="demo-card__hint">Staggered with back.out(3)</div>
+        </div>
+      </div>
+
+      <!-- Spinner Grow -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="spinner-grow" id="spinnerGrow">
+            <div class="spinner-grow__circle"></div>
+            <div class="spinner-grow__circle"></div>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Spinner Grow</div>
+          <div class="demo-card__hint">Scale + opacity loop</div>
+        </div>
+      </div>
+
+      <!-- Bar Progress -->
+      <div class="demo-card">
+        <div class="demo-card__stage">
+          <div class="bar-progress" id="barProgress">
+            <div class="bar-progress__track">
+              <div class="bar-progress__fill" id="barFill">
+                <div class="bar-progress__stripes" id="barStripes"></div>
+              </div>
+            </div>
+            <span class="bar-progress__label" id="barLabel">0%</span>
+          </div>
+        </div>
+        <div class="demo-card__info">
+          <div class="demo-card__name">Bar Progress</div>
+          <div class="demo-card__hint">GSAP fill + stripe scroll</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================================================
+     GSAP
+     ============================================================ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var reducedMotion = UV.prefersReducedMotion;
+
+  /* ============================================================
+     PAGE ENTRANCE ANIMATIONS
+     ============================================================ */
+  if (!reducedMotion) {
+    UV.initPage({
+      title: '.page-header__eyebrow',
+      subtitle: '.page-header__title',
+      content: '.page-header__desc'
+    });
+
+    /* Section scroll reveals */
+    document.querySelectorAll('.section').forEach(function (section) {
+      UV.scrollReveal(section.querySelector('.section__header'), {
+        trigger: section,
+        y: 30,
+        duration: 0.6
+      });
+
+      var cards = section.querySelectorAll('.demo-card');
+      UV.safeAnimate(function () {
+        gsap.from(cards, {
+          scrollTrigger: {
+            trigger: section.querySelector('.demo-grid'),
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          },
+          opacity: 0,
+          y: 24,
+          duration: 0.5,
+          ease: 'power3.out',
+          stagger: 0.08
+        });
+      });
+    });
+  }
+
+  /* ============================================================
+     SECTION 1 — BUTTON EFFECTS
+     ============================================================ */
+
+  /* --- 1A: Magnetic Button --- */
+  (function () {
+    var btn = document.getElementById('btnMagnetic');
+    var stage = btn.closest('.demo-card__stage');
+    if (reducedMotion) return;
+
+    stage.addEventListener('mousemove', function (e) {
+      var rect = btn.getBoundingClientRect();
+      var btnCenterX = rect.left + rect.width / 2;
+      var btnCenterY = rect.top + rect.height / 2;
+      var distX = e.clientX - btnCenterX;
+      var distY = e.clientY - btnCenterY;
+      var dist = Math.sqrt(distX * distX + distY * distY);
+      var pullRadius = 120;
+
+      if (dist < pullRadius) {
+        var strength = (1 - dist / pullRadius) * 0.35;
+        gsap.to(btn, {
+          x: distX * strength,
+          y: distY * strength,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      } else {
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          duration: 0.4,
+          ease: 'elastic.out(1, 0.4)'
+        });
+      }
+    });
+
+    stage.addEventListener('mouseleave', function () {
+      gsap.to(btn, {
+        x: 0,
+        y: 0,
+        duration: 0.5,
+        ease: 'elastic.out(1, 0.4)'
+      });
+    });
+  })();
+
+  /* --- 1B: Ripple Button --- */
+  (function () {
+    var btn = document.getElementById('btnRipple');
+    if (reducedMotion) return;
+
+    btn.addEventListener('click', function (e) {
+      var rect = btn.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var maxDim = Math.max(rect.width, rect.height);
+      var size = maxDim * 2.5;
+
+      var ripple = document.createElement('span');
+      ripple.className = 'ripple-circle';
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      ripple.style.left = (x - size / 2) + 'px';
+      ripple.style.top = (y - size / 2) + 'px';
+      btn.appendChild(ripple);
+
+      gsap.to(ripple, {
+        scale: 1,
+        opacity: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        onComplete: function () {
+          ripple.remove();
+        }
+      });
+    });
+  })();
+
+  /* --- 1C: Elastic Button --- */
+  (function () {
+    var btn = document.getElementById('btnElastic');
+    if (reducedMotion) return;
+
+    btn.addEventListener('click', function () {
+      gsap.timeline()
+        .to(btn, {
+          scaleX: 1.15,
+          scaleY: 0.88,
+          duration: 0.1,
+          ease: 'power2.in'
+        })
+        .to(btn, {
+          scaleX: 0.92,
+          scaleY: 1.08,
+          duration: 0.1,
+          ease: 'power2.out'
+        })
+        .to(btn, {
+          scaleX: 1,
+          scaleY: 1,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.3)'
+        });
+    });
+  })();
+
+  /* --- 1D: Glow Pulse Button --- */
+  (function () {
+    var btn = document.getElementById('btnGlow');
+    var glowTl = null;
+    if (reducedMotion) return;
+
+    btn.addEventListener('mouseenter', function () {
+      if (glowTl) glowTl.kill();
+      glowTl = gsap.timeline({ repeat: -1, yoyo: true });
+      glowTl.to(btn, {
+        boxShadow: '0 0 20px var(--color-violet-glow), 0 0 40px var(--color-violet-dim), inset 0 0 12px var(--color-violet-dim)',
+        borderColor: 'var(--color-violet)',
+        color: 'var(--color-violet)',
+        duration: 0.8,
+        ease: 'sine.inOut'
+      })
+      .to(btn, {
+        boxShadow: '0 0 8px var(--color-violet-dim), 0 0 20px rgba(139,92,246,0.08), inset 0 0 4px var(--color-violet-dim)',
+        duration: 0.8,
+        ease: 'sine.inOut'
+      });
+    });
+
+    btn.addEventListener('mouseleave', function () {
+      if (glowTl) glowTl.kill();
+      gsap.to(btn, {
+        boxShadow: 'none',
+        borderColor: 'var(--color-border)',
+        color: 'var(--color-text)',
+        duration: 0.35,
+        ease: 'power2.out'
+      });
+    });
+  })();
+
+  /* ============================================================
+     SECTION 2 — TOGGLE SWITCHES
+     ============================================================ */
+
+  function createToggle(id, animateFn) {
+    var toggle = document.getElementById(id);
+    var knob = toggle.querySelector('.demo-toggle__knob');
+    var isOn = false;
+
+    toggle.addEventListener('click', function () {
+      isOn = !isOn;
+      toggle.setAttribute('aria-checked', String(isOn));
+      animateFn(toggle, knob, isOn);
+    });
+  }
+
+  /* --- 2A: Slide Toggle --- */
+  createToggle('toggleSlide', function (toggle, knob, isOn) {
+    if (reducedMotion) {
+      gsap.set(knob, { x: isOn ? 26 : 0 });
+      gsap.set(toggle, { backgroundColor: isOn ? 'var(--color-emerald)' : 'var(--color-border)' });
+      return;
+    }
+    gsap.to(knob, {
+      x: isOn ? 26 : 0,
+      duration: 0.3,
+      ease: 'power2.inOut'
+    });
+    gsap.to(toggle, {
+      backgroundColor: isOn ? 'var(--color-emerald)' : 'var(--color-border)',
+      duration: 0.3,
+      ease: 'power2.inOut'
+    });
+  });
+
+  /* --- 2B: Bounce Toggle --- */
+  createToggle('toggleBounce', function (toggle, knob, isOn) {
+    if (reducedMotion) {
+      gsap.set(knob, { x: isOn ? 26 : 0 });
+      gsap.set(toggle, { backgroundColor: isOn ? 'var(--color-violet)' : 'var(--color-border)' });
+      return;
+    }
+    gsap.to(knob, {
+      x: isOn ? 26 : 0,
+      duration: 0.5,
+      ease: 'back.out(3)'
+    });
+    gsap.to(toggle, {
+      backgroundColor: isOn ? 'var(--color-violet)' : 'var(--color-border)',
+      duration: 0.3,
+      ease: 'power2.inOut'
+    });
+  });
+
+  /* --- 2C: Liquid Toggle --- */
+  createToggle('toggleLiquid', function (toggle, knob, isOn) {
+    if (reducedMotion) {
+      gsap.set(knob, { x: isOn ? 26 : 0 });
+      gsap.set(toggle, { backgroundColor: isOn ? 'var(--color-amber)' : 'var(--color-border)' });
+      return;
+    }
+    var tl = gsap.timeline();
+    tl.to(knob, {
+      scaleX: 1.6,
+      duration: 0.15,
+      ease: 'power2.in'
+    })
+    .to(knob, {
+      x: isOn ? 26 : 0,
+      duration: 0.2,
+      ease: 'power2.inOut'
+    }, '-=0.05')
+    .to(knob, {
+      scaleX: 1,
+      duration: 0.3,
+      ease: 'elastic.out(1, 0.4)'
+    }, '-=0.1');
+
+    gsap.to(toggle, {
+      backgroundColor: isOn ? 'var(--color-amber)' : 'var(--color-border)',
+      duration: 0.3,
+      ease: 'power2.inOut'
+    });
+  });
+
+  /* ============================================================
+     SECTION 3 — INPUT EFFECTS
+     ============================================================ */
+
+  /* --- 3A: Floating Label --- */
+  (function () {
+    var input = document.getElementById('floatingInput');
+    var label = document.getElementById('floatingLabel');
+
+    function floatUp() {
+      if (reducedMotion) {
+        gsap.set(label, { y: -20, scale: 0.75, color: 'var(--color-violet)' });
+        gsap.set(input, { borderColor: 'var(--color-violet)' });
+        return;
+      }
+      gsap.to(label, {
+        y: -20,
+        scale: 0.75,
+        color: 'var(--color-violet)',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+      gsap.to(input, {
+        borderColor: 'var(--color-violet)',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+    }
+
+    function floatDown() {
+      if (input.value.length > 0) return;
+      if (reducedMotion) {
+        gsap.set(label, { y: '-50%', scale: 1, color: 'var(--color-text-dim)' });
+        gsap.set(input, { borderColor: 'var(--color-border)' });
+        return;
+      }
+      gsap.to(label, {
+        y: '-50%',
+        scale: 1,
+        color: 'var(--color-text-dim)',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+      gsap.to(input, {
+        borderColor: 'var(--color-border)',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+    }
+
+    input.addEventListener('focus', floatUp);
+    input.addEventListener('blur', floatDown);
+  })();
+
+  /* --- 3B: Underline Expand --- */
+  (function () {
+    var input = document.getElementById('underlineInput');
+    var line = document.getElementById('underlineLine');
+
+    input.addEventListener('focus', function () {
+      if (reducedMotion) {
+        gsap.set(line, { width: '100%' });
+        return;
+      }
+      gsap.to(line, {
+        width: '100%',
+        duration: 0.35,
+        ease: 'power3.out'
+      });
+    });
+
+    input.addEventListener('blur', function () {
+      if (reducedMotion) {
+        gsap.set(line, { width: '0%' });
+        return;
+      }
+      gsap.to(line, {
+        width: '0%',
+        duration: 0.25,
+        ease: 'power2.in'
+      });
+    });
+  })();
+
+  /* --- 3C: Shake on Error --- */
+  (function () {
+    var form = document.getElementById('shakeForm');
+    var input = document.getElementById('shakeInput');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      if (input.value.trim() === '') {
+        input.classList.add('has-error');
+
+        if (reducedMotion) return;
+
+        gsap.to(input, {
+          x: [0, -10, 10, -8, 8, -4, 4, 0],
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+
+        gsap.to(input, {
+          borderColor: 'var(--color-border)',
+          delay: 1.5,
+          duration: 0.3,
+          ease: 'power2.out',
+          onComplete: function () {
+            input.classList.remove('has-error');
+          }
+        });
+      } else {
+        input.classList.remove('has-error');
+        /* Quick success flash */
+        if (reducedMotion) return;
+        gsap.timeline()
+          .to(input, {
+            borderColor: 'var(--color-emerald)',
+            duration: 0.15
+          })
+          .to(input, {
+            borderColor: 'var(--color-border)',
+            duration: 0.4,
+            delay: 0.8
+          });
+      }
+    });
+  })();
+
+  /* ============================================================
+     SECTION 4 — CARD INTERACTIONS
+     ============================================================ */
+
+  /* --- 4A: Tilt on Hover --- */
+  (function () {
+    var card = document.getElementById('tiltCard');
+    if (reducedMotion) return;
+
+    card.addEventListener('mousemove', function (e) {
+      var rect = card.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var centerX = rect.width / 2;
+      var centerY = rect.height / 2;
+      var rotateY = ((x - centerX) / centerX) * 12;
+      var rotateX = ((centerY - y) / centerY) * 12;
+
+      gsap.to(card, {
+        rotateX: rotateX,
+        rotateY: rotateY,
+        duration: 0.3,
+        ease: 'power2.out',
+        transformPerspective: 600
+      });
+    });
+
+    card.addEventListener('mouseleave', function () {
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 0,
+        duration: 0.5,
+        ease: 'elastic.out(1, 0.5)'
+      });
+    });
+  })();
+
+  /* --- 4B: Flip Card --- */
+  (function () {
+    var card = document.getElementById('flipCard');
+    var inner = document.getElementById('flipCardInner');
+    var isFlipped = false;
+
+    card.addEventListener('click', function () {
+      isFlipped = !isFlipped;
+
+      if (reducedMotion) {
+        gsap.set(inner, { rotateY: isFlipped ? 180 : 0 });
+        return;
+      }
+
+      gsap.to(inner, {
+        rotateY: isFlipped ? 180 : 0,
+        duration: 0.6,
+        ease: 'power2.inOut'
+      });
+    });
+  })();
+
+  /* --- 4C: Expand Card --- */
+  (function () {
+    var card = document.getElementById('expandCard');
+    var body = document.getElementById('expandBody');
+    var isOpen = false;
+
+    card.addEventListener('click', function () {
+      isOpen = !isOpen;
+
+      if (reducedMotion) {
+        gsap.set(body, { height: isOpen ? 'auto' : 0 });
+        return;
+      }
+
+      if (isOpen) {
+        /* Measure natural height */
+        gsap.set(body, { height: 'auto' });
+        var fullHeight = body.offsetHeight;
+        gsap.set(body, { height: 0 });
+
+        gsap.to(body, {
+          height: fullHeight,
+          duration: 0.4,
+          ease: 'power3.out'
+        });
+        gsap.from(body.querySelector('.expand-card__body-inner'), {
+          opacity: 0,
+          y: 10,
+          duration: 0.3,
+          delay: 0.15,
+          ease: 'power2.out'
+        });
+      } else {
+        gsap.to(body, {
+          height: 0,
+          duration: 0.3,
+          ease: 'power2.in'
+        });
+      }
+    });
+  })();
+
+  /* ============================================================
+     SECTION 5 — LOADING ANIMATIONS
+     ============================================================ */
+
+  /* --- 5A: Dot Bounce --- */
+  (function () {
+    var dots = document.querySelectorAll('#dotBounce .dot-bounce__dot');
+    if (reducedMotion) return;
+
+    gsap.to(dots, {
+      y: -14,
+      duration: 0.4,
+      ease: 'back.out(3)',
+      stagger: {
+        each: 0.12,
+        repeat: -1,
+        yoyo: true
+      }
+    });
+  })();
+
+  /* --- 5B: Spinner Grow --- */
+  (function () {
+    var circles = document.querySelectorAll('#spinnerGrow .spinner-grow__circle');
+    if (reducedMotion) return;
+
+    circles.forEach(function (circle, i) {
+      gsap.to(circle, {
+        scale: 1.8,
+        opacity: 0,
+        duration: 1.4,
+        ease: 'power1.out',
+        repeat: -1,
+        delay: i * 0.7
+      });
+      /* Start visible */
+      gsap.set(circle, { opacity: 0.8, scale: 0.2 });
+    });
+  })();
+
+  /* --- 5C: Bar Progress --- */
+  (function () {
+    var fill = document.getElementById('barFill');
+    var stripes = document.getElementById('barStripes');
+    var label = document.getElementById('barLabel');
+    if (reducedMotion) return;
+
+    var progress = { value: 0 };
+
+    /* Stripe march animation */
+    gsap.to(stripes, {
+      backgroundPositionX: '17px',
+      duration: 0.6,
+      ease: 'none',
+      repeat: -1
+    });
+
+    /* Fill loop */
+    gsap.timeline({ repeat: -1, repeatDelay: 1 })
+      .to(progress, {
+        value: 100,
+        duration: 3,
+        ease: 'power1.inOut',
+        onUpdate: function () {
+          var v = Math.round(progress.value);
+          fill.style.width = v + '%';
+          label.textContent = v + '%';
+        }
+      })
+      .to(progress, {
+        value: 0,
+        duration: 0.5,
+        delay: 0.8,
+        ease: 'power2.in',
+        onUpdate: function () {
+          var v = Math.round(progress.value);
+          fill.style.width = v + '%';
+          label.textContent = v + '%';
+        }
+      });
+  })();
+
+  /* ============================================================
+     CONTROL PANEL
+     ============================================================ */
+  UV.addControlPanel();
+
+})();
+</script>
+</body>
+</html>

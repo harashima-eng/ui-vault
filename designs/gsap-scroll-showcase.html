@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSAP Scroll Showcase | UI Vault</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0}
+
+  :root{
+    --bg-deep:#0a0a0a;
+    --bg-mid:#0f0f1a;
+    --bg-card:#141420;
+    --bg-card-hover:#1a1a2e;
+    --accent:#f59e0b;
+    --accent-dim:rgba(245,158,11,0.15);
+    --accent-glow:rgba(245,158,11,0.25);
+    --text-primary:#f0f0f0;
+    --text-secondary:#8a8a9a;
+    --text-muted:#55556a;
+    --border:rgba(255,255,255,0.06);
+    --border-accent:rgba(245,158,11,0.3);
+    --radius:12px;
+    --radius-sm:8px;
+    --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+
+  html{
+    scroll-behavior:auto;
+  }
+
+  body{
+    font-family:var(--font);
+    background:var(--bg-deep);
+    color:var(--text-primary);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+  }
+
+  /* ═══════════════════════════════════════════
+     Section shared styles
+     ═══════════════════════════════════════════ */
+  .section{
+    position:relative;
+    padding:120px 40px;
+    overflow:hidden;
+  }
+
+  .section--full{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .section-label{
+    font-size:0.75rem;
+    font-weight:600;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:16px;
+    opacity:0;
+  }
+
+  .section-title{
+    font-size:clamp(1.75rem, 4vw, 2.75rem);
+    font-weight:700;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    text-wrap:balance;
+    margin-bottom:16px;
+    opacity:0;
+  }
+
+  .section-desc{
+    font-size:1.05rem;
+    line-height:1.6;
+    color:var(--text-secondary);
+    max-width:520px;
+    opacity:0;
+  }
+
+  .section-desc code{
+    font-family:SFMono-Regular,Menlo,monospace;
+    font-size:0.9em;
+    padding:2px 6px;
+    background:rgba(255,255,255,0.06);
+    border-radius:4px;
+    color:var(--accent);
+  }
+
+  .container{
+    max-width:1200px;
+    margin:0 auto;
+    width:100%;
+  }
+
+  /* ═══════════════════════════════════════════
+     01 — Hero
+     ═══════════════════════════════════════════ */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    position:relative;
+    padding:60px 40px;
+  }
+
+  .hero-bg{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(99,102,241,0.06) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0a0a 0%, #0f0f1a 50%, #0a0a0a 100%);
+    z-index:0;
+  }
+
+  .hero-content{
+    position:relative;
+    z-index:1;
+    max-width:720px;
+  }
+
+  .hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 16px;
+    font-size:0.8rem;
+    font-weight:500;
+    color:var(--accent);
+    background:var(--accent-dim);
+    border:1px solid var(--border-accent);
+    border-radius:100px;
+    margin-bottom:32px;
+    opacity:0;
+  }
+
+  .hero-badge-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+
+  .hero-title{
+    font-size:clamp(3rem, 8vw, 5.5rem);
+    font-weight:800;
+    line-height:1.0;
+    letter-spacing:-0.04em;
+    margin-bottom:24px;
+    opacity:0;
+  }
+
+  .hero-title span{
+    display:inline-block;
+    color:var(--accent);
+  }
+
+  .hero-subtitle{
+    font-size:clamp(1rem, 2vw, 1.2rem);
+    line-height:1.6;
+    color:var(--text-secondary);
+    max-width:480px;
+    margin:0 auto;
+    opacity:0;
+  }
+
+  .hero-scroll-hint{
+    position:absolute;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    color:var(--text-muted);
+    font-size:0.75rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    opacity:0;
+  }
+
+  .hero-scroll-hint svg{
+    width:20px;
+    height:20px;
+    stroke:var(--text-muted);
+    fill:none;
+    stroke-width:1.5;
+  }
+
+  /* ═══════════════════════════════════════════
+     02 — Horizontal Scroll
+     ═══════════════════════════════════════════ */
+  .horizontal-section{
+    position:relative;
+    overflow:hidden;
+  }
+
+  .horizontal-header{
+    padding:0 40px;
+    max-width:1200px;
+    margin:0 auto 48px;
+  }
+
+  .horizontal-track{
+    display:flex;
+    gap:32px;
+    padding:0 40px;
+    width:max-content;
+  }
+
+  .h-card{
+    width:380px;
+    flex-shrink:0;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:40px 32px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .h-card-icon{
+    width:48px;
+    height:48px;
+    border-radius:var(--radius-sm);
+    background:var(--accent-dim);
+    border:1px solid var(--border-accent);
+    display:grid;
+    place-items:center;
+    color:var(--accent);
+    font-size:1.2rem;
+  }
+
+  .h-card-title{
+    font-size:1.25rem;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+
+  .h-card-text{
+    font-size:0.95rem;
+    line-height:1.6;
+    color:var(--text-secondary);
+  }
+
+  .h-card-tag{
+    display:inline-block;
+    padding:4px 12px;
+    font-size:0.7rem;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    background:var(--accent-dim);
+    border-radius:100px;
+    width:fit-content;
+    margin-top:auto;
+  }
+
+  /* ═══════════════════════════════════════════
+     03 — Progress Bars
+     ═══════════════════════════════════════════ */
+  .progress-section{
+    background:var(--bg-mid);
+  }
+
+  .progress-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:32px;
+    margin-top:48px;
+  }
+
+  .progress-item{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    opacity:0;
+  }
+
+  .progress-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+
+  .progress-name{
+    font-size:0.9rem;
+    font-weight:600;
+    color:var(--text-primary);
+  }
+
+  .progress-value{
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .progress-track{
+    height:6px;
+    background:rgba(255,255,255,0.06);
+    border-radius:100px;
+    overflow:hidden;
+  }
+
+  .progress-fill{
+    height:100%;
+    border-radius:100px;
+    background:linear-gradient(90deg, var(--accent), #fbbf24);
+    transform-origin:left;
+    transform:scaleX(0);
+  }
+
+  /* ═══════════════════════════════════════════
+     04 — Parallax Layers
+     ═══════════════════════════════════════════ */
+  .parallax-section{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+
+  .parallax-bg{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    z-index:0;
+  }
+
+  .p-shape{
+    position:absolute;
+    border-radius:50%;
+    opacity:0.12;
+  }
+
+  .p-shape--1{
+    width:300px;height:300px;
+    background:var(--accent);
+    top:10%;left:5%;
+  }
+  .p-shape--2{
+    width:200px;height:200px;
+    background:#6366f1;
+    top:60%;right:10%;
+  }
+  .p-shape--3{
+    width:150px;height:150px;
+    background:#ec4899;
+    top:30%;right:30%;
+  }
+  .p-shape--4{
+    width:400px;height:400px;
+    background:var(--accent);
+    bottom:-10%;left:40%;
+    opacity:0.06;
+  }
+  .p-shape--5{
+    width:100px;height:100px;
+    background:#10b981;
+    top:15%;right:15%;
+  }
+
+  .p-line{
+    position:absolute;
+    background:rgba(255,255,255,0.04);
+  }
+
+  .p-line--1{
+    width:1px;height:300px;
+    top:5%;left:25%;
+  }
+  .p-line--2{
+    width:1px;height:400px;
+    top:20%;right:35%;
+  }
+  .p-line--3{
+    width:200px;height:1px;
+    top:50%;left:10%;
+  }
+
+  .parallax-content{
+    position:relative;
+    z-index:1;
+    text-align:center;
+    max-width:600px;
+    padding:0 40px;
+  }
+
+  .parallax-content .section-title{
+    font-size:clamp(2rem, 5vw, 3.5rem);
+  }
+
+  /* ═══════════════════════════════════════════
+     05 — Number Countup
+     ═══════════════════════════════════════════ */
+  .stats-section{
+    background:var(--bg-mid);
+  }
+
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:24px;
+    margin-top:56px;
+  }
+
+  .stat-card{
+    text-align:center;
+    padding:40px 24px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    opacity:0;
+  }
+
+  .stat-number{
+    font-size:clamp(2.5rem, 5vw, 3.5rem);
+    font-weight:800;
+    letter-spacing:-0.03em;
+    color:var(--accent);
+    line-height:1;
+    margin-bottom:8px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .stat-number .stat-suffix{
+    font-size:0.6em;
+    font-weight:600;
+    color:var(--accent);
+    opacity:0.7;
+  }
+
+  .stat-label{
+    font-size:0.85rem;
+    color:var(--text-secondary);
+    font-weight:500;
+  }
+
+  /* ═══════════════════════════════════════════
+     06 — Pin + Fade Sequence
+     ═══════════════════════════════════════════ */
+  .sequence-section{
+    position:relative;
+  }
+
+  .sequence-wrapper{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .sequence-header{
+    position:absolute;
+    top:80px;
+    left:40px;
+    z-index:2;
+  }
+
+  .sequence-slides{
+    position:relative;
+    width:100%;
+    max-width:800px;
+    min-height:400px;
+    margin:0 auto;
+    padding:0 40px;
+  }
+
+  .sequence-slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:60px;
+    opacity:0;
+  }
+
+  .sequence-slide:first-child{
+    position:relative;
+  }
+
+  .sequence-slide code{
+    font-family:SFMono-Regular,Menlo,monospace;
+    font-size:0.9em;
+    padding:2px 6px;
+    background:rgba(255,255,255,0.06);
+    border-radius:4px;
+    color:var(--accent);
+  }
+
+  .slide-number{
+    font-size:5rem;
+    font-weight:900;
+    color:var(--accent);
+    opacity:0.15;
+    line-height:1;
+    margin-bottom:16px;
+    letter-spacing:-0.04em;
+  }
+
+  .slide-title{
+    font-size:1.75rem;
+    font-weight:700;
+    margin-bottom:12px;
+    letter-spacing:-0.02em;
+  }
+
+  .slide-text{
+    font-size:1rem;
+    line-height:1.7;
+    color:var(--text-secondary);
+    max-width:480px;
+  }
+
+  .sequence-progress{
+    position:absolute;
+    right:60px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    z-index:2;
+  }
+
+  .seq-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+  }
+
+  .seq-dot--active{
+    background:var(--accent);
+    box-shadow:0 0 12px var(--accent-glow);
+  }
+
+  /* ═══════════════════════════════════════════
+     Footer
+     ═══════════════════════════════════════════ */
+  .footer{
+    padding:60px 40px;
+    text-align:center;
+    border-top:1px solid var(--border);
+  }
+
+  .footer p{
+    font-size:0.85rem;
+    color:var(--text-muted);
+  }
+
+  .footer a{
+    color:var(--accent);
+    text-decoration:none;
+  }
+
+  /* ═══════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════ */
+  @media(max-width:1024px){
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .progress-grid{grid-template-columns:1fr}
+  }
+
+  @media(max-width:640px){
+    .section{padding:80px 24px}
+    .hero{padding:60px 24px}
+    .horizontal-header{padding:0 24px}
+    .horizontal-track{padding:0 24px;gap:20px}
+    .h-card{width:300px;padding:28px 24px}
+    .stats-grid{grid-template-columns:1fr 1fr;gap:16px}
+    .stat-card{padding:28px 16px}
+    .sequence-slide{padding:32px}
+    .sequence-progress{right:24px}
+  }
+
+  /* ═══════════════════════════════════════════
+     Reduced motion fallback — show everything
+     ═══════════════════════════════════════════ */
+  @media(prefers-reduced-motion:reduce){
+    .section-label,
+    .section-title,
+    .section-desc,
+    .hero-badge,
+    .hero-title,
+    .hero-subtitle,
+    .hero-scroll-hint,
+    .progress-item,
+    .stat-card{
+      opacity:1 !important;
+      transform:none !important;
+    }
+    .progress-fill{
+      transform:scaleX(1) !important;
+    }
+    .sequence-slide:first-child{
+      opacity:1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       01 — Hero
+       ════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge" id="hero-badge">
+        <span class="hero-badge-dot"></span>
+        GSAP ScrollTrigger Lab
+      </div>
+      <h1 class="hero-title" id="hero-title">
+        Scroll<br><span>Showcase</span>
+      </h1>
+      <p class="hero-subtitle" id="hero-subtitle">
+        A reference lab for GSAP ScrollTrigger techniques. Horizontal scrolling,
+        parallax layers, pinned sequences, and scrub-driven animations.
+      </p>
+    </div>
+    <div class="hero-scroll-hint" id="scroll-hint">
+      <span>Scroll to explore</span>
+      <svg viewBox="0 0 24 24"><path d="M12 5v14m0 0l-6-6m6 6l6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       02 — Horizontal Scroll
+       ════════════════════════════════════════ -->
+  <section class="section horizontal-section" id="section-horizontal">
+    <div class="horizontal-header">
+      <p class="section-label">02 &mdash; Horizontal Scroll</p>
+      <h2 class="section-title">Cards glide sideways as you scroll down</h2>
+      <p class="section-desc">
+        A pinned container translates horizontally, converting vertical scroll
+        into lateral motion. Each card enters with staggered depth.
+      </p>
+    </div>
+    <div class="horizontal-track" id="horizontal-track">
+      <div class="h-card">
+        <div class="h-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="h-card-title">Pin + Scrub</h3>
+        <p class="h-card-text">
+          The section pins in place while GSAP scrubs the track's x position.
+          Scroll distance maps 1:1 to horizontal travel.
+        </p>
+        <span class="h-card-tag">ScrollTrigger</span>
+      </div>
+      <div class="h-card">
+        <div class="h-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <h3 class="h-card-title">Natural Mapping</h3>
+        <p class="h-card-text">
+          Users scroll vertically as normal. The horizontal movement feels
+          intuitive because it's driven by a familiar gesture.
+        </p>
+        <span class="h-card-tag">UX Pattern</span>
+      </div>
+      <div class="h-card">
+        <div class="h-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3 class="h-card-title">Smooth Scrub</h3>
+        <p class="h-card-text">
+          Setting scrub to a number adds inertia. A value of 1 means the
+          animation smoothly catches up over 1 second.
+        </p>
+        <span class="h-card-tag">Performance</span>
+      </div>
+      <div class="h-card">
+        <div class="h-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        </div>
+        <h3 class="h-card-title">Dynamic End</h3>
+        <p class="h-card-text">
+          The scroll distance adapts to content width, so adding or removing
+          cards won't break the animation.
+        </p>
+        <span class="h-card-tag">Responsive</span>
+      </div>
+      <div class="h-card">
+        <div class="h-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3 class="h-card-title">Easy to Customize</h3>
+        <p class="h-card-text">
+          Adjust pin spacing, scrub smoothness, and snap points to fine-tune
+          the feel. All via ScrollTrigger config.
+        </p>
+        <span class="h-card-tag">Developer DX</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       03 — Progress Bars
+       ════════════════════════════════════════ -->
+  <section class="section progress-section" id="section-progress">
+    <div class="container">
+      <p class="section-label">03 &mdash; Scrub Progress</p>
+      <h2 class="section-title">Bars fill as you scroll through the section</h2>
+      <p class="section-desc">
+        Each bar's scaleX is driven by scroll position with <code>scrub: 1</code>.
+        Scroll slowly to see them track your exact position.
+      </p>
+      <div class="progress-grid" id="progress-grid">
+        <div class="progress-item" data-progress="0.92">
+          <div class="progress-meta">
+            <span class="progress-name">ScrollTrigger</span>
+            <span class="progress-value">92%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="progress-item" data-progress="0.85">
+          <div class="progress-meta">
+            <span class="progress-name">GSAP Timelines</span>
+            <span class="progress-value">85%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="progress-item" data-progress="0.78">
+          <div class="progress-meta">
+            <span class="progress-name">CSS Transforms</span>
+            <span class="progress-value">78%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="progress-item" data-progress="0.95">
+          <div class="progress-meta">
+            <span class="progress-name">Pin + Scrub</span>
+            <span class="progress-value">95%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="progress-item" data-progress="0.70">
+          <div class="progress-meta">
+            <span class="progress-name">Flip Plugin</span>
+            <span class="progress-value">70%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="progress-item" data-progress="0.88">
+          <div class="progress-meta">
+            <span class="progress-name">TextPlugin</span>
+            <span class="progress-value">88%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       04 — Parallax Layers
+       ════════════════════════════════════════ -->
+  <section class="section parallax-section section--full" id="section-parallax">
+    <div class="parallax-bg" id="parallax-bg">
+      <!-- Background layer (slowest) -->
+      <div class="p-shape p-shape--1" data-speed="-80"></div>
+      <div class="p-shape p-shape--4" data-speed="-60"></div>
+      <div class="p-line p-line--1" data-speed="-40"></div>
+      <div class="p-line p-line--3" data-speed="-30"></div>
+      <!-- Midground -->
+      <div class="p-shape p-shape--2" data-speed="-120"></div>
+      <div class="p-line p-line--2" data-speed="-100"></div>
+      <!-- Foreground (fastest) -->
+      <div class="p-shape p-shape--3" data-speed="-180"></div>
+      <div class="p-shape p-shape--5" data-speed="-160"></div>
+    </div>
+    <div class="parallax-content">
+      <p class="section-label">04 &mdash; Parallax Depth</p>
+      <h2 class="section-title">Layers move at different speeds</h2>
+      <p class="section-desc">
+        Background shapes drift slowly while foreground elements race ahead,
+        creating a natural sense of spatial depth. All GPU-composited transforms.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       05 — Number Countup
+       ════════════════════════════════════════ -->
+  <section class="section stats-section" id="section-stats">
+    <div class="container">
+      <p class="section-label">05 &mdash; Number Countup</p>
+      <h2 class="section-title">Stats animate as they scroll into view</h2>
+      <p class="section-desc">
+        Large numbers count up from zero using GSAP's snap utility
+        for clean integer display. No flickering, no decimals.
+      </p>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" data-target="2847">0</div>
+          <div class="stat-label">Components Built</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-target="99" data-suffix="%">0<span class="stat-suffix">%</span></div>
+          <div class="stat-label">GPU Composited</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-target="16" data-suffix="ms">0<span class="stat-suffix">ms</span></div>
+          <div class="stat-label">Frame Budget</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-target="60" data-suffix="fps">0<span class="stat-suffix">fps</span></div>
+          <div class="stat-label">Target Framerate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       06 — Pin + Fade Sequence
+       ════════════════════════════════════════ -->
+  <section class="section sequence-section" id="section-sequence">
+    <div class="sequence-header">
+      <p class="section-label">06 &mdash; Pin + Fade Sequence</p>
+    </div>
+    <div class="sequence-wrapper" id="sequence-wrapper">
+      <div class="sequence-slides" id="sequence-slides">
+        <div class="sequence-slide" data-index="0">
+          <div class="slide-number">01</div>
+          <h3 class="slide-title">Define the Trigger</h3>
+          <p class="slide-text">
+            Every ScrollTrigger animation starts with a trigger element.
+            When it enters the viewport boundary you define, the animation begins.
+            Set <code>start</code> and <code>end</code> to control precisely when.
+          </p>
+        </div>
+        <div class="sequence-slide" data-index="1">
+          <div class="slide-number">02</div>
+          <h3 class="slide-title">Pin the Container</h3>
+          <p class="slide-text">
+            Setting <code>pin: true</code> locks the element in place while the
+            user scrolls. The page adds padding below automatically so content
+            flow isn't broken. Ideal for step-by-step reveals.
+          </p>
+        </div>
+        <div class="sequence-slide" data-index="2">
+          <div class="slide-number">03</div>
+          <h3 class="slide-title">Scrub the Timeline</h3>
+          <p class="slide-text">
+            With <code>scrub: true</code>, the animation progress maps directly
+            to scroll position. Scroll forward to advance, scroll back to reverse.
+            The animation becomes a scroll-driven video.
+          </p>
+        </div>
+        <div class="sequence-slide" data-index="3">
+          <div class="slide-number">04</div>
+          <h3 class="slide-title">Ship with Confidence</h3>
+          <p class="slide-text">
+            ScrollTrigger handles resize, refresh, and cleanup automatically.
+            It calculates positions on the fly, works with dynamic content,
+            and respects <code>prefers-reduced-motion</code>.
+          </p>
+        </div>
+      </div>
+      <div class="sequence-progress" id="sequence-progress">
+        <div class="seq-dot seq-dot--active"></div>
+        <div class="seq-dot"></div>
+        <div class="seq-dot"></div>
+        <div class="seq-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       Footer
+       ════════════════════════════════════════ -->
+  <footer class="footer">
+    <p>GSAP Scroll Showcase &mdash; Part of <a href="../index.html">UI Vault</a></p>
+  </footer>
+
+
+  <!-- ════════════════════════════════════════
+       Scripts
+       ════════════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+  <script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+  <script src="../animations/gsap-utils.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Reduced motion guard ────────────────────
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      // Show everything statically — no animations
+      document.querySelectorAll(
+        '.section-label, .section-title, .section-desc, .hero-badge, ' +
+        '.hero-title, .hero-subtitle, .hero-scroll-hint, .progress-item, ' +
+        '.stat-card, .sequence-slide[data-index="0"]'
+      ).forEach(function (el) {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+      document.querySelectorAll('.progress-fill').forEach(function (el) {
+        var val = el.closest('.progress-item').getAttribute('data-progress');
+        el.style.transform = 'scaleX(' + val + ')';
+      });
+      document.querySelectorAll('.stat-number').forEach(function (el) {
+        var target = el.getAttribute('data-target');
+        var suffix = el.getAttribute('data-suffix');
+        var suffixSpan = el.querySelector('.stat-suffix');
+        if (suffixSpan) {
+          el.firstChild.textContent = target;
+        } else {
+          el.textContent = parseInt(target, 10).toLocaleString();
+        }
+      });
+      UV.addControlPanel();
+      return;
+    }
+
+    // ════════════════════════════════════════════
+    // 01 — Hero entrance timeline
+    // ════════════════════════════════════════════
+    var heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    heroTl
+      .from('#hero-badge', {
+        opacity: 0, y: 20, duration: 0.5
+      })
+      .from('#hero-title', {
+        opacity: 0, y: 40, duration: 0.7
+      }, '-=0.25')
+      .from('#hero-subtitle', {
+        opacity: 0, y: 24, duration: 0.6
+      }, '-=0.35')
+      .from('#scroll-hint', {
+        opacity: 0, y: 16, duration: 0.5
+      }, '-=0.2');
+
+    // Hero background parallax on scroll
+    gsap.to('#hero-bg', {
+      yPercent: 30,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+
+    // Fade out hero content on scroll
+    gsap.to('.hero-content', {
+      opacity: 0,
+      y: -60,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: '60% top',
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+
+    // ════════════════════════════════════════════
+    // Generic section header reveals
+    // ════════════════════════════════════════════
+    document.querySelectorAll('.section').forEach(function (section) {
+      var label = section.querySelector('.section-label');
+      var title = section.querySelector('.section-title');
+      var desc = section.querySelector('.section-desc');
+      var targets = [label, title, desc].filter(Boolean);
+
+      if (targets.length) {
+        gsap.from(targets, {
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 75%',
+          }
+        });
+      }
+    });
+
+    // ════════════════════════════════════════════
+    // 02 — Horizontal scroll
+    // ════════════════════════════════════════════
+    var track = document.getElementById('horizontal-track');
+
+    // Calculate how far to scroll horizontally
+    function getScrollDistance() {
+      return track.scrollWidth - window.innerWidth + 80;
+    }
+
+    gsap.to(track, {
+      x: function () { return -getScrollDistance(); },
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#section-horizontal',
+        start: 'top top',
+        end: function () { return '+=' + getScrollDistance(); },
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+      }
+    });
+
+    // Card hover interactions
+    UV.hoverLift('.h-card', {
+      y: -6,
+      shadow: '0 20px 50px rgba(245, 158, 11, 0.08)',
+      restShadow: '0 0 0 rgba(0,0,0,0)',
+    });
+
+    // ════════════════════════════════════════════
+    // 03 — Progress bars (scrub-driven)
+    // ════════════════════════════════════════════
+    var progressItems = document.querySelectorAll('.progress-item');
+
+    progressItems.forEach(function (item) {
+      var fill = item.querySelector('.progress-fill');
+      var targetVal = parseFloat(item.getAttribute('data-progress'));
+
+      // Fade in the item
+      gsap.from(item, {
+        opacity: 0,
+        x: -20,
+        duration: 0.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 85%',
+        }
+      });
+
+      // Scrub the fill bar
+      gsap.to(fill, {
+        scaleX: targetVal,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#section-progress',
+          start: 'top 60%',
+          end: 'bottom 40%',
+          scrub: 1,
+        }
+      });
+    });
+
+    // ════════════════════════════════════════════
+    // 04 — Parallax layers
+    // ════════════════════════════════════════════
+    document.querySelectorAll('[data-speed]').forEach(function (el) {
+      var speed = parseFloat(el.getAttribute('data-speed'));
+
+      gsap.to(el, {
+        y: speed,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#section-parallax',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+    });
+
+    // ════════════════════════════════════════════
+    // 05 — Number countup
+    // ════════════════════════════════════════════
+    var statCards = document.querySelectorAll('.stat-card');
+
+    // Staggered card entrance
+    gsap.from(statCards, {
+      opacity: 0,
+      y: 50,
+      scale: 0.92,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '#stats-grid',
+        start: 'top 80%',
+      }
+    });
+
+    // Number count-up animations
+    document.querySelectorAll('.stat-number').forEach(function (el) {
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      var suffixSpan = el.querySelector('.stat-suffix');
+      var obj = { val: 0 };
+
+      gsap.to(obj, {
+        val: target,
+        duration: 1.5,
+        ease: 'power2.out',
+        snap: { val: 1 },
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+        },
+        onUpdate: function () {
+          var displayVal = Math.round(obj.val);
+          if (suffixSpan) {
+            // Update only the text node before the suffix span
+            el.firstChild.textContent = displayVal;
+          } else {
+            el.textContent = displayVal.toLocaleString();
+          }
+        }
+      });
+    });
+
+    // ════════════════════════════════════════════
+    // 06 — Pin + fade sequence
+    // ════════════════════════════════════════════
+    var slides = document.querySelectorAll('.sequence-slide');
+    var dots = document.querySelectorAll('.seq-dot');
+    var slideCount = slides.length;
+
+    // Build the sequence timeline
+    var seqTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#sequence-wrapper',
+        start: 'top top',
+        end: function () { return '+=' + (slideCount * 100) + '%'; },
+        pin: true,
+        scrub: 0.5,
+        anticipatePin: 1,
+      }
+    });
+
+    // First slide fades in
+    seqTl.fromTo(slides[0],
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+    );
+
+    // Loop through remaining slides: fade out current, fade in next
+    for (var i = 1; i < slideCount; i++) {
+      // Fade out current
+      seqTl.to(slides[i - 1], {
+        opacity: 0,
+        y: -20,
+        duration: 0.3,
+        ease: 'power2.in',
+      });
+
+      // Fade in next
+      seqTl.fromTo(slides[i],
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.1'
+      );
+
+      // Hold before next transition
+      if (i < slideCount - 1) {
+        seqTl.to({}, { duration: 0.3 });
+      }
+    }
+
+    // Hold the last slide
+    seqTl.to({}, { duration: 0.4 });
+
+    // Fade out last slide
+    seqTl.to(slides[slideCount - 1], {
+      opacity: 0,
+      y: -20,
+      duration: 0.3,
+      ease: 'power2.in',
+    });
+
+    // Update progress dots based on scroll position
+    ScrollTrigger.create({
+      trigger: '#sequence-wrapper',
+      start: 'top top',
+      end: function () { return '+=' + (slideCount * 100) + '%'; },
+      scrub: true,
+      onUpdate: function (self) {
+        var progress = self.progress;
+        var activeIndex = Math.min(
+          Math.floor(progress * slideCount),
+          slideCount - 1
+        );
+        dots.forEach(function (dot, idx) {
+          if (idx === activeIndex) {
+            dot.classList.add('seq-dot--active');
+          } else {
+            dot.classList.remove('seq-dot--active');
+          }
+        });
+      }
+    });
+
+    // ════════════════════════════════════════════
+    // Control panel (from UV utils)
+    // ════════════════════════════════════════════
+    UV.addControlPanel();
+
+  })();
+  </script>
+
+</body>
+</html>

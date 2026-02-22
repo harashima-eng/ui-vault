@@ -123,22 +123,6 @@ body {
   padding: 32px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.33, 1, 0.68, 1),
-              box-shadow 0.25s cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.cell:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-warm-lg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cell {
-    transition: none;
-  }
-  .cell:hover {
-    transform: none;
-  }
 }
 
 /* ============================================================
@@ -532,17 +516,6 @@ body {
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
-  transition: transform 0.2s ease-out;
-}
-
-.cell--grad:hover .grad-arrow svg {
-  transform: translateX(4px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cell--grad:hover .grad-arrow svg {
-    transform: none;
-  }
 }
 
 /* ============================================================
@@ -701,5 +674,58 @@ body {
   </div>
 </div>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  if (UV.prefersReducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── 1. Page load entrance: header + grid items stagger ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.from('.page-eyebrow', { opacity: 0, y: -20, duration: 0.5 });
+  tl.from('.page-title', { opacity: 0, y: -30, duration: 0.6 }, '-=0.3');
+  tl.from('.page-subtitle', { opacity: 0, y: -20, duration: 0.4 }, '-=0.3');
+
+  /* Grid items stagger entrance */
+  tl.add(function () {
+    UV.staggerSequence('.cell', { y: 40, duration: 0.6, stagger: 0.1 });
+  }, '-=0.1');
+
+  /* ── 2. Hover: scale enlargement via UV.hoverScale ── */
+  UV.hoverScale('.cell', {
+    scale: 1.02,
+    duration: 0.25,
+    shadow: '0 4px 8px rgba(45,42,38,0.06), 0 12px 28px rgba(45,42,38,0.08)',
+    restShadow: '0 1px 3px rgba(45,42,38,0.06), 0 4px 12px rgba(45,42,38,0.04)',
+  });
+
+  /* Grad arrow hover */
+  var gradCell = document.querySelector('.cell--grad');
+  var gradArrow = gradCell ? gradCell.querySelector('.grad-arrow svg') : null;
+  if (gradCell && gradArrow) {
+    gradCell.addEventListener('mouseenter', function () {
+      gsap.to(gradArrow, { x: 4, duration: 0.2, ease: 'power2.out' });
+    });
+    gradCell.addEventListener('mouseleave', function () {
+      gsap.to(gradArrow, { x: 0, duration: 0.2, ease: 'power2.out' });
+    });
+  }
+
+  /* ── 3. ScrollReveal for items below fold ── */
+  var belowFoldCells = document.querySelectorAll('.cell--quote, .cell--metrics, .cell--grad');
+  belowFoldCells.forEach(function (cell) {
+    UV.scrollReveal(cell, { y: 30, duration: 0.6 });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

@@ -122,16 +122,6 @@ body::before{
   border-radius:var(--radius);
   padding:40px 32px 36px;
   position:relative;
-  transition:
-    border-color 0.25s ease-out,
-    box-shadow 0.35s ease-out,
-    transform 0.25s ease-out;
-}
-
-.card:hover{
-  border-color:var(--border-hover);
-  box-shadow:0 0 20px var(--neon-cyan-dim),0 0 60px rgba(0,255,229,0.06);
-  transform:translateY(-4px);
 }
 
 /* ---- Popular Card ---- */
@@ -145,15 +135,6 @@ body::before{
   padding-bottom:44px;
   background:linear-gradient(180deg,#131818 0%,var(--surface) 100%);
   z-index:2;
-}
-
-.card.popular:hover{
-  border-color:rgba(0,255,229,0.5);
-  box-shadow:
-    0 0 30px var(--neon-cyan-glow),
-    0 0 80px rgba(0,255,229,0.15),
-    0 0 140px rgba(0,255,229,0.08);
-  transform:translateY(-6px);
 }
 
 /* ---- Popular Badge ---- */
@@ -171,13 +152,7 @@ body::before{
   padding:6px 20px;
   border-radius:100px;
   white-space:nowrap;
-  animation:badge-pulse 2.5s ease-in-out infinite;
   box-shadow:0 0 16px var(--neon-cyan-glow),0 2px 8px rgba(0,0,0,0.4);
-}
-
-@keyframes badge-pulse{
-  0%,100%{box-shadow:0 0 16px var(--neon-cyan-glow),0 2px 8px rgba(0,0,0,0.4)}
-  50%{box-shadow:0 0 28px rgba(0,255,229,0.5),0 0 56px rgba(0,255,229,0.2),0 2px 8px rgba(0,0,0,0.4)}
 }
 
 /* ---- Tier Name ---- */
@@ -302,21 +277,10 @@ body::before{
   border:1px solid rgba(255,255,255,0.05);
 }
 
-/* ---- Staggered Feature Entrance ---- */
+/* ---- Feature items start hidden for GSAP entrance ---- */
 .feature{
   opacity:0;
   transform:translateX(-8px);
-  animation:feature-in 0.4s ease-out forwards;
-}
-.feature:nth-child(1){animation-delay:0.1s}
-.feature:nth-child(2){animation-delay:0.16s}
-.feature:nth-child(3){animation-delay:0.22s}
-.feature:nth-child(4){animation-delay:0.28s}
-.feature:nth-child(5){animation-delay:0.34s}
-.feature:nth-child(6){animation-delay:0.4s}
-
-@keyframes feature-in{
-  to{opacity:1;transform:translateX(0)}
 }
 
 /* ---- CTA Button ---- */
@@ -334,27 +298,12 @@ body::before{
   text-align:center;
   text-decoration:none;
   cursor:pointer;
-  transition:
-    box-shadow 0.25s ease-out,
-    transform 0.15s ease-out,
-    background 0.25s ease-out;
 }
 
 .cta-outline{
   background:transparent;
   color:var(--text);
   border:1px solid rgba(255,255,255,0.15);
-}
-
-.cta-outline:hover{
-  border-color:var(--neon-cyan);
-  color:var(--neon-cyan);
-  box-shadow:0 0 16px rgba(0,255,229,0.15);
-  transform:translateY(-1px);
-}
-
-.cta-outline:active{
-  transform:scale(0.98);
 }
 
 .cta-filled{
@@ -364,29 +313,11 @@ body::before{
   box-shadow:0 0 20px rgba(0,255,229,0.25),0 4px 12px rgba(0,0,0,0.3);
 }
 
-.cta-filled:hover{
-  box-shadow:0 0 32px rgba(0,255,229,0.4),0 8px 24px rgba(0,0,0,0.3);
-  transform:translateY(-2px);
-}
-
-.cta-filled:active{
-  transform:scale(0.97);
-}
-
 .cta-enterprise{
   background:linear-gradient(135deg,var(--neon-magenta),#cc0088);
   color:#fff;
   border:none;
   box-shadow:0 0 20px var(--neon-magenta-glow),0 4px 12px rgba(0,0,0,0.3);
-}
-
-.cta-enterprise:hover{
-  box-shadow:0 0 32px rgba(255,0,170,0.4),0 8px 24px rgba(0,0,0,0.3);
-  transform:translateY(-2px);
-}
-
-.cta-enterprise:active{
-  transform:scale(0.97);
 }
 
 /* ---- Focus States ---- */
@@ -410,7 +341,6 @@ body::before{
   color:var(--neon-cyan);
   text-decoration:none;
   text-underline-offset:3px;
-  transition:text-decoration-color 0.2s ease-out;
 }
 
 .footer-note a:hover{
@@ -462,12 +392,6 @@ body::before{
   .price-amount{font-size:3rem}
 }
 
-/* ---- Reduced Motion ---- */
-@media(prefers-reduced-motion:reduce){
-  .badge{animation:none}
-  .feature{animation:none;opacity:1;transform:none}
-  .card,.cta,.cta-outline,.footer-note a{transition:none}
-}
 </style>
 </head>
 <body>
@@ -548,5 +472,184 @@ body::before{
 
 <p class="footer-note">All plans include SSL, CDN, and 99.9% uptime. <a href="#">Compare all features</a></p>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  var cards = document.querySelectorAll('.card');
+  var popularCard = document.querySelector('.card.popular');
+  var badge = document.querySelector('.badge');
+
+  if (!UV.prefersReducedMotion) {
+
+    // ─── 1. Page Load Entrance: Header ──────────────────
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    tl.from('.section-label', { opacity: 0, y: -15, duration: 0.5 });
+    tl.from('.section-title', { opacity: 0, y: 20, duration: 0.6 }, '-=0.3');
+    tl.from('.section-desc', { opacity: 0, y: 15, duration: 0.5 }, '-=0.3');
+
+    // ─── 2. Card Entrance: Center card first, then sides ─
+    // Popular (center) card scales in first
+    if (popularCard) {
+      tl.from(popularCard, {
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.6,
+        ease: 'back.out(1.4)',
+      }, '-=0.1');
+    }
+
+    // Side cards slide in from their respective sides
+    var sideCards = [];
+    cards.forEach(function (card) {
+      if (!card.classList.contains('popular')) sideCards.push(card);
+    });
+    if (sideCards[0]) {
+      tl.from(sideCards[0], { opacity: 0, x: -50, duration: 0.5 }, '-=0.3');
+    }
+    if (sideCards[1]) {
+      tl.from(sideCards[1], { opacity: 0, x: 50, duration: 0.5 }, '-=0.4');
+    }
+
+    // ─── 3. Feature List Stagger ────────────────────────
+    cards.forEach(function (card) {
+      var features = card.querySelectorAll('.feature');
+      tl.to(features, {
+        opacity: 1,
+        x: 0,
+        duration: 0.35,
+        ease: 'power2.out',
+        stagger: 0.06,
+      }, '-=0.3');
+    });
+
+    // Footer note
+    tl.from('.footer-note', { opacity: 0, y: 10, duration: 0.4 }, '-=0.2');
+
+    // ─── 4. Popular Badge Glow Pulse (replaces @keyframes) ─
+    if (badge) {
+      gsap.to(badge, {
+        boxShadow: '0 0 28px rgba(0,255,229,0.5), 0 0 56px rgba(0,255,229,0.2), 0 2px 8px rgba(0,0,0,0.4)',
+        duration: 1.25,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+    }
+
+    // ─── 5. Card Hover: Neon glow intensity via GSAP ────
+    cards.forEach(function (card) {
+      var isPopular = card.classList.contains('popular');
+
+      card.addEventListener('mouseenter', function () {
+        if (isPopular) {
+          gsap.to(card, {
+            borderColor: 'rgba(0,255,229,0.5)',
+            boxShadow: '0 0 30px rgba(0,255,229,0.3), 0 0 80px rgba(0,255,229,0.15), 0 0 140px rgba(0,255,229,0.08)',
+            y: -6,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        } else {
+          gsap.to(card, {
+            borderColor: 'rgba(0,255,229,0.4)',
+            boxShadow: '0 0 20px rgba(0,255,229,0.15), 0 0 60px rgba(0,255,229,0.06)',
+            y: -4,
+            duration: 0.25,
+            ease: 'power2.out',
+          });
+        }
+      });
+
+      card.addEventListener('mouseleave', function () {
+        if (isPopular) {
+          gsap.to(card, {
+            borderColor: 'rgba(0,255,229,0.3)',
+            boxShadow: '0 0 20px rgba(0,255,229,0.3), 0 0 60px rgba(0,255,229,0.1), 0 0 120px rgba(0,255,229,0.05)',
+            y: 0,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        } else {
+          gsap.to(card, {
+            borderColor: 'rgba(255,255,255,0.08)',
+            boxShadow: 'none',
+            y: 0,
+            duration: 0.25,
+            ease: 'power2.out',
+          });
+        }
+      });
+    });
+
+    // ─── 6. CTA Button Hover ────────────────────────────
+    document.querySelectorAll('.cta').forEach(function (btn) {
+      var isEnterprise = btn.classList.contains('cta-enterprise');
+      var isFilled     = btn.classList.contains('cta-filled');
+      var isOutline    = btn.classList.contains('cta-outline');
+
+      var hoverShadow, restShadow;
+      if (isFilled) {
+        restShadow = '0 0 20px rgba(0,255,229,0.25), 0 4px 12px rgba(0,0,0,0.3)';
+        hoverShadow = '0 0 32px rgba(0,255,229,0.4), 0 8px 24px rgba(0,0,0,0.3)';
+      } else if (isEnterprise) {
+        restShadow = '0 0 20px rgba(255,0,170,0.25), 0 4px 12px rgba(0,0,0,0.3)';
+        hoverShadow = '0 0 32px rgba(255,0,170,0.4), 0 8px 24px rgba(0,0,0,0.3)';
+      } else {
+        restShadow = 'none';
+        hoverShadow = '0 0 16px rgba(0,255,229,0.15)';
+      }
+
+      btn.addEventListener('mouseenter', function () {
+        var props = {
+          y: isOutline ? -1 : -2,
+          boxShadow: hoverShadow,
+          duration: 0.2,
+          ease: 'power2.out',
+        };
+        if (isOutline) {
+          props.borderColor = '#00FFE5';
+          props.color = '#00FFE5';
+        }
+        gsap.to(btn, props);
+      });
+
+      btn.addEventListener('mouseleave', function () {
+        var props = {
+          y: 0,
+          boxShadow: restShadow,
+          duration: 0.2,
+          ease: 'power2.out',
+        };
+        if (isOutline) {
+          props.borderColor = 'rgba(255,255,255,0.15)';
+          props.color = '#E0E0E0';
+        }
+        gsap.to(btn, props);
+      });
+
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { scale: isOutline ? 0.98 : 0.97, duration: 0.1, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+  } else {
+    // Reduced motion: show features immediately
+    gsap.set('.feature', { opacity: 1, x: 0 });
+  }
+
+  // ─── Control Panel ──────────────────────────────────
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

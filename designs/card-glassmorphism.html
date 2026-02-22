@@ -96,14 +96,8 @@ body::after{
   border-radius:16px;
   padding:36px 32px 32px;
   box-shadow:var(--shadow-rest);
-  transition:transform 0.25s ease-out,box-shadow 0.25s ease-out,border-color 0.25s ease-out;
   display:flex;
   flex-direction:column;
-}
-.card:hover{
-  transform:translateY(-6px);
-  box-shadow:var(--shadow-hover);
-  border-color:var(--glass-border-hover);
 }
 
 .card-icon{
@@ -153,11 +147,6 @@ body::after{
   cursor:pointer;
   text-decoration:none;
   font-family:inherit;
-  transition:background-color 0.2s ease-out,border-color 0.2s ease-out;
-}
-.card-btn:hover{
-  background:rgba(255,255,255,0.16);
-  border-color:rgba(255,255,255,0.35);
 }
 .card-btn:focus-visible{
   outline:2px solid rgba(255,255,255,0.6);
@@ -172,10 +161,6 @@ body::after{
   stroke:currentColor;
   stroke-width:2;
   fill:none;
-  transition:transform 0.2s ease-out;
-}
-.card-btn:hover svg{
-  transform:translateX(2px);
 }
 
 .showcase-footer{
@@ -187,13 +172,6 @@ body::after{
   text-transform:uppercase;
 }
 
-@media(prefers-reduced-motion:reduce){
-  .card{transition:none}
-  .card:hover{transform:none}
-  .card-btn{transition:none}
-  .card-btn svg{transition:none}
-  .card-btn:hover svg{transform:none}
-}
 </style>
 </head>
 <body>
@@ -239,5 +217,93 @@ body::after{
   <footer class="showcase-footer">UI Vault -- Component Showcase</footer>
 </div>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  if (UV.prefersReducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── 1. Page load entrance: stagger cards ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  /* Header fade in */
+  tl.from('.showcase-header h1', { opacity: 0, y: -30, duration: 0.6 });
+  tl.from('.showcase-header p', { opacity: 0, y: -20, duration: 0.4 }, '-=0.3');
+
+  /* Cards stagger entrance */
+  tl.add(function () {
+    UV.staggerSequence('.card', { y: 50, duration: 0.6, stagger: 0.12 });
+  }, '-=0.1');
+
+  /* Card inner elements: stagger reveal (icon -> title -> text -> button) */
+  document.querySelectorAll('.card').forEach(function (card, i) {
+    var inner = card.querySelectorAll('.card-icon, .card-title, .card-desc, .card-btn');
+    gsap.from(inner, {
+      opacity: 0,
+      y: 20,
+      duration: 0.4,
+      ease: 'power2.out',
+      stagger: 0.08,
+      delay: 0.7 + i * 0.12,
+    });
+  });
+
+  /* Footer fade in */
+  tl.from('.showcase-footer', { opacity: 0, duration: 0.5 }, '-=0.2');
+
+  /* ── 2. Hover: card lift with GSAP blur value change ── */
+  document.querySelectorAll('.card').forEach(function (card) {
+    card.addEventListener('mouseenter', function () {
+      gsap.to(card, {
+        y: -6,
+        boxShadow: '0 16px 48px rgba(0,0,0,0.28), 0 4px 12px rgba(0,0,0,0.12)',
+        borderColor: 'rgba(255,255,255,0.35)',
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+    card.addEventListener('mouseleave', function () {
+      gsap.to(card, {
+        y: 0,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+        borderColor: 'rgba(255,255,255,0.18)',
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+  });
+
+  /* ── 3. Button hover: background + arrow nudge via GSAP ── */
+  document.querySelectorAll('.card-btn').forEach(function (btn) {
+    var arrow = btn.querySelector('svg');
+    btn.addEventListener('mouseenter', function () {
+      gsap.to(btn, {
+        backgroundColor: 'rgba(255,255,255,0.16)',
+        borderColor: 'rgba(255,255,255,0.35)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      if (arrow) gsap.to(arrow, { x: 2, duration: 0.2, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', function () {
+      gsap.to(btn, {
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      if (arrow) gsap.to(arrow, { x: 0, duration: 0.2, ease: 'power2.out' });
+    });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-22
+
+### Added
+
+- GSAP 3.12.5 integration across all designs (Core, ScrollTrigger, Flip, TextPlugin)
+- Shared GSAP utility library: `animations/gsap-utils.js` (UV namespace)
+  - fadeIn, fadeOut, scaleIn, slideIn
+  - scrollReveal, scrollParallax
+  - hoverScale, hoverLift
+  - typewriter, textRevealByLine
+  - staggerSequence, initPage, flipLayout
+  - addControlPanel (Replay, 0.3x, 1x, 3x speed)
+- Animation control panel on every design page
+- 4 new GSAP showcase components:
+  - GSAP Scroll Showcase: horizontal scroll, pin, scrub, parallax, countup, pinned fade sequence
+  - GSAP Text Effects: typewriter, character reveal, word bounce, scramble, gradient sweep, line slide, scale-blur
+  - GSAP Flip Gallery: grid/list/masonry layout switching with Flip, category filtering
+  - GSAP Micro Interactions: magnetic/ripple/elastic buttons, slide/bounce/liquid toggles, floating labels, tilt cards, loading animations
+- GSAP metadata in catalog.json (gsap_features, animation_count, plugins_used)
+- New "GSAP" category in sidebar (10 categories total)
+
+### Changed
+
+- All 13 original designs migrated from CSS animations to GSAP
+  - 88 CSS transitions removed and replaced with GSAP interactions
+  - 29 @keyframes rules removed and replaced with GSAP timelines
+  - 32 CSS animation properties removed
+- index.html: card entrance, star bounce, panel/sidebar slide, dark mode toggle all GSAP-powered
+- prefers-reduced-motion now handled via JS (window.matchMedia) instead of CSS @media
+- catalog.json version bumped to 2
+- README updated for v2.0 with GSAP stack documentation
+- Design count: 13 to 17
+
+### Removed
+
+- All CSS `transition:` properties used for animation (kept `:focus-visible` outlines)
+- All `@keyframes` rules
+- All CSS `animation:` properties
+
 ## [1.0.0] - 2026-02-22
 
 ### Added

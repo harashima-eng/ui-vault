@@ -44,44 +44,10 @@
     display:inline-block;
     opacity:0;
     transform:translateY(30px);
-    animation:word-arrive 0.5s ease-out both;
   }
 
   .word--accent{
     color:#E63946;
-  }
-
-  /* Stagger delays — 7 words, starting at 0.3s, 0.12s apart */
-  .word:nth-child(1){animation-delay:0.30s}
-  .word:nth-child(2){animation-delay:0.42s}
-  .word:nth-child(3){animation-delay:0.54s}
-  /* nth-child(4) "Future" — delay set in .word--accent block */
-  .word:nth-child(5){animation-delay:0.78s}
-  .word:nth-child(6){animation-delay:0.90s}
-  .word:nth-child(7){animation-delay:1.02s}
-
-  @keyframes word-arrive{
-    from{
-      opacity:0;
-      transform:translateY(30px);
-    }
-    to{
-      opacity:1;
-      transform:translateY(0);
-    }
-  }
-
-  /* ── Accent pulse after all words land ── */
-  .word--accent{
-    animation:
-      word-arrive 0.5s ease-out 0.66s both,
-      accent-pulse 0.6s ease-in-out 1.8s both;
-  }
-
-  @keyframes accent-pulse{
-    0%{text-shadow:0 0 0 transparent}
-    50%{text-shadow:0 2px 20px rgba(230,57,70,0.35)}
-    100%{text-shadow:0 0 0 transparent}
   }
 
   /* ── Subtitle ── */
@@ -93,18 +59,6 @@
     max-width:500px;
     opacity:0;
     transform:translateY(12px);
-    animation:fade-up 0.6s ease-out 1.5s both;
-  }
-
-  @keyframes fade-up{
-    from{
-      opacity:0;
-      transform:translateY(12px);
-    }
-    to{
-      opacity:1;
-      transform:translateY(0);
-    }
   }
 
   /* ── Horizontal rule ── */
@@ -115,20 +69,8 @@
     border:none;
     margin:1.75rem 0;
     opacity:0;
-    animation:rule-grow 0.5s ease-out 1.7s both;
-  }
-
-  @keyframes rule-grow{
-    from{
-      opacity:0;
-      transform:scaleX(0);
-      transform-origin:left;
-    }
-    to{
-      opacity:1;
-      transform:scaleX(1);
-      transform-origin:left;
-    }
+    transform:scaleX(0);
+    transform-origin:left;
   }
 
   /* ── CTA links ── */
@@ -137,7 +79,7 @@
     gap:2rem;
     flex-wrap:wrap;
     opacity:0;
-    animation:fade-up 0.5s ease-out 1.9s both;
+    transform:translateY(12px);
   }
 
   .cta{
@@ -152,18 +94,7 @@
   }
 
   .cta::after{
-    content:'';
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:0;
-    height:1px;
-    background:#111111;
-    transition:width 0.3s ease-out;
-  }
-
-  .cta:hover::after{
-    width:100%;
+    content:none;
   }
 
   .cta:focus-visible{
@@ -188,44 +119,8 @@
       font-size:1rem;
     }
 
-    /* Tighter stagger on mobile: 0.08s apart */
-    .word:nth-child(1){animation-delay:0.25s}
-    .word:nth-child(2){animation-delay:0.33s}
-    .word:nth-child(3){animation-delay:0.41s}
-    /* nth-child(4) "Future" — delay set in .word--accent mobile block */
-    .word:nth-child(5){animation-delay:0.57s}
-    .word:nth-child(6){animation-delay:0.65s}
-    .word:nth-child(7){animation-delay:0.73s}
-
-    .word--accent{
-      animation:
-        word-arrive 0.5s ease-out 0.49s both,
-        accent-pulse 0.6s ease-in-out 1.2s both;
-    }
-
-    .subtitle{animation-delay:1.0s}
-    .rule{animation-delay:1.15s}
-    .cta-row{animation-delay:1.3s}
   }
 
-  /* ── Reduced motion ── */
-  @media(prefers-reduced-motion:reduce){
-    .word,
-    .subtitle,
-    .rule,
-    .cta-row{
-      animation:none;
-      opacity:1;
-      transform:none;
-    }
-
-    .word--accent{
-      animation:none;
-      opacity:1;
-      transform:none;
-      text-shadow:none;
-    }
-  }
 </style>
 </head>
 <body>
@@ -258,5 +153,96 @@
   </div>
 </main>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  var words = document.querySelectorAll('.word');
+  var accentWord = document.querySelector('.word--accent');
+  var subtitle = document.querySelector('.subtitle');
+  var rule = document.querySelector('.rule');
+  var ctaRow = document.querySelector('.cta-row');
+
+  if (UV.prefersReducedMotion) {
+    /* Show everything immediately */
+    gsap.set(words, { opacity: 1, y: 0 });
+    gsap.set([subtitle, rule, ctaRow], { opacity: 1, y: 0, scaleX: 1 });
+    UV.addControlPanel();
+    return;
+  }
+
+  /* ── 1. Word-by-word GSAP timeline with stagger ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.to(words, {
+    opacity: 1,
+    y: 0,
+    duration: 0.5,
+    stagger: 0.12,
+  }, 0.3);
+
+  /* ── 2. Accent word: color pulse via GSAP ── */
+  tl.fromTo(accentWord,
+    { textShadow: '0 0 0 transparent' },
+    {
+      textShadow: '0 2px 20px rgba(230,57,70,0.35)',
+      duration: 0.3,
+      ease: 'power2.in',
+      yoyo: true,
+      repeat: 1,
+    },
+    '+=0.3'
+  );
+
+  /* ── 3. Subtitle: UV.fadeIn after headline completes ── */
+  tl.to(subtitle, {
+    opacity: 1,
+    y: 0,
+    duration: 0.6,
+    ease: 'power3.out',
+  }, '-=0.3');
+
+  /* ── Rule: scale in from left ── */
+  tl.to(rule, {
+    opacity: 1,
+    scaleX: 1,
+    duration: 0.5,
+    ease: 'power3.out',
+  }, '-=0.3');
+
+  /* ── CTA row: fade up ── */
+  tl.to(ctaRow, {
+    opacity: 1,
+    y: 0,
+    duration: 0.5,
+    ease: 'power3.out',
+  }, '-=0.2');
+
+  /* ── 4. CTA underline: GSAP width animation on hover ── */
+  document.querySelectorAll('.cta').forEach(function (cta) {
+    /* Can't animate pseudo-elements directly with GSAP,
+       so use a real element approach */
+    var line = document.createElement('span');
+    line.style.cssText =
+      'position:absolute;left:0;bottom:0;width:0;height:1px;background:#111111;display:block';
+    cta.appendChild(line);
+
+    cta.addEventListener('mouseenter', function () {
+      gsap.to(line, { width: '100%', duration: 0.3, ease: 'power2.out' });
+    });
+    cta.addEventListener('mouseleave', function () {
+      gsap.to(line, { width: '0%', duration: 0.3, ease: 'power2.out' });
+    });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

@@ -59,21 +59,18 @@ body{
   background:radial-gradient(circle at 35% 35%,var(--shape-vivid),var(--shape-mid) 70%);
   top:-60px;right:-80px;
   opacity:0.28;
-  animation:drift-1 18s ease-in-out infinite;
 }
 .shape-2{
   width:200px;height:200px;
   background:var(--shape-soft);
   bottom:15%;left:-40px;
   opacity:0.22;
-  animation:drift-2 22s ease-in-out infinite;
 }
 .shape-3{
   width:120px;height:120px;
   background:var(--shape-vivid);
   top:42%;right:18%;
   opacity:0.18;
-  animation:drift-3 15s ease-in-out infinite;
 }
 .shape-4{
   width:80px;height:80px;
@@ -81,14 +78,12 @@ body{
   background:var(--shape-soft);
   bottom:22%;right:10%;
   opacity:0.16;
-  animation:drift-4 20s ease-in-out infinite;
 }
 .shape-5{
   width:160px;height:160px;
   background:radial-gradient(circle,var(--shape-mid),transparent 70%);
   top:18%;left:12%;
   opacity:0.24;
-  animation:drift-5 25s ease-in-out infinite;
 }
 .shape-6{
   width:60px;height:60px;
@@ -97,36 +92,9 @@ body{
   top:68%;left:28%;
   opacity:0.14;
   transform:rotate(25deg);
-  animation:drift-6 17s ease-in-out infinite;
 }
 
-@keyframes drift-1{
-  0%,100%{transform:translate(0,0) scale(1)}
-  33%{transform:translate(-18px,22px) scale(1.04)}
-  66%{transform:translate(12px,-14px) scale(0.97)}
-}
-@keyframes drift-2{
-  0%,100%{transform:translate(0,0)}
-  40%{transform:translate(20px,-16px)}
-  70%{transform:translate(-10px,12px)}
-}
-@keyframes drift-3{
-  0%,100%{transform:translate(0,0) scale(1)}
-  50%{transform:translate(-14px,18px) scale(1.08)}
-}
-@keyframes drift-4{
-  0%,100%{transform:translate(0,0) rotate(0deg)}
-  50%{transform:translate(10px,-20px) rotate(45deg)}
-}
-@keyframes drift-5{
-  0%,100%{transform:translate(0,0)}
-  35%{transform:translate(16px,10px)}
-  65%{transform:translate(-8px,-18px)}
-}
-@keyframes drift-6{
-  0%,100%{transform:translate(0,0) rotate(25deg)}
-  50%{transform:translate(-12px,14px) rotate(70deg)}
-}
+/* @keyframes drift-1..6 removed — GSAP animates shapes directly */
 
 /* Brand copy */
 .brand-content{
@@ -237,13 +205,8 @@ body{
   border:1.5px solid var(--input-border);
   border-radius:8px;
   outline:none;
-  transition:border-color 0.15s ease-out,box-shadow 0.15s ease-out;
 }
 .input::placeholder{color:#9CA3AF}
-.input:focus{
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px var(--input-focus);
-}
 
 /* Remember me */
 .remember-row{
@@ -260,7 +223,6 @@ body{
   cursor:pointer;
   position:relative;
   flex-shrink:0;
-  transition:background-color 0.1s ease-out,border-color 0.1s ease-out;
 }
 .remember-row input[type="checkbox"]:checked{
   background:var(--accent);
@@ -300,14 +262,8 @@ body{
   border:none;
   border-radius:8px;
   cursor:pointer;
-  transition:background-color 0.15s ease-out,transform 0.1s ease-out,box-shadow 0.15s ease-out;
   box-shadow:0 1px 3px rgba(124,58,237,0.3),0 1px 2px rgba(124,58,237,0.15);
 }
-.btn-primary:hover{
-  background:var(--accent-hover);
-  box-shadow:0 4px 12px rgba(124,58,237,0.35),0 1px 3px rgba(124,58,237,0.2);
-}
-.btn-primary:active{transform:scale(0.98)}
 .btn-primary:focus-visible{
   outline:2px solid var(--accent);
   outline-offset:2px;
@@ -353,11 +309,6 @@ body{
   border:1.5px solid var(--social-border);
   border-radius:8px;
   cursor:pointer;
-  transition:background-color 0.15s ease-out,border-color 0.15s ease-out;
-}
-.btn-social:hover{
-  background:#F3F4F6;
-  border-color:#D1D5DB;
 }
 .btn-social:focus-visible{
   outline:2px solid var(--accent);
@@ -378,10 +329,7 @@ body{
 }
 .signup-link a:hover{text-decoration:underline}
 
-/* ===================== REDUCED MOTION ===================== */
-@media(prefers-reduced-motion:reduce){
-  .shape{animation:none !important}
-}
+/* ===================== REDUCED MOTION — GSAP checks UV.prefersReducedMotion ===================== */
 
 /* ===================== RESPONSIVE ===================== */
 @media(max-width:840px){
@@ -496,5 +444,173 @@ body{
   </div>
 </div>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  if (!UV.prefersReducedMotion) {
+
+    /* ── 1. Shape drifts (replaces @keyframes drift-1..6) ── */
+    // Shape 1: large circle, top-right — drifts + scales
+    gsap.to('.shape-1', {
+      keyframes: [
+        { x: 0, y: 0, scale: 1, duration: 0 },
+        { x: -18, y: 22, scale: 1.04, duration: 6 },
+        { x: 12, y: -14, scale: 0.97, duration: 6 },
+        { x: 0, y: 0, scale: 1, duration: 6 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    // Shape 2: medium circle, bottom-left — drifts
+    gsap.to('.shape-2', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 20, y: -16, duration: 8.8 },
+        { x: -10, y: 12, duration: 6.6 },
+        { x: 0, y: 0, duration: 6.6 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    // Shape 3: small circle, mid-right — drifts + scales
+    gsap.to('.shape-3', {
+      keyframes: [
+        { x: 0, y: 0, scale: 1, duration: 0 },
+        { x: -14, y: 18, scale: 1.08, duration: 7.5 },
+        { x: 0, y: 0, scale: 1, duration: 7.5 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    // Shape 4: small rounded square, bottom-right — drifts + rotates
+    gsap.to('.shape-4', {
+      keyframes: [
+        { x: 0, y: 0, rotation: 0, duration: 0 },
+        { x: 10, y: -20, rotation: 45, duration: 10 },
+        { x: 0, y: 0, rotation: 0, duration: 10 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    // Shape 5: medium radial gradient, top-left — drifts
+    gsap.to('.shape-5', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 16, y: 10, duration: 8.75 },
+        { x: -8, y: -18, duration: 7.5 },
+        { x: 0, y: 0, duration: 8.75 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    // Shape 6: tiny rounded square, mid-left — drifts + rotates (starts at 25deg)
+    gsap.to('.shape-6', {
+      keyframes: [
+        { x: 0, y: 0, rotation: 25, duration: 0 },
+        { x: -12, y: 14, rotation: 70, duration: 8.5 },
+        { x: 0, y: 0, rotation: 25, duration: 8.5 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+
+    /* ── 2. Brand panel entrance ── */
+    var brandTl = gsap.timeline({ delay: 0.2 });
+    brandTl
+      .from('.brand-logo', { opacity: 0, scale: 0.5, duration: 0.5, ease: 'back.out(1.7)' })
+      .from('.brand-tagline', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' }, '-=0.2')
+      .from('.brand-sub', { opacity: 0, y: 15, duration: 0.4, ease: 'power3.out' }, '-=0.2');
+
+    /* ── 3. Form entrance — stagger reveal of fields ── */
+    UV.staggerSequence('.form-container > *, .form-container form > *', {
+      y: 25, duration: 0.45, stagger: 0.06,
+    });
+
+    /* ── 4. Social buttons stagger ── */
+    UV.scaleIn('.btn-social', { stagger: 0.1, scale: 0.9 });
+
+    /* ── 5. Input focus effects (replaces CSS transition) ── */
+    document.querySelectorAll('.input').forEach(function (input) {
+      input.addEventListener('focus', function () {
+        gsap.to(input, {
+          borderColor: '#7C3AED',
+          boxShadow: '0 0 0 3px rgba(124,58,237,0.25)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+      input.addEventListener('blur', function () {
+        gsap.to(input, {
+          borderColor: '#D1D5DB',
+          boxShadow: '0 0 0 0px rgba(124,58,237,0)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+    });
+
+    /* ── 6. Primary button hover (replaces CSS transition) ── */
+    document.querySelectorAll('.btn-primary').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, {
+          backgroundColor: '#6D28D9',
+          boxShadow: '0 4px 12px rgba(124,58,237,0.35), 0 1px 3px rgba(124,58,237,0.2)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, {
+          backgroundColor: '#7C3AED',
+          boxShadow: '0 1px 3px rgba(124,58,237,0.3), 0 1px 2px rgba(124,58,237,0.15)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { scale: 0.98, duration: 0.1 });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'back.out(1.7)' });
+      });
+    });
+
+    /* ── 7. Social button hover (replaces CSS transition) ── */
+    document.querySelectorAll('.btn-social').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, {
+          backgroundColor: '#F3F4F6',
+          borderColor: '#D1D5DB',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, {
+          backgroundColor: '#F9FAFB',
+          borderColor: '#E5E7EB',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+    });
+
+    /* ── 8. Checkbox toggle (replaces CSS transition) ── */
+    document.querySelectorAll('.remember-row input[type="checkbox"]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        if (cb.checked) {
+          gsap.to(cb, { backgroundColor: '#7C3AED', borderColor: '#7C3AED', duration: 0.1 });
+        } else {
+          gsap.to(cb, { backgroundColor: 'transparent', borderColor: '#D1D5DB', duration: 0.1 });
+        }
+      });
+    });
+  }
+
+  /* ── Control panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

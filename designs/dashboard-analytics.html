@@ -25,8 +25,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
   width:var(--sidebar-w);min-height:100dvh;background:var(--night);
   display:flex;flex-direction:column;padding:24px 16px;
   position:fixed;left:0;top:0;bottom:0;z-index:100;
-  transition:transform .3s ease-out,width .3s ease-out;
 }
+
 .sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:40px;padding:0 4px}
 .sidebar-logo svg{flex-shrink:0}
 .sidebar-logo span{font-size:1.125rem;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap;overflow:hidden}
@@ -34,7 +34,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .nav-item{
   display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);
   color:rgba(255,255,255,.55);font-size:.875rem;font-weight:500;text-decoration:none;
-  transition:background-color .15s ease-out,color .15s ease-out;cursor:pointer;white-space:nowrap;overflow:hidden;
+  cursor:pointer;white-space:nowrap;overflow:hidden;
 }
 .nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85)}
 .nav-item.active{background:rgba(51,102,255,.25);color:#fff}
@@ -52,7 +52,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .user-info .role{font-size:.6875rem;color:rgba(255,255,255,.4)}
 
 /* ---- Main ---- */
-.main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 48px;min-width:0;transition:margin-left .3s ease-out}
+.main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 48px;min-width:0}
 .page-header{margin-bottom:28px}
 .page-header h1{font-size:1.625rem;font-weight:700;letter-spacing:-.03em;line-height:1.2;color:var(--text)}
 .page-header p{font-size:.875rem;color:var(--text-muted);margin-top:4px}
@@ -62,9 +62,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .kpi-card{
   background:var(--surface);border-radius:var(--radius);padding:20px 22px;
   box-shadow:var(--shadow-sm);border:1px solid var(--border);
-  transition:transform .2s ease-out,box-shadow .2s ease-out;
 }
-.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+
 .kpi-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .kpi-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:grid;place-items:center}
 .kpi-icon.blue{background:var(--blue-soft);color:var(--blue)}
@@ -91,19 +90,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .bar{
   width:100%;max-width:36px;border-radius:6px 6px 3px 3px;
   background:linear-gradient(180deg,var(--blue),#5580ff);
-  animation:bar-grow .8s cubic-bezier(.22,1,.36,1) both;
-  position:relative;
+  position:relative;height:0;
 }
 .bar::after{
   content:attr(data-val);position:absolute;top:-20px;left:50%;transform:translateX(-50%);
   font-size:.625rem;font-weight:700;color:var(--text-muted);opacity:0;
-  transition:opacity .15s ease-out;white-space:nowrap;
+  white-space:nowrap;
 }
 .bar-group:hover .bar::after{opacity:1}
-.bar-group:hover .bar{background:linear-gradient(180deg,#2952cc,var(--blue))}
 .bar-label{font-size:.6875rem;color:var(--text-faint);font-weight:500}
-@keyframes bar-grow{from{height:0}to{height:var(--h)}}
-.bar{height:var(--h)}
 
 /* ---- Activity Feed ---- */
 .activity-list{display:flex;flex-direction:column;gap:2px}
@@ -127,7 +122,7 @@ thead th{
   border-bottom:2px solid var(--border);white-space:nowrap;
 }
 tbody td{padding:14px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
-tbody tr{transition:background-color .15s ease-out}
+tbody tr{}
 tbody tr:hover{background:rgba(51,102,255,.03)}
 tbody tr:last-child td{border-bottom:none}
 .status{font-size:.6875rem;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block}
@@ -150,11 +145,6 @@ tbody tr:last-child td{border-bottom:none}
   .page-header h1{font-size:1.35rem}
 }
 
-/* ---- Reduced Motion ---- */
-@media(prefers-reduced-motion:reduce){
-  .bar{animation:none}
-  .kpi-card,.nav-item,.bar-group .bar::after,tbody tr{transition:none}
-}
 </style>
 </head>
 <body>
@@ -340,5 +330,168 @@ tbody tr:last-child td{border-bottom:none}
   </section>
 </main>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  if (!UV.prefersReducedMotion) {
+
+    // ─── 1. Page Load Entrance ──────────────────────────
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // Sidebar slides in from left
+    tl.from('.sidebar', { x: -60, opacity: 0, duration: 0.6 });
+
+    // Page header fades in
+    tl.from('.page-header', { opacity: 0, y: -20, duration: 0.5 }, '-=0.3');
+
+    // KPI cards stagger in
+    tl.from('.kpi-card', {
+      opacity: 0, y: 30, duration: 0.5,
+      stagger: 0.08,
+    }, '-=0.2');
+
+    // Content grid cards slide in from sides
+    var contentCards = document.querySelectorAll('.content-grid > .card');
+    if (contentCards[0]) {
+      tl.from(contentCards[0], { opacity: 0, x: -40, duration: 0.5 }, '-=0.2');
+    }
+    if (contentCards[1]) {
+      tl.from(contentCards[1], { opacity: 0, x: 40, duration: 0.5 }, '-=0.4');
+    }
+
+    // Orders table fades in
+    tl.from('.main > .card:last-child', { opacity: 0, y: 30, duration: 0.5 }, '-=0.2');
+
+    // Activity items stagger in
+    tl.from('.activity-item', {
+      opacity: 0, x: 20, duration: 0.4,
+      stagger: 0.06,
+    }, '-=0.3');
+
+    // Table rows stagger in
+    tl.from('tbody tr', {
+      opacity: 0, x: -20, duration: 0.35,
+      stagger: 0.05,
+    }, '-=0.3');
+
+    // ─── 2. Bar Chart Grow Animation ────────────────────
+    var bars = document.querySelectorAll('.bar');
+    bars.forEach(function (bar) {
+      var targetHeight = getComputedStyle(bar).getPropertyValue('--h').trim();
+      gsap.to(bar, {
+        height: targetHeight,
+        duration: 0.8,
+        ease: 'circ.out',
+        delay: 0.8,
+      });
+    });
+
+    // ─── 3. KPI Number Countup ──────────────────────────
+    var kpiValues = document.querySelectorAll('.kpi-value');
+    kpiValues.forEach(function (el) {
+      var raw = el.textContent.trim();
+      var prefix = raw.match(/^[^0-9]*/)[0];   // e.g. "$"
+      var suffix = raw.match(/[^0-9,.\s]*$/)[0]; // e.g. "%"
+      var numStr = raw.replace(prefix, '').replace(suffix, '').replace(/,/g, '');
+      var target = parseFloat(numStr);
+      if (isNaN(target)) return;
+
+      var hasDecimal = numStr.indexOf('.') !== -1;
+      var obj = { val: 0 };
+      el.textContent = prefix + '0' + suffix;
+
+      gsap.to(obj, {
+        val: target,
+        duration: 1.2,
+        delay: 0.6,
+        ease: 'power2.out',
+        onUpdate: function () {
+          var display = hasDecimal ? obj.val.toFixed(1) : Math.round(obj.val);
+          display = Number(display).toLocaleString('en-US');
+          el.textContent = prefix + display + suffix;
+        }
+      });
+    });
+
+    // ─── 4. KPI Card Hover (GSAP replaces CSS transition) ───
+    UV.hoverLift('.kpi-card', {
+      y: -2,
+      shadow: 'var(--shadow-md)',
+      restShadow: 'var(--shadow-sm)',
+    });
+
+    // ─── 5. Bar Hover Highlight ─────────────────────────
+    document.querySelectorAll('.bar-group').forEach(function (group) {
+      var bar = group.querySelector('.bar');
+      var label = group.querySelector('.bar::after');
+      group.addEventListener('mouseenter', function () {
+        gsap.to(bar, {
+          background: 'linear-gradient(180deg, #2952cc, #3366ff)',
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      });
+      group.addEventListener('mouseleave', function () {
+        gsap.to(bar, {
+          background: 'linear-gradient(180deg, #3366ff, #5580ff)',
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      });
+    });
+
+    // ─── 6. Nav Item Hover ──────────────────────────────
+    document.querySelectorAll('.nav-item').forEach(function (item) {
+      item.addEventListener('mouseenter', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, {
+            backgroundColor: 'rgba(255,255,255,0.08)',
+            color: 'rgba(255,255,255,0.85)',
+            duration: 0.15,
+            ease: 'power2.out',
+          });
+        }
+      });
+      item.addEventListener('mouseleave', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, {
+            backgroundColor: 'transparent',
+            color: 'rgba(255,255,255,0.55)',
+            duration: 0.15,
+            ease: 'power2.out',
+          });
+        }
+      });
+    });
+
+    // ─── 7. Table Row Hover ─────────────────────────────
+    document.querySelectorAll('tbody tr').forEach(function (row) {
+      row.addEventListener('mouseenter', function () {
+        gsap.to(row, {
+          backgroundColor: 'rgba(51,102,255,0.03)',
+          duration: 0.15,
+          ease: 'power2.out',
+        });
+      });
+      row.addEventListener('mouseleave', function () {
+        gsap.to(row, {
+          backgroundColor: 'transparent',
+          duration: 0.15,
+          ease: 'power2.out',
+        });
+      });
+    });
+  }
+
+  // ─── Control Panel ──────────────────────────────────
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

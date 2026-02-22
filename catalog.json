@@ -1,135 +1,226 @@
 {
-  "version": 1,
+  "version": 2,
   "designs": [
     {
       "id": "hero-gradient-mesh",
       "title": "Gradient Mesh Hero",
       "category": "Heroes",
       "type": "full-page",
-      "tags": ["gradient", "mesh", "animation", "dark", "landing"],
+      "tags": ["gradient", "mesh", "animation", "dark", "landing", "gsap"],
       "filePath": "designs/hero-gradient-mesh.html",
-      "description": "Animated OKLCH gradient mesh with drifting color blobs, noise texture overlay, and bold typography. Pure CSS animation via @property.",
-      "dateAdded": "2026-02-22"
+      "description": "Animated OKLCH gradient mesh with GSAP-driven blob drift, hue rotation on CSS custom properties, and typewriter hero text.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["timeline", "hoverScale", "scrollParallax", "customProperty"],
+      "animation_count": 9,
+      "plugins_used": ["ScrollTrigger"]
     },
     {
       "id": "card-glassmorphism",
       "title": "Glassmorphism Cards",
       "category": "Cards",
       "type": "component",
-      "tags": ["glass", "blur", "frosted", "dark", "hover"],
+      "tags": ["glass", "blur", "frosted", "dark", "hover", "gsap"],
       "filePath": "designs/card-glassmorphism.html",
-      "description": "Three frosted glass cards on a rich gradient background with ambient orb glow and hover lift effects.",
-      "dateAdded": "2026-02-22"
+      "description": "Three frosted glass cards with GSAP stagger entrance, hover lift, and inner-element reveal sequences.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["staggerSequence", "hoverLift", "fadeIn"],
+      "animation_count": 4,
+      "plugins_used": []
     },
     {
       "id": "dashboard-analytics",
       "title": "Analytics Dashboard",
       "category": "Dashboards",
       "type": "full-page",
-      "tags": ["dashboard", "charts", "stats", "table", "sidebar"],
+      "tags": ["dashboard", "charts", "stats", "table", "sidebar", "gsap"],
       "filePath": "designs/dashboard-analytics.html",
-      "description": "Full analytics dashboard with KPI stat cards, CSS-only animated bar chart, activity feed, and orders table.",
-      "dateAdded": "2026-02-22"
+      "description": "Full analytics dashboard with GSAP number countup, animated bar charts, panel slide-ins, and hover interactions.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["slideIn", "hoverScale", "numberCountup", "staggerSequence"],
+      "animation_count": 7,
+      "plugins_used": []
     },
     {
       "id": "nav-floating-pill",
       "title": "Floating Pill Navigation",
       "category": "Navigation",
       "type": "component",
-      "tags": ["navbar", "pill", "sliding", "blur", "dark"],
+      "tags": ["navbar", "pill", "sliding", "blur", "dark", "gsap", "flip"],
       "filePath": "designs/nav-floating-pill.html",
-      "description": "Centered floating navbar with a sliding pill indicator that smoothly tracks the active item. Keyboard accessible.",
-      "dateAdded": "2026-02-22"
+      "description": "Floating navbar with Flip-powered pill indicator, GSAP nav entrance, and glow pulse effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["flipLayout", "fadeIn", "hoverScale"],
+      "animation_count": 5,
+      "plugins_used": ["Flip"]
     },
     {
       "id": "form-multi-step",
       "title": "Multi-Step Wizard Form",
       "category": "Forms",
       "type": "component",
-      "tags": ["form", "wizard", "steps", "progress", "animation"],
+      "tags": ["form", "wizard", "steps", "progress", "animation", "gsap"],
       "filePath": "designs/form-multi-step.html",
-      "description": "3-step wizard with animated progress stepper, slide transitions, toggle switches, and confirmation summary.",
-      "dateAdded": "2026-02-22"
+      "description": "3-step wizard with GSAP step transitions, animated progress bar fill, shake validation, and completion effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["timeline", "fadeIn", "fadeOut", "shakeInput"],
+      "animation_count": 6,
+      "plugins_used": []
     },
     {
       "id": "layout-bento-grid",
       "title": "Bento Grid Feature Showcase",
       "category": "Layouts",
       "type": "full-page",
-      "tags": ["bento", "grid", "earth-tones", "warm", "cards"],
+      "tags": ["bento", "grid", "earth-tones", "warm", "cards", "gsap"],
       "filePath": "designs/layout-bento-grid.html",
-      "description": "Mixed-size CSS Grid bento layout with warm earth tones — sand, terracotta, and forest green. Stats, icons, testimonials, and image cells.",
-      "dateAdded": "2026-02-22"
+      "description": "Mixed-size bento grid with GSAP stagger entrance, scroll reveal, and hover scale interactions.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["staggerSequence", "scrollReveal", "hoverScale"],
+      "animation_count": 3,
+      "plugins_used": ["ScrollTrigger"]
     },
     {
       "id": "pricing-neon-table",
       "title": "Neon Pricing Table",
       "category": "Pricing",
       "type": "component",
-      "tags": ["pricing", "neon", "glow", "cyberpunk", "dark"],
+      "tags": ["pricing", "neon", "glow", "cyberpunk", "dark", "gsap"],
       "filePath": "designs/pricing-neon-table.html",
-      "description": "3-tier cyberpunk pricing columns with neon cyan and magenta glow effects on true black. Pulsing badge and staggered feature animations.",
-      "dateAdded": "2026-02-22"
+      "description": "Cyberpunk pricing columns with GSAP glow pulse, staggered card/feature entrance, and neon hover intensification.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["staggerSequence", "scaleIn", "hoverScale", "glowPulse"],
+      "animation_count": 6,
+      "plugins_used": []
     },
     {
       "id": "section-testimonial-marquee",
       "title": "Testimonial Marquee",
       "category": "Sections",
       "type": "component",
-      "tags": ["testimonial", "marquee", "scroll", "editorial", "organic"],
+      "tags": ["testimonial", "marquee", "scroll", "editorial", "organic", "gsap"],
       "filePath": "designs/section-testimonial-marquee.html",
-      "description": "CSS-only dual-row infinite marquee with testimonial cards scrolling in opposite directions. Cream and sage editorial palette.",
-      "dateAdded": "2026-02-22"
+      "description": "Dual-row GSAP-powered infinite marquee with smooth timeScale pause on hover and card lift effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["timeline", "hoverLift", "infiniteScroll"],
+      "animation_count": 4,
+      "plugins_used": []
     },
     {
       "id": "form-split-login",
       "title": "Split Login Screen",
       "category": "Forms",
       "type": "full-page",
-      "tags": ["login", "split", "auth", "indigo", "social"],
+      "tags": ["login", "split", "auth", "indigo", "social", "gsap"],
       "filePath": "designs/form-split-login.html",
-      "description": "50/50 split-screen login with deep indigo decorative panel and clean white form side. Social auth buttons and floating shapes.",
-      "dateAdded": "2026-02-22"
+      "description": "50/50 split login with 6 GSAP orbital drift timelines, form stagger entrance, and interactive focus/hover effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["timeline", "staggerSequence", "hoverScale", "orbitalDrift"],
+      "animation_count": 8,
+      "plugins_used": []
     },
     {
       "id": "footer-mega",
       "title": "Premium Mega Footer",
       "category": "Footers",
       "type": "component",
-      "tags": ["footer", "mega", "newsletter", "gradient", "columns"],
+      "tags": ["footer", "mega", "newsletter", "gradient", "columns", "gsap"],
       "filePath": "designs/footer-mega.html",
-      "description": "Stripe-style mega footer with gradient accent border, 4-column nav grid, newsletter signup, and social icons on near-black.",
-      "dateAdded": "2026-02-22"
+      "description": "Mega footer with GSAP scroll-reveal columns, newsletter focus glow, subscribe hover effect, and social icon staggers.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["scrollReveal", "hoverScale", "hoverLift", "fadeIn"],
+      "animation_count": 6,
+      "plugins_used": ["ScrollTrigger"]
     },
     {
       "id": "hero-kinetic-typography",
       "title": "Kinetic Typography Hero",
       "category": "Heroes",
       "type": "full-page",
-      "tags": ["typography", "kinetic", "animation", "editorial", "minimal"],
+      "tags": ["typography", "kinetic", "animation", "editorial", "minimal", "gsap"],
       "filePath": "designs/hero-kinetic-typography.html",
-      "description": "Word-by-word CSS animation hero with monochrome palette and single red accent word. Typography IS the design — zero gradients.",
-      "dateAdded": "2026-02-22"
+      "description": "Word-by-word GSAP stagger hero with accent pulse, subtitle timeline, and CTA underline hover animation.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["staggerSequence", "timeline", "hoverScale"],
+      "animation_count": 4,
+      "plugins_used": []
     },
     {
       "id": "card-toast-notifications",
       "title": "Toast Notification Stack",
       "category": "Cards",
       "type": "component",
-      "tags": ["toast", "notification", "status", "slide-in", "progress"],
+      "tags": ["toast", "notification", "status", "slide-in", "progress", "gsap"],
       "filePath": "designs/card-toast-notifications.html",
-      "description": "4 toast variants (success, error, warning, info) with CSS slide-in animation, progress bars, and semantic color coding.",
-      "dateAdded": "2026-02-22"
+      "description": "4 toast variants with GSAP slide-in, animated progress bars, dismiss effects, and replay-all functionality.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["slideIn", "timeline", "fadeOut"],
+      "animation_count": 5,
+      "plugins_used": []
     },
     {
       "id": "nav-vertical-sidebar",
       "title": "Vertical Sidebar Navigation",
       "category": "Navigation",
       "type": "component",
-      "tags": ["sidebar", "vertical", "collapsible", "dark", "app"],
+      "tags": ["sidebar", "vertical", "collapsible", "dark", "app", "gsap"],
       "filePath": "designs/nav-vertical-sidebar.html",
-      "description": "Discord/Linear-style collapsible sidebar with emerald active indicator, expandable teams section, notification badges, and mobile drawer.",
-      "dateAdded": "2026-02-22"
+      "description": "Collapsible sidebar with GSAP width/opacity transitions, teams expand animation, mobile drawer slide, and multi-element hover effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["timeline", "staggerSequence", "hoverScale", "slideIn"],
+      "animation_count": 10,
+      "plugins_used": []
+    },
+    {
+      "id": "gsap-scroll-showcase",
+      "title": "GSAP Scroll Showcase",
+      "category": "GSAP",
+      "type": "full-page",
+      "tags": ["gsap", "scrolltrigger", "pin", "scrub", "parallax", "countup"],
+      "filePath": "designs/gsap-scroll-showcase.html",
+      "description": "Multi-section scroll story demonstrating horizontal scroll, scrub progress bars, parallax depth layers, number countup, and pinned fade sequences.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["scrollTrigger", "pin", "scrub", "parallax", "numberCountup", "timeline"],
+      "animation_count": 12,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "gsap-text-effects",
+      "title": "GSAP Text Effects",
+      "category": "GSAP",
+      "type": "full-page",
+      "tags": ["gsap", "text", "typewriter", "scramble", "typography", "stagger"],
+      "filePath": "designs/gsap-text-effects.html",
+      "description": "Typography animation gallery with typewriter, character reveal, word bounce, scramble decode, gradient sweep, line slide, and scale-blur effects.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["typewriter", "textRevealByLine", "staggerSequence", "scramble"],
+      "animation_count": 8,
+      "plugins_used": ["TextPlugin", "ScrollTrigger"]
+    },
+    {
+      "id": "gsap-flip-gallery",
+      "title": "GSAP Flip Gallery",
+      "category": "GSAP",
+      "type": "full-page",
+      "tags": ["gsap", "flip", "gallery", "filter", "grid", "masonry", "layout"],
+      "filePath": "designs/gsap-flip-gallery.html",
+      "description": "Interactive gallery with Flip-powered layout switching (grid, list, masonry) and category filtering with smooth position animations.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["flipLayout", "staggerSequence", "hoverLift", "filter"],
+      "animation_count": 6,
+      "plugins_used": ["Flip"]
+    },
+    {
+      "id": "gsap-micro-interactions",
+      "title": "GSAP Micro Interactions",
+      "category": "GSAP",
+      "type": "full-page",
+      "tags": ["gsap", "micro", "buttons", "toggles", "inputs", "hover", "click"],
+      "filePath": "designs/gsap-micro-interactions.html",
+      "description": "Collection of GSAP micro-interactions: magnetic/ripple/elastic buttons, slide/bounce/liquid toggles, floating labels, tilt cards, and loading animations.",
+      "dateAdded": "2026-02-22",
+      "gsap_features": ["hoverScale", "timeline", "scrollReveal", "elastic", "magnetic"],
+      "animation_count": 16,
+      "plugins_used": ["ScrollTrigger"]
     }
   ]
 }

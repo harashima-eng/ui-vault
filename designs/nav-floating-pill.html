@@ -74,9 +74,6 @@
     border-radius:999px;
     background:var(--pill-bg);
     box-shadow:0 0 20px var(--pill-glow), 0 1px 4px oklch(0 0 0 / 0.3);
-    transition:transform 0.28s cubic-bezier(0.4, 0, 0.12, 1),
-               width 0.28s cubic-bezier(0.4, 0, 0.12, 1);
-    will-change:transform, width;
     z-index:0;
   }
 
@@ -92,11 +89,9 @@
     cursor:pointer;
     border-radius:999px;
     white-space:nowrap;
-    transition:color 0.22s ease-out;
     -webkit-tap-highlight-color:transparent;
   }
 
-  .nav-item:hover{color:var(--text-idle-hover)}
   .nav-item[aria-selected="true"]{color:var(--text-active);font-weight:600}
   .nav-item:focus-visible{
     outline:2px solid var(--pill-bg);
@@ -164,39 +159,17 @@
     font-family:inherit;font-size:0.9375rem;font-weight:600;
     cursor:pointer;
     box-shadow:0 0 24px var(--pill-glow), 0 2px 8px oklch(0 0 0 / 0.25);
-    transition:transform 0.18s ease-out, box-shadow 0.18s ease-out;
   }
-  .hero-cta:hover{transform:translateY(-1px);box-shadow:0 0 32px var(--pill-glow), 0 4px 16px oklch(0 0 0 / 0.3)}
-  .hero-cta:active{transform:translateY(0) scale(0.98)}
   .hero-cta:focus-visible{outline:2px solid var(--pill-bg);outline-offset:3px}
 
   .hero-cta svg{
     width:16px;height:16px;
-    transition:transform 0.18s ease-out;
   }
-  .hero-cta:hover svg{transform:translateX(3px)}
 
-  /* fade-in on load */
+  /* fade-up elements start hidden; GSAP animates them */
   .fade-up{
     opacity:0;
     transform:translateY(18px);
-    animation:fadeUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  }
-  .fade-up:nth-child(2){animation-delay:0.08s}
-  .fade-up:nth-child(3){animation-delay:0.16s}
-  .fade-up:nth-child(4){animation-delay:0.24s}
-
-  @keyframes fadeUp{
-    to{opacity:1;transform:translateY(0)}
-  }
-
-  /* reduced motion */
-  @media(prefers-reduced-motion:reduce){
-    .pill{transition:none}
-    .nav-item{transition:none}
-    .hero-cta{transition:none}
-    .hero-cta svg{transition:none}
-    .fade-up{animation:none;opacity:1;transform:none}
   }
 </style>
 </head>
@@ -229,62 +202,191 @@
 </main>
 
 <script>
-(function(){
-  const nav   = document.querySelector('.nav');
-  const pill  = document.querySelector('.pill');
-  const items = Array.from(document.querySelectorAll('.nav-item'));
+/* Navigation logic — pill movement deferred to GSAP block below */
+</script>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  var nav   = document.querySelector('.nav');
+  var pill  = document.querySelector('.pill');
+  var items = Array.from(document.querySelectorAll('.nav-item'));
 
-  function movePill(el){
-    const navRect = nav.getBoundingClientRect();
-    const elRect  = el.getBoundingClientRect();
-    const offsetX = elRect.left - navRect.left;
-    pill.style.width     = elRect.width + 'px';
-    pill.style.transform = 'translateX(' + offsetX + 'px)';
+  // ─── Position pill on active tab (instant, no animation) ──
+  function snapPill(el) {
+    var navRect = nav.getBoundingClientRect();
+    var elRect  = el.getBoundingClientRect();
+    gsap.set(pill, {
+      width: elRect.width,
+      x: elRect.left - navRect.left,
+    });
   }
 
-  function activate(el){
-    items.forEach(function(btn){ btn.setAttribute('aria-selected','false') });
-    el.setAttribute('aria-selected','true');
+  // ─── Flip-based pill move (animated) ──────────────────
+  function movePill(el) {
+    if (UV.prefersReducedMotion) { snapPill(el); return; }
+    var state = Flip.getState(pill);
+    var navRect = nav.getBoundingClientRect();
+    var elRect  = el.getBoundingClientRect();
+    gsap.set(pill, {
+      width: elRect.width,
+      x: elRect.left - navRect.left,
+    });
+    Flip.from(state, {
+      duration: 0.35,
+      ease: 'power2.inOut',
+      absolute: true,
+    });
+  }
+
+  function activate(el) {
+    items.forEach(function (btn) { btn.setAttribute('aria-selected', 'false'); });
+    el.setAttribute('aria-selected', 'true');
     movePill(el);
+
+    // Animate text color for all items
+    if (!UV.prefersReducedMotion) {
+      items.forEach(function (btn) {
+        var isActive = btn === el;
+        gsap.to(btn, {
+          color: isActive
+            ? getComputedStyle(document.documentElement).getPropertyValue('--text-active').trim()
+            : getComputedStyle(document.documentElement).getPropertyValue('--text-idle').trim(),
+          fontWeight: isActive ? 600 : 500,
+          duration: 0.22,
+          ease: 'power2.out',
+        });
+      });
+    }
   }
 
-  // initial position
+  // Initial pill position
   var active = document.querySelector('.nav-item[aria-selected="true"]');
-  if(active) movePill(active);
+  if (active) snapPill(active);
 
-  // click handler
-  items.forEach(function(btn){
-    btn.addEventListener('click', function(){ activate(this) });
+  // Click handler
+  items.forEach(function (btn) {
+    btn.addEventListener('click', function () { activate(this); });
   });
 
-  // keyboard: arrow keys
-  nav.addEventListener('keydown', function(e){
+  // Keyboard arrows
+  nav.addEventListener('keydown', function (e) {
     var idx = items.indexOf(document.activeElement);
-    if(idx < 0) return;
+    if (idx < 0) return;
     var next = -1;
-    if(e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % items.length;
-    if(e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   next = (idx - 1 + items.length) % items.length;
-    if(next >= 0){
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % items.length;
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   next = (idx - 1 + items.length) % items.length;
+    if (next >= 0) {
       e.preventDefault();
       items[next].focus();
       activate(items[next]);
     }
   });
 
-  // recalc on resize
+  // Recalc on resize
   var resizeTimer;
-  window.addEventListener('resize', function(){
+  window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function(){
+    resizeTimer = setTimeout(function () {
       var cur = document.querySelector('.nav-item[aria-selected="true"]');
-      if(cur){
-        pill.style.transition = 'none';
-        movePill(cur);
-        pill.offsetHeight; // force reflow
-        pill.style.transition = '';
-      }
+      if (cur) snapPill(cur);
     }, 80);
   });
+
+  // ─── GSAP Animations ─────────────────────────────────
+  if (!UV.prefersReducedMotion) {
+
+    // 1. Nav entrance — slide in from top
+    gsap.from('.nav', {
+      y: -50,
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+      delay: 0.1,
+    });
+
+    // 2. Hero fade-up elements — staggered entrance
+    gsap.to('.fade-up', {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: 'power2.out',
+      stagger: 0.08,
+      delay: 0.3,
+    });
+
+    // 3. Nav item hover — GSAP color transitions
+    items.forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        if (btn.getAttribute('aria-selected') !== 'true') {
+          gsap.to(btn, {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-idle-hover').trim(),
+            duration: 0.22,
+            ease: 'power2.out',
+          });
+        }
+      });
+      btn.addEventListener('mouseleave', function () {
+        if (btn.getAttribute('aria-selected') !== 'true') {
+          gsap.to(btn, {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-idle').trim(),
+            duration: 0.22,
+            ease: 'power2.out',
+          });
+        }
+      });
+    });
+
+    // 4. Hero CTA hover — GSAP replaces CSS transition
+    var cta    = document.querySelector('.hero-cta');
+    var ctaSvg = cta ? cta.querySelector('svg') : null;
+    if (cta) {
+      cta.addEventListener('mouseenter', function () {
+        gsap.to(cta, {
+          y: -1,
+          boxShadow: '0 0 32px var(--pill-glow), 0 4px 16px oklch(0 0 0 / 0.3)',
+          duration: 0.18,
+          ease: 'power2.out',
+        });
+        if (ctaSvg) gsap.to(ctaSvg, { x: 3, duration: 0.18, ease: 'power2.out' });
+      });
+      cta.addEventListener('mouseleave', function () {
+        gsap.to(cta, {
+          y: 0,
+          boxShadow: '0 0 24px var(--pill-glow), 0 2px 8px oklch(0 0 0 / 0.25)',
+          duration: 0.18,
+          ease: 'power2.out',
+        });
+        if (ctaSvg) gsap.to(ctaSvg, { x: 0, duration: 0.18, ease: 'power2.out' });
+      });
+      cta.addEventListener('mousedown', function () {
+        gsap.to(cta, { y: 0, scale: 0.98, duration: 0.1, ease: 'power2.out' });
+      });
+      cta.addEventListener('mouseup', function () {
+        gsap.to(cta, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+    }
+
+    // 5. Pill glow pulse (replaces CSS @keyframes pill-glow)
+    gsap.to(pill, {
+      boxShadow: '0 0 28px var(--pill-glow), 0 1px 4px oklch(0 0 0 / 0.3)',
+      duration: 1.5,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
+  } else {
+    // Reduced motion: just show everything
+    gsap.set('.fade-up', { opacity: 1, y: 0 });
+  }
+
+  // ─── Control Panel ──────────────────────────────────
+  UV.addControlPanel();
 })();
 </script>
 </body>

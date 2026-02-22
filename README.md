@@ -1,6 +1,6 @@
 # UI Vault
 
-A personal design warehouse: 13 production-grade UI components and full-page designs, all self-contained HTML with zero dependencies.
+A GSAP-powered design warehouse: 17 production-grade UI components and full-page designs with rich animations, all self-contained HTML.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -8,8 +8,10 @@ A personal design warehouse: 13 production-grade UI components and full-page des
 
 ## Features
 
+- **GSAP animations** across all 17 designs (ScrollTrigger, Flip, TextPlugin)
+- **Animation controls** on every design page (Replay, 0.3x, 1x, 3x speed)
 - **Search** with 150ms debounce across titles, categories, and tags
-- **9 categories** with sidebar filtering and item counts
+- **10 categories** with sidebar filtering and item counts
 - **Grid and list views** persisted in localStorage
 - **Favorites system** with star toggle and localStorage persistence
 - **Dark/light mode** with system preference detection
@@ -21,54 +23,76 @@ A personal design warehouse: 13 production-grade UI components and full-page des
 
 ## Design Collection
 
-| # | Design | Category | Type | Key Technique |
-|---|--------|----------|------|---------------|
-| 1 | Gradient Mesh Hero | Heroes | full-page | @property OKLCH gradient animation |
-| 2 | Glassmorphism Cards | Cards | component | backdrop-filter blur, ambient orbs |
-| 3 | Analytics Dashboard | Dashboards | full-page | CSS bar charts, KPI stat cards |
-| 4 | Floating Pill Navigation | Navigation | component | Sliding translateX pill indicator |
-| 5 | Multi-Step Wizard Form | Forms | component | Progress stepper, slide transitions |
-| 6 | Bento Grid Feature Showcase | Layouts | full-page | CSS Grid mixed-size bento cells |
-| 7 | Neon Pricing Table | Pricing | component | Neon glow box-shadows on black |
-| 8 | Testimonial Marquee | Sections | component | CSS-only dual-row infinite scroll |
-| 9 | Split Login Screen | Forms | full-page | 50/50 split with floating shapes |
-| 10 | Premium Mega Footer | Footers | component | Gradient border, 4-column grid |
-| 11 | Kinetic Typography Hero | Heroes | full-page | Word-by-word staggered animation |
-| 12 | Toast Notification Stack | Cards | component | Slide-in with progress bars |
-| 13 | Vertical Sidebar Navigation | Navigation | component | Collapsible with Teams section |
+| # | Design | Category | Type | Key GSAP Technique |
+|---|--------|----------|------|-------------------|
+| 1 | Gradient Mesh Hero | Heroes | full-page | Custom property hue rotation, blob drift timelines |
+| 2 | Glassmorphism Cards | Cards | component | Stagger entrance, hover lift sequences |
+| 3 | Analytics Dashboard | Dashboards | full-page | Number countup, bar chart grow, panel slide-ins |
+| 4 | Floating Pill Navigation | Navigation | component | Flip-powered pill indicator |
+| 5 | Multi-Step Wizard Form | Forms | component | Step transitions, progress fill, shake validation |
+| 6 | Bento Grid Feature Showcase | Layouts | full-page | Stagger entrance, scroll reveal |
+| 7 | Neon Pricing Table | Pricing | component | Glow pulse, staggered card entrance |
+| 8 | Testimonial Marquee | Sections | component | GSAP infinite marquee, timeScale pause |
+| 9 | Split Login Screen | Forms | full-page | 6 orbital drift timelines, form stagger |
+| 10 | Premium Mega Footer | Footers | component | Scroll-reveal columns, social icon staggers |
+| 11 | Kinetic Typography Hero | Heroes | full-page | Word-by-word stagger, accent pulse |
+| 12 | Toast Notification Stack | Cards | component | Slide-in, progress bars, replay-all |
+| 13 | Vertical Sidebar Navigation | Navigation | component | Width/opacity collapse, drawer slide |
+| 14 | GSAP Scroll Showcase | GSAP | full-page | Pin, scrub, parallax, horizontal scroll, countup |
+| 15 | GSAP Text Effects | GSAP | full-page | Typewriter, scramble, character reveal, gradient sweep |
+| 16 | GSAP Flip Gallery | GSAP | full-page | Grid/list/masonry switching, category filtering |
+| 17 | GSAP Micro Interactions | GSAP | full-page | Magnetic buttons, liquid toggles, tilt cards |
+
+## GSAP Stack
+
+All animations use [GSAP 3.12.5](https://gsap.com/) via CDN:
+
+- **Core** — timelines, stagger, easing
+- **ScrollTrigger** — scroll-driven animations, pin, scrub
+- **Flip** — layout transition animations
+- **TextPlugin** — typewriter and text swap effects
+
+Shared utility library: `animations/gsap-utils.js` (UV namespace)
 
 ## Usage
 
-Just open `index.html` in any modern browser. No build step, no server, no dependencies.
+Just open `index.html` in any modern browser. No build step, no server, no npm.
 
 ```
 ui-vault/
-  index.html          # Main warehouse app
-  catalog.json        # Design metadata
-  designs/            # 13 self-contained HTML files
+  index.html              # Main warehouse app
+  catalog.json            # Design metadata with GSAP info
+  animations/gsap-utils.js  # Shared GSAP utility library
+  designs/                # 17 self-contained HTML files
 ```
 
 ## Adding New Designs
 
 1. Create a self-contained HTML file in `designs/`
-2. Add an entry to `catalog.json`:
+2. Add GSAP CDN scripts and `../animations/gsap-utils.js`
+3. Add an entry to `catalog.json`:
    ```json
    {
      "id": "my-new-design",
      "title": "My New Design",
      "category": "Cards",
      "type": "component",
-     "tags": ["tag1", "tag2"],
+     "tags": ["tag1", "tag2", "gsap"],
      "filePath": "designs/my-new-design.html",
      "description": "Short description of the design.",
-     "dateAdded": "2026-02-22"
+     "dateAdded": "2026-02-22",
+     "gsap_features": ["fadeIn", "hoverScale"],
+     "animation_count": 3,
+     "plugins_used": ["ScrollTrigger"]
    }
    ```
-3. Add the same entry to the `CATALOG_DATA` array in `index.html`
+4. Add the same entry to the `CATALOG_DATA` array in `index.html`
+5. Call `UV.addControlPanel()` for animation speed controls
 
 ## Tech Stack
 
 - Vanilla HTML, CSS, JavaScript (no frameworks, no build tools)
+- GSAP 3.12.5 via CDN (ScrollTrigger, Flip, TextPlugin)
 - CSS Custom Properties for theming
 - IntersectionObserver for lazy loading
 - localStorage for preferences, favorites, and notes
@@ -77,17 +101,16 @@ ui-vault/
 ## Design Principles
 
 - Every design is a single, self-contained HTML file
-- No external CSS/JS dependencies in any design
-- `prefers-reduced-motion` support in all animations
-- No `transition: all` (specific properties only)
+- All animations powered by GSAP (zero CSS transitions/keyframes for motion)
+- `prefers-reduced-motion` respected via JS check in every file
 - No stacked `backdrop-filter` (GPU safety)
 - Semantic HTML with ARIA labels and keyboard accessibility
 
 ## Roadmap
 
-- GSAP integration: replace CSS animations with GSAP-powered choreography
 - Interactive theming: swap color palettes and typography per design
 - More design components across all categories
+- GSAP ScrollSmoother integration
 
 ## License
 

@@ -107,15 +107,6 @@ body {
   position: absolute;
   inset: -20%;
   z-index: -2;
-  animation:
-    drift-1  18s ease-in-out infinite alternate,
-    drift-2  22s ease-in-out infinite alternate,
-    drift-3  26s ease-in-out infinite alternate,
-    drift-4  20s ease-in-out infinite alternate,
-    hue-shift-1 12s ease-in-out infinite alternate,
-    hue-shift-2 16s ease-in-out infinite alternate,
-    hue-shift-3 20s ease-in-out infinite alternate,
-    hue-shift-4 14s ease-in-out infinite alternate;
   background:
     radial-gradient(
       ellipse 55% 55% at var(--x-1) var(--y-1),
@@ -149,61 +140,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
 }
 
-/* ============================================================
-   POSITION DRIFT KEYFRAMES
-   Each blob orbits its own path. Offsets are staggered to
-   prevent synchronized loops.
-   ============================================================ */
-@keyframes drift-1 {
-  0%   { --x-1: 20%;  --y-1: 30%; }
-  33%  { --x-1: 35%;  --y-1: 45%; }
-  66%  { --x-1: 28%;  --y-1: 22%; }
-  100% { --x-1: 40%;  --y-1: 38%; }
-}
-@keyframes drift-2 {
-  0%   { --x-2: 72%;  --y-2: 22%; }
-  33%  { --x-2: 60%;  --y-2: 38%; }
-  66%  { --x-2: 78%;  --y-2: 30%; }
-  100% { --x-2: 55%;  --y-2: 18%; }
-}
-@keyframes drift-3 {
-  0%   { --x-3: 50%;  --y-3: 68%; }
-  33%  { --x-3: 65%;  --y-3: 55%; }
-  66%  { --x-3: 42%;  --y-3: 75%; }
-  100% { --x-3: 58%;  --y-3: 60%; }
-}
-@keyframes drift-4 {
-  0%   { --x-4: 18%;  --y-4: 62%; }
-  33%  { --x-4: 30%;  --y-4: 72%; }
-  66%  { --x-4: 12%;  --y-4: 55%; }
-  100% { --x-4: 25%;  --y-4: 68%; }
-}
-
-/* ============================================================
-   HUE ROTATION KEYFRAMES
-   Colors shift independently at different rates, creating
-   a constantly evolving palette that never quite repeats.
-   ============================================================ */
-@keyframes hue-shift-1 {
-  0%   { --hue-1: 270; }
-  50%  { --hue-1: 300; }
-  100% { --hue-1: 250; }
-}
-@keyframes hue-shift-2 {
-  0%   { --hue-2: 210; }
-  50%  { --hue-2: 240; }
-  100% { --hue-2: 195; }
-}
-@keyframes hue-shift-3 {
-  0%   { --hue-3: 175; }
-  50%  { --hue-3: 155; }
-  100% { --hue-3: 195; }
-}
-@keyframes hue-shift-4 {
-  0%   { --hue-4: 320; }
-  50%  { --hue-4: 340; }
-  100% { --hue-4: 290; }
-}
+/* @keyframes removed — GSAP animates registered custom properties directly */
 
 /* ============================================================
    NAVIGATION
@@ -249,11 +186,6 @@ body {
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 450;
-  transition: color 0.2s ease-out;
-}
-
-.nav-links a:hover {
-  color: #fff;
 }
 
 .nav-cta {
@@ -263,12 +195,6 @@ body {
   border-radius: 8px;
   color: #fff !important;
   font-weight: 500 !important;
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-}
-
-.nav-cta:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================================
@@ -308,12 +234,6 @@ body {
   height: 7px;
   background: oklch(0.75 0.18 155);
   border-radius: 50%;
-  animation: pulse-dot 2.5s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.5; transform: scale(0.8); }
 }
 
 .hero-title {
@@ -383,36 +303,12 @@ body {
     0 1px 2px oklch(0% 0 0 / 0.3),
     0 4px 16px oklch(0.55 0.20 260 / 0.3),
     inset 0 1px 0 oklch(100% 0 0 / 0.1);
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 2px 4px oklch(0% 0 0 / 0.3),
-    0 8px 24px oklch(0.55 0.20 260 / 0.4),
-    inset 0 1px 0 oklch(100% 0 0 / 0.12);
-}
-
-.btn-primary:active {
-  transform: translateY(0) scale(0.98);
 }
 
 .btn-secondary {
   background: transparent;
   color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  transition: color 0.2s ease-out, border-color 0.2s ease-out, background-color 0.2s ease-out;
-}
-
-.btn-secondary:hover {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.btn-secondary:active {
-  transform: scale(0.98);
 }
 
 /* ============================================================
@@ -425,16 +321,8 @@ a:focus-visible,
 }
 
 /* ============================================================
-   REDUCED MOTION
+   REDUCED MOTION — GSAP checks UV.prefersReducedMotion
    ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  .hero::before {
-    animation: none;
-  }
-  .hero-badge-dot {
-    animation: none;
-  }
-}
 
 /* ============================================================
    RESPONSIVE
@@ -494,5 +382,190 @@ a:focus-visible,
       </div>
     </div>
   </section>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var mesh = document.querySelector('.hero::before') ? document.querySelector('.hero') : null;
+  var heroBefore = document.querySelector('.hero');
+
+  if (!UV.prefersReducedMotion) {
+
+    /* ── 1. Gradient blob position drifts (replaces @keyframes drift-1..4) ── */
+    // Drift 1: blob at position 1
+    gsap.to('.hero', {
+      '--x-1': '40%', '--y-1': '38%',
+      duration: 18, ease: 'sine.inOut', repeat: -1, yoyo: true,
+      keyframes: [
+        { '--x-1': '20%',  '--y-1': '30%', duration: 0 },
+        { '--x-1': '35%',  '--y-1': '45%', duration: 6 },
+        { '--x-1': '28%',  '--y-1': '22%', duration: 6 },
+        { '--x-1': '40%',  '--y-1': '38%', duration: 6 },
+      ],
+      repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+
+    // Drift 2
+    gsap.to('.hero', {
+      keyframes: [
+        { '--x-2': '72%',  '--y-2': '22%', duration: 0 },
+        { '--x-2': '60%',  '--y-2': '38%', duration: 7.3 },
+        { '--x-2': '78%',  '--y-2': '30%', duration: 7.3 },
+        { '--x-2': '55%',  '--y-2': '18%', duration: 7.4 },
+      ],
+      repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+
+    // Drift 3
+    gsap.to('.hero', {
+      keyframes: [
+        { '--x-3': '50%',  '--y-3': '68%', duration: 0 },
+        { '--x-3': '65%',  '--y-3': '55%', duration: 8.7 },
+        { '--x-3': '42%',  '--y-3': '75%', duration: 8.7 },
+        { '--x-3': '58%',  '--y-3': '60%', duration: 8.6 },
+      ],
+      repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+
+    // Drift 4
+    gsap.to('.hero', {
+      keyframes: [
+        { '--x-4': '18%',  '--y-4': '62%', duration: 0 },
+        { '--x-4': '30%',  '--y-4': '72%', duration: 6.7 },
+        { '--x-4': '12%',  '--y-4': '55%', duration: 6.7 },
+        { '--x-4': '25%',  '--y-4': '68%', duration: 6.6 },
+      ],
+      repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+
+    /* ── 2. Hue rotations (replaces @keyframes hue-shift-1..4) ── */
+    gsap.to('.hero', {
+      '--hue-1': 300, duration: 6, ease: 'sine.inOut',
+      repeat: -1, yoyo: true,
+    });
+    gsap.fromTo('.hero', { '--hue-2': 210 }, {
+      '--hue-2': 240, duration: 8, ease: 'sine.inOut',
+      repeat: -1, yoyo: true,
+    });
+    gsap.fromTo('.hero', { '--hue-3': 175 }, {
+      '--hue-3': 195, duration: 10, ease: 'sine.inOut',
+      repeat: -1, yoyo: true,
+    });
+    gsap.fromTo('.hero', { '--hue-4': 320 }, {
+      '--hue-4': 290, duration: 7, ease: 'sine.inOut',
+      repeat: -1, yoyo: true,
+    });
+
+    /* ── 3. Pulse dot (replaces @keyframes pulse-dot) ── */
+    gsap.to('.hero-badge-dot', {
+      opacity: 0.5, scale: 0.8,
+      duration: 1.25, ease: 'sine.inOut',
+      repeat: -1, yoyo: true,
+    });
+
+    /* ── 4. Hero content entrance sequence ── */
+    var heroTl = gsap.timeline({ delay: 0.3 });
+    heroTl
+      .from('.hero-badge', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' })
+      .from('.hero-title', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' }, '-=0.2')
+      .from('.hero-subtitle', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' }, '-=0.3')
+      .from('.hero-actions .btn', {
+        opacity: 0, y: 20, scale: 0.9,
+        duration: 0.5, ease: 'back.out(1.7)', stagger: 0.12,
+      }, '-=0.2');
+
+    /* ── 5. Nav entrance ── */
+    UV.fadeIn('.nav', { y: -20, duration: 0.5, delay: 0.1 });
+
+    /* ── 6. Nav link hovers (replaces CSS transition on .nav-links a) ── */
+    document.querySelectorAll('.nav-links a:not(.nav-cta)').forEach(function (a) {
+      a.addEventListener('mouseenter', function () {
+        gsap.to(a, { color: '#fff', duration: 0.2, ease: 'power2.out' });
+      });
+      a.addEventListener('mouseleave', function () {
+        gsap.to(a, { color: 'rgba(255,255,255,0.65)', duration: 0.2, ease: 'power2.out' });
+      });
+    });
+
+    /* ── 7. Nav CTA hover (replaces CSS transition) ── */
+    document.querySelectorAll('.nav-cta').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        gsap.to(el, {
+          backgroundColor: 'rgba(255,255,255,0.18)',
+          borderColor: 'rgba(255,255,255,0.3)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      el.addEventListener('mouseleave', function () {
+        gsap.to(el, {
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          borderColor: 'rgba(255,255,255,0.15)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+    });
+
+    /* ── 8. Primary button hover (replaces CSS transition) ── */
+    document.querySelectorAll('.btn-primary').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, {
+          y: -1,
+          boxShadow: '0 2px 4px oklch(0% 0 0 / 0.3), 0 8px 24px oklch(0.55 0.20 260 / 0.4), inset 0 1px 0 oklch(100% 0 0 / 0.12)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, {
+          y: 0,
+          boxShadow: '0 1px 2px oklch(0% 0 0 / 0.3), 0 4px 16px oklch(0.55 0.20 260 / 0.3), inset 0 1px 0 oklch(100% 0 0 / 0.1)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { y: 0, scale: 0.98, duration: 0.1 });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'back.out(1.7)' });
+      });
+    });
+
+    /* ── 9. Secondary button hover (replaces CSS transition) ── */
+    document.querySelectorAll('.btn-secondary').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, {
+          color: '#fff',
+          borderColor: 'rgba(255,255,255,0.35)',
+          backgroundColor: 'rgba(255,255,255,0.06)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, {
+          color: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(255,255,255,0.18)',
+          backgroundColor: 'transparent',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { scale: 0.98, duration: 0.1 });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'back.out(1.7)' });
+      });
+    });
+  }
+
+  /* ── Control panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>

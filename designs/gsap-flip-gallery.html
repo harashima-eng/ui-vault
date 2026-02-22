@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flip Gallery — UI Vault</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Dark, cinematic palette. Amber accent on obsidian.
+   ============================================================ */
+:root {
+  --bg: #0a0a0a;
+  --bg-raised: #111111;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --text: #e8e6e3;
+  --text-secondary: #8a8680;
+  --text-dim: #5a5650;
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-glow: rgba(245, 158, 11, 0.25);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(245, 158, 11, 0.4);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
+            0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3),
+               0 24px 48px rgba(0, 0, 0, 0.25);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  /* Category gradients */
+  --grad-nature: linear-gradient(145deg, #1a4a2e 0%, #2d6b45 40%, #34d399 100%);
+  --grad-architecture: linear-gradient(145deg, #1e293b 0%, #334155 40%, #64748b 100%);
+  --grad-abstract: linear-gradient(145deg, #4a1d6e 0%, #7c3aed 40%, #c084fc 100%);
+  --grad-portrait: linear-gradient(145deg, #7c2d12 0%, #c2785c 40%, #fbbf24 100%);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   PAGE STRUCTURE
+   ============================================================ */
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 56px 24px 100px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.page-header {
+  margin-bottom: 40px;
+}
+
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.page-eyebrow::before {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-wrap: balance;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  max-width: 55ch;
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   CONTROLS
+   Two rows: layout switcher + category filters
+   ============================================================ */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.control-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.control-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.control-btn[data-active="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border-active);
+}
+
+/* ============================================================
+   GALLERY CONTAINER
+   Hosts cards; class determines layout mode.
+   ============================================================ */
+.gallery {
+  position: relative;
+  min-height: 200px;
+}
+
+/* Layout: Grid (3 columns) */
+.gallery--grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Layout: List (single column, horizontal cards) */
+.gallery--list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Layout: Masonry (CSS columns) */
+.gallery--masonry {
+  column-count: 3;
+  column-gap: 16px;
+}
+
+/* ============================================================
+   GALLERY CARD — BASE
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+.card[data-hidden="true"] {
+  display: none;
+}
+
+.card-visual {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.card-body {
+  padding: 16px 18px;
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.card-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 100px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.card-badge[data-cat="nature"] { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2); }
+.card-badge[data-cat="architecture"] { color: #94a3b8; background: rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.2); }
+.card-badge[data-cat="abstract"] { color: #c084fc; background: rgba(192, 132, 252, 0.1); border-color: rgba(192, 132, 252, 0.2); }
+.card-badge[data-cat="portrait"] { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); }
+
+.card-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* ============================================================
+   LAYOUT-SPECIFIC CARD OVERRIDES
+   ============================================================ */
+
+/* ── Grid layout ── */
+.gallery--grid .card-visual {
+  aspect-ratio: 4 / 3;
+}
+
+.gallery--grid .card-desc {
+  display: none;
+}
+
+/* ── List layout ── */
+.gallery--list .card {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  align-items: stretch;
+}
+
+.gallery--list .card-visual {
+  aspect-ratio: auto;
+  min-height: 140px;
+}
+
+.gallery--list .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 24px;
+}
+
+.gallery--list .card-desc {
+  display: block;
+}
+
+/* ── Masonry layout ── */
+.gallery--masonry .card {
+  break-inside: avoid;
+  margin-bottom: 16px;
+}
+
+.gallery--masonry .card:nth-child(3n+1) .card-visual { aspect-ratio: 1 / 1; }
+.gallery--masonry .card:nth-child(3n+2) .card-visual { aspect-ratio: 4 / 5; }
+.gallery--masonry .card:nth-child(3n)   .card-visual { aspect-ratio: 3 / 2; }
+
+.gallery--masonry .card-desc {
+  display: none;
+}
+
+/* ============================================================
+   CATEGORY-SPECIFIC GRADIENTS
+   ============================================================ */
+.card[data-category="nature"] .card-visual     { background: var(--grad-nature); }
+.card[data-category="architecture"] .card-visual { background: var(--grad-architecture); }
+.card[data-category="abstract"] .card-visual   { background: var(--grad-abstract); }
+.card[data-category="portrait"] .card-visual   { background: var(--grad-portrait); }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.gallery-empty {
+  display: none;
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text-dim);
+}
+
+.gallery-empty.visible {
+  display: block;
+}
+
+.gallery-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  stroke: var(--text-dim);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0.5;
+}
+
+.gallery-empty-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.gallery-empty-desc {
+  font-size: 0.875rem;
+}
+
+/* ============================================================
+   ITEM COUNT
+   ============================================================ */
+.item-count {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-bottom: 20px;
+  min-height: 18px;
+}
+
+.item-count strong {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .gallery--grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery--masonry { column-count: 2; }
+  .gallery--list .card { grid-template-columns: 200px 1fr; }
+}
+
+@media (max-width: 580px) {
+  .page { padding: 40px 16px 80px; }
+
+  .gallery--grid { grid-template-columns: 1fr; }
+  .gallery--masonry { column-count: 1; }
+
+  .gallery--list .card {
+    grid-template-columns: 1fr;
+  }
+  .gallery--list .card-visual {
+    aspect-ratio: 16 / 9;
+    min-height: auto;
+  }
+
+  .control-row { gap: 6px; }
+  .control-btn { padding: 6px 12px; font-size: 0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <header class="page-header">
+    <div class="page-eyebrow">GSAP Flip Plugin</div>
+    <h1 class="page-title">Flip Gallery</h1>
+    <p class="page-subtitle">Seamless layout transitions powered by GSAP Flip. Switch views and filter categories with physics-based repositioning.</p>
+  </header>
+
+  <!-- ── CONTROLS ── -->
+  <div class="controls">
+
+    <!-- Layout switcher -->
+    <div class="control-row">
+      <span class="control-label">Layout</span>
+      <button class="control-btn" data-layout="grid" data-active="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Grid
+      </button>
+      <button class="control-btn" data-layout="list">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        List
+      </button>
+      <button class="control-btn" data-layout="masonry">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="10" rx="1"/><rect x="14" y="3" width="7" height="6" rx="1"/><rect x="14" y="13" width="7" height="8" rx="1"/><rect x="3" y="17" width="7" height="4" rx="1"/></svg>
+        Masonry
+      </button>
+    </div>
+
+    <!-- Category filters -->
+    <div class="control-row">
+      <span class="control-label">Filter</span>
+      <button class="control-btn" data-filter="all" data-active="true">All</button>
+      <button class="control-btn" data-filter="nature">Nature</button>
+      <button class="control-btn" data-filter="architecture">Architecture</button>
+      <button class="control-btn" data-filter="abstract">Abstract</button>
+      <button class="control-btn" data-filter="portrait">Portrait</button>
+    </div>
+
+  </div>
+
+  <!-- ── ITEM COUNT ── -->
+  <div class="item-count" id="itemCount">
+    Showing <strong>12</strong> of 12 items
+  </div>
+
+  <!-- ── GALLERY ── -->
+  <div class="gallery gallery--grid" id="gallery">
+
+    <article class="card" data-category="nature" data-flip-id="card-1">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Morning Canopy</h3>
+        <span class="card-badge" data-cat="nature">Nature</span>
+        <p class="card-desc">Sunlight filtering through a dense canopy of ancient oaks, casting dappled patterns across the forest floor.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="architecture" data-flip-id="card-2">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Brutalist Stairwell</h3>
+        <span class="card-badge" data-cat="architecture">Architecture</span>
+        <p class="card-desc">Exposed concrete spiraling upward in a government building from the 1960s, raw geometry and functional form.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="abstract" data-flip-id="card-3">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Spectral Drift</h3>
+        <span class="card-badge" data-cat="abstract">Abstract</span>
+        <p class="card-desc">Layered gradients that evoke the slow bleed of color across a twilight horizon, dissolving boundaries between form and void.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="portrait" data-flip-id="card-4">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Golden Hour</h3>
+        <span class="card-badge" data-cat="portrait">Portrait</span>
+        <p class="card-desc">Warm side-lighting catching the texture of weathered skin, a study in warmth and quiet dignity.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="nature" data-flip-id="card-5">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Coastal Erosion</h3>
+        <span class="card-badge" data-cat="nature">Nature</span>
+        <p class="card-desc">Sandstone cliffs sculpted by millennia of wind and salt spray, revealing geological layers like pages of a book.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="abstract" data-flip-id="card-6">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Chromatic Noise</h3>
+        <span class="card-badge" data-cat="abstract">Abstract</span>
+        <p class="card-desc">Digital artifacts rendered beautiful, glitch patterns and pixel decay transformed into deliberate composition.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="architecture" data-flip-id="card-7">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Glass Pavilion</h3>
+        <span class="card-badge" data-cat="architecture">Architecture</span>
+        <p class="card-desc">Frameless glass walls dissolving the boundary between interior and landscape, Miesian transparency at its purest.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="portrait" data-flip-id="card-8">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Artisan Hands</h3>
+        <span class="card-badge" data-cat="portrait">Portrait</span>
+        <p class="card-desc">Close-up of a potter's hands at the wheel, clay spinning into form under practiced pressure.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="nature" data-flip-id="card-9">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Bioluminescent Bay</h3>
+        <span class="card-badge" data-cat="nature">Nature</span>
+        <p class="card-desc">Microscopic organisms painting the Caribbean night waters with an electric blue glow at every disturbance.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="architecture" data-flip-id="card-10">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Cantilever Bridge</h3>
+        <span class="card-badge" data-cat="architecture">Architecture</span>
+        <p class="card-desc">Steel trusses reaching across a river gorge, engineering elegance visible in every rivet and tension cable.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="abstract" data-flip-id="card-11">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Folded Light</h3>
+        <span class="card-badge" data-cat="abstract">Abstract</span>
+        <p class="card-desc">Refractions through cut crystal creating impossible geometries of color and shadow on a white surface.</p>
+      </div>
+    </article>
+
+    <article class="card" data-category="portrait" data-flip-id="card-12">
+      <div class="card-visual"></div>
+      <div class="card-body">
+        <h3 class="card-title">Street Musician</h3>
+        <span class="card-badge" data-cat="portrait">Portrait</span>
+        <p class="card-desc">A cellist performing in a subway tunnel, sound and solitude amplified by tile walls and indifferent crowds.</p>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── EMPTY STATE ── -->
+  <div class="gallery-empty" id="galleryEmpty">
+    <svg class="gallery-empty-icon" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <div class="gallery-empty-title">No items match</div>
+    <div class="gallery-empty-desc">Try selecting a different category filter.</div>
+  </div>
+
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  /* ── Reduced motion: show everything immediately, skip animations ── */
+  if (UV.prefersReducedMotion) {
+    UV.addControlPanel();
+    return;
+  }
+
+  /* ── References ── */
+  var gallery = document.getElementById('gallery');
+  var cards = gallery.querySelectorAll('.card');
+  var itemCountEl = document.getElementById('itemCount');
+  var itemCountStrong = itemCountEl.querySelector('strong');
+  var emptyEl = document.getElementById('galleryEmpty');
+  var layoutBtns = document.querySelectorAll('[data-layout]');
+  var filterBtns = document.querySelectorAll('[data-filter]');
+  var currentLayout = 'grid';
+  var currentFilter = 'all';
+  var totalCards = cards.length;
+
+  /* ── Helper: update item count safely ── */
+  function updateItemCount(visibleCount) {
+    itemCountStrong.textContent = String(visibleCount);
+  }
+
+  /* ── 1. Page entrance timeline ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.from('.page-eyebrow', { opacity: 0, y: -16, duration: 0.45 });
+  tl.from('.page-title', { opacity: 0, y: -24, duration: 0.55 }, '-=0.25');
+  tl.from('.page-subtitle', { opacity: 0, y: -14, duration: 0.4 }, '-=0.25');
+  tl.from('.controls', { opacity: 0, y: 16, duration: 0.4 }, '-=0.15');
+  tl.from('.item-count', { opacity: 0, duration: 0.3 }, '-=0.2');
+
+  /* Stagger cards in */
+  tl.from(cards, {
+    opacity: 0,
+    y: 50,
+    scale: 0.92,
+    duration: 0.55,
+    stagger: 0.05,
+    ease: 'power3.out',
+  }, '-=0.1');
+
+  /* ── 2. Card hover lift via GSAP ── */
+  UV.hoverLift('.card', {
+    y: -6,
+    shadow: '0 8px 16px rgba(0,0,0,0.3), 0 24px 48px rgba(0,0,0,0.25)',
+    restShadow: '0 0px 0px rgba(0,0,0,0)',
+  });
+
+  /* ── 3. Layout switching ── */
+  function setLayout(newLayout) {
+    if (newLayout === currentLayout) return;
+
+    /* Capture state of all visible cards */
+    var visibleCards = gallery.querySelectorAll('.card:not([data-hidden="true"])');
+    var state = Flip.getState(visibleCards);
+
+    /* Swap layout class */
+    gallery.classList.remove('gallery--' + currentLayout);
+    gallery.classList.add('gallery--' + newLayout);
+    currentLayout = newLayout;
+
+    /* Update active button */
+    layoutBtns.forEach(function (btn) {
+      btn.setAttribute('data-active', btn.getAttribute('data-layout') === newLayout ? 'true' : 'false');
+    });
+
+    /* Animate from old state to new */
+    Flip.from(state, {
+      duration: 0.65,
+      ease: 'power2.inOut',
+      stagger: 0.04,
+      absolute: true,
+      onEnter: function (elements) {
+        return gsap.fromTo(elements, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4 });
+      },
+      onLeave: function (elements) {
+        return gsap.to(elements, { opacity: 0, scale: 0.9, duration: 0.3 });
+      },
+    });
+  }
+
+  layoutBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setLayout(btn.getAttribute('data-layout'));
+    });
+  });
+
+  /* ── 4. Category filtering ── */
+  function setFilter(newFilter) {
+    if (newFilter === currentFilter) return;
+
+    /* Capture state of ALL cards (visible and hidden) for Flip */
+    var state = Flip.getState(cards);
+
+    currentFilter = newFilter;
+
+    /* Update active button */
+    filterBtns.forEach(function (btn) {
+      btn.setAttribute('data-active', btn.getAttribute('data-filter') === newFilter ? 'true' : 'false');
+    });
+
+    /* Show/hide cards based on filter */
+    var visibleCount = 0;
+    cards.forEach(function (card) {
+      var cat = card.getAttribute('data-category');
+      var shouldShow = (newFilter === 'all' || cat === newFilter);
+      card.setAttribute('data-hidden', shouldShow ? 'false' : 'true');
+      if (shouldShow) visibleCount++;
+    });
+
+    /* Update item count (safe DOM method) */
+    updateItemCount(visibleCount);
+
+    /* Show/hide empty state */
+    emptyEl.classList.toggle('visible', visibleCount === 0);
+
+    /* Animate with Flip */
+    Flip.from(state, {
+      duration: 0.6,
+      ease: 'power2.inOut',
+      stagger: 0.04,
+      absolute: true,
+      onEnter: function (elements) {
+        return gsap.fromTo(elements,
+          { opacity: 0, scale: 0.85, y: 20 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.4)' }
+        );
+      },
+      onLeave: function (elements) {
+        return gsap.to(elements,
+          { opacity: 0, scale: 0.85, y: -10, duration: 0.3, ease: 'power2.in' }
+        );
+      },
+    });
+  }
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setFilter(btn.getAttribute('data-filter'));
+    });
+  });
+
+  /* ── 5. Button hover via GSAP ── */
+  var allBtns = document.querySelectorAll('.control-btn');
+  allBtns.forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () {
+      if (btn.getAttribute('data-active') === 'true') return;
+      gsap.to(btn, { backgroundColor: 'rgba(255, 255, 255, 0.08)', duration: 0.2, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', function () {
+      if (btn.getAttribute('data-active') === 'true') return;
+      gsap.to(btn, { backgroundColor: 'rgba(255, 255, 255, 0.05)', duration: 0.2, ease: 'power2.out' });
+    });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

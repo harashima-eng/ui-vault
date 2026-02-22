@@ -14,33 +14,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fb-name{font-size:20px;font-weight:700;color:var(--hd);letter-spacing:-.01em;margin-bottom:12px}
 .fb-tag{font-size:14px;line-height:1.6;margin-bottom:24px;max-width:260px}
 .fs{display:flex;gap:16px;list-style:none}
-.fs a{display:inline-flex;align-items:center;justify-content:center;color:var(--lk);transition:color .2s ease-out}
-.fs a:hover{color:var(--hd)}
+.fs a{display:inline-flex;align-items:center;justify-content:center;color:var(--lk)}
 .fs a:focus-visible{outline:2px solid var(--vi);outline-offset:3px;border-radius:2px}
 .fs svg{width:20px;height:20px;fill:currentColor}
 .fnh{font-size:11px;font-weight:600;color:var(--hd);text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px}
 .fnl{list-style:none}
 .fnl li{line-height:2.2}
-.fnl a{color:var(--lk);text-decoration:none;transition:color .15s ease-out}
-.fnl a:hover{color:var(--hd)}
+.fnl a{color:var(--lk);text-decoration:none}
 .fnl a:focus-visible{outline:2px solid var(--vi);outline-offset:2px;border-radius:2px}
 .fn{background:var(--sf);padding:32px 40px}
 .fni{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .fnl-label{font-size:15px;font-weight:600;color:var(--hd);white-space:nowrap}
 .fnf{display:flex;gap:10px;flex:1;max-width:420px}
-.fne{flex:1;min-width:0;padding:10px 16px;font-size:14px;font-family:inherit;color:var(--hd);background:var(--bg);border:1px solid var(--sp);border-radius:8px;outline:none;transition:border-color .15s ease-out,box-shadow .15s ease-out}
+.fne{flex:1;min-width:0;padding:10px 16px;font-size:14px;font-family:inherit;color:var(--hd);background:var(--bg);border:1px solid var(--sp);border-radius:8px;outline:none}
 .fne::placeholder{color:#666}
 .fne:focus-visible{border-color:var(--vi);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
-.fsb{padding:10px 24px;font-size:14px;font-weight:600;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--am),var(--rs),var(--vi));border:none;border-radius:100px;cursor:pointer;white-space:nowrap;transition:box-shadow .2s ease-out}
-.fsb:hover{box-shadow:0 0 20px rgba(244,63,94,.35),0 0 40px rgba(139,92,246,.2)}
+.fsb{padding:10px 24px;font-size:14px;font-weight:600;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--am),var(--rs),var(--vi));border:none;border-radius:100px;cursor:pointer;white-space:nowrap}
 .fsb:focus-visible{outline:2px solid var(--vi);outline-offset:3px}
 .fsb:active{transform:scale(.97)}
 .fbt{background:var(--bg);background-image:radial-gradient(circle,rgba(255,255,255,.04) 1px,transparent 1px);background-size:24px 24px;border-top:1px solid var(--sp);padding:20px 40px}
 .fbi{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .fc{font-size:13px;color:#777}
 .fl{display:flex;gap:24px;list-style:none}
-.fl a{font-size:13px;color:#777;text-decoration:none;transition:color .15s ease-out}
-.fl a:hover{color:var(--hd)}
+.fl a{font-size:13px;color:#777;text-decoration:none}
 .fl a:focus-visible{outline:2px solid var(--vi);outline-offset:2px;border-radius:2px}
 @media(max-width:768px){
 .fm{padding:40px 24px 36px}
@@ -58,7 +54,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fbi{flex-direction:column;gap:12px;text-align:center}
 .fl{gap:16px}
 }
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -127,5 +122,106 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </ul>
 </div></div>
 </footer>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, TextPlugin, Flip);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  if (UV.prefersReducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── 1. Page load: brand + column headers fade in ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.from('.fb-name', { opacity: 0, y: -20, duration: 0.5 });
+  tl.from('.fb-tag', { opacity: 0, y: 10, duration: 0.4 }, '-=0.2');
+
+  /* ── 2. Column links: scrollReveal with stagger ── */
+  document.querySelectorAll('.fnl').forEach(function (list) {
+    UV.scrollReveal(list.querySelectorAll('a'), {
+      trigger: list,
+      y: 20,
+      duration: 0.4,
+      stagger: 0.06,
+      start: 'top 95%',
+    });
+  });
+
+  /* Column headers stagger */
+  UV.staggerSequence('.fnh', { y: 15, duration: 0.4, stagger: 0.1 });
+
+  /* Social icons stagger entrance */
+  UV.staggerSequence('.fs a', { y: 15, duration: 0.3, stagger: 0.08 });
+
+  /* ── 3. Newsletter input: focus glow via GSAP ── */
+  var emailInput = document.querySelector('.fne');
+  if (emailInput) {
+    emailInput.addEventListener('focus', function () {
+      gsap.to(emailInput, {
+        borderColor: '#8B5CF6',
+        boxShadow: '0 0 0 3px rgba(139,92,246,0.2)',
+        duration: 0.15,
+        ease: 'power2.out',
+      });
+    });
+    emailInput.addEventListener('blur', function () {
+      gsap.to(emailInput, {
+        borderColor: 'rgba(255,255,255,0.08)',
+        boxShadow: '0 0 0 0px rgba(139,92,246,0)',
+        duration: 0.15,
+        ease: 'power2.out',
+      });
+    });
+  }
+
+  /* ── 4. Subscribe button: hover glow via GSAP ── */
+  var subBtn = document.querySelector('.fsb');
+  if (subBtn) {
+    subBtn.addEventListener('mouseenter', function () {
+      gsap.to(subBtn, {
+        boxShadow: '0 0 20px rgba(244,63,94,0.35), 0 0 40px rgba(139,92,246,0.2)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+    });
+    subBtn.addEventListener('mouseleave', function () {
+      gsap.to(subBtn, {
+        boxShadow: '0 0 0px rgba(244,63,94,0), 0 0 0px rgba(139,92,246,0)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+    });
+  }
+
+  /* ── 5. Social icons: stagger hover lift ── */
+  document.querySelectorAll('.fs a').forEach(function (icon) {
+    icon.addEventListener('mouseenter', function () {
+      gsap.to(icon, { y: -4, color: '#ffffff', duration: 0.2, ease: 'power2.out' });
+    });
+    icon.addEventListener('mouseleave', function () {
+      gsap.to(icon, { y: 0, color: '#b0b0b0', duration: 0.2, ease: 'power2.out' });
+    });
+  });
+
+  /* ── 6. Link hover color via GSAP ── */
+  function addLinkHover(selector, hoverColor, restColor) {
+    document.querySelectorAll(selector).forEach(function (link) {
+      link.addEventListener('mouseenter', function () {
+        gsap.to(link, { color: hoverColor, duration: 0.15, ease: 'power2.out' });
+      });
+      link.addEventListener('mouseleave', function () {
+        gsap.to(link, { color: restColor, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+  addLinkHover('.fnl a', '#ffffff', '#b0b0b0');
+  addLinkHover('.fl a', '#ffffff', '#777777');
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
 </body>
 </html>
