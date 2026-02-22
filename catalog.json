@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "designs": [
+    {
+      "id": "hero-gradient-mesh",
+      "title": "Gradient Mesh Hero",
+      "category": "Heroes",
+      "type": "full-page",
+      "tags": ["gradient", "mesh", "animation", "dark", "landing"],
+      "filePath": "designs/hero-gradient-mesh.html",
+      "description": "Animated OKLCH gradient mesh with drifting color blobs, noise texture overlay, and bold typography. Pure CSS animation via @property.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "card-glassmorphism",
+      "title": "Glassmorphism Cards",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["glass", "blur", "frosted", "dark", "hover"],
+      "filePath": "designs/card-glassmorphism.html",
+      "description": "Three frosted glass cards on a rich gradient background with ambient orb glow and hover lift effects.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "dashboard-analytics",
+      "title": "Analytics Dashboard",
+      "category": "Dashboards",
+      "type": "full-page",
+      "tags": ["dashboard", "charts", "stats", "table", "sidebar"],
+      "filePath": "designs/dashboard-analytics.html",
+      "description": "Full analytics dashboard with KPI stat cards, CSS-only animated bar chart, activity feed, and orders table.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "nav-floating-pill",
+      "title": "Floating Pill Navigation",
+      "category": "Navigation",
+      "type": "component",
+      "tags": ["navbar", "pill", "sliding", "blur", "dark"],
+      "filePath": "designs/nav-floating-pill.html",
+      "description": "Centered floating navbar with a sliding pill indicator that smoothly tracks the active item. Keyboard accessible.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "form-multi-step",
+      "title": "Multi-Step Wizard Form",
+      "category": "Forms",
+      "type": "component",
+      "tags": ["form", "wizard", "steps", "progress", "animation"],
+      "filePath": "designs/form-multi-step.html",
+      "description": "3-step wizard with animated progress stepper, slide transitions, toggle switches, and confirmation summary.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "layout-bento-grid",
+      "title": "Bento Grid Feature Showcase",
+      "category": "Layouts",
+      "type": "full-page",
+      "tags": ["bento", "grid", "earth-tones", "warm", "cards"],
+      "filePath": "designs/layout-bento-grid.html",
+      "description": "Mixed-size CSS Grid bento layout with warm earth tones — sand, terracotta, and forest green. Stats, icons, testimonials, and image cells.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "pricing-neon-table",
+      "title": "Neon Pricing Table",
+      "category": "Pricing",
+      "type": "component",
+      "tags": ["pricing", "neon", "glow", "cyberpunk", "dark"],
+      "filePath": "designs/pricing-neon-table.html",
+      "description": "3-tier cyberpunk pricing columns with neon cyan and magenta glow effects on true black. Pulsing badge and staggered feature animations.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "section-testimonial-marquee",
+      "title": "Testimonial Marquee",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["testimonial", "marquee", "scroll", "editorial", "organic"],
+      "filePath": "designs/section-testimonial-marquee.html",
+      "description": "CSS-only dual-row infinite marquee with testimonial cards scrolling in opposite directions. Cream and sage editorial palette.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "form-split-login",
+      "title": "Split Login Screen",
+      "category": "Forms",
+      "type": "full-page",
+      "tags": ["login", "split", "auth", "indigo", "social"],
+      "filePath": "designs/form-split-login.html",
+      "description": "50/50 split-screen login with deep indigo decorative panel and clean white form side. Social auth buttons and floating shapes.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "footer-mega",
+      "title": "Premium Mega Footer",
+      "category": "Footers",
+      "type": "component",
+      "tags": ["footer", "mega", "newsletter", "gradient", "columns"],
+      "filePath": "designs/footer-mega.html",
+      "description": "Stripe-style mega footer with gradient accent border, 4-column nav grid, newsletter signup, and social icons on near-black.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "hero-kinetic-typography",
+      "title": "Kinetic Typography Hero",
+      "category": "Heroes",
+      "type": "full-page",
+      "tags": ["typography", "kinetic", "animation", "editorial", "minimal"],
+      "filePath": "designs/hero-kinetic-typography.html",
+      "description": "Word-by-word CSS animation hero with monochrome palette and single red accent word. Typography IS the design — zero gradients.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "card-toast-notifications",
+      "title": "Toast Notification Stack",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["toast", "notification", "status", "slide-in", "progress"],
+      "filePath": "designs/card-toast-notifications.html",
+      "description": "4 toast variants (success, error, warning, info) with CSS slide-in animation, progress bars, and semantic color coding.",
+      "dateAdded": "2026-02-22"
+    },
+    {
+      "id": "nav-vertical-sidebar",
+      "title": "Vertical Sidebar Navigation",
+      "category": "Navigation",
+      "type": "component",
+      "tags": ["sidebar", "vertical", "collapsible", "dark", "app"],
+      "filePath": "designs/nav-vertical-sidebar.html",
+      "description": "Discord/Linear-style collapsible sidebar with emerald active indicator, expandable teams section, notification badges, and mobile drawer.",
+      "dateAdded": "2026-02-22"
+    }
+  ]
+}

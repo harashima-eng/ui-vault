@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bento Grid Feature Showcase</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Warm earth-tone palette. Notion-meets-Apple editorial grid.
+   ============================================================ */
+:root {
+  --bg: #F5F0E6;
+  --surface: #FFFFFF;
+  --text: #2D2A26;
+  --text-secondary: #7A7570;
+  --accent-terra: #C2785C;
+  --accent-green: #2D5A3D;
+  --border: #E8E2D8;
+  --shadow-warm: 0 1px 3px rgba(45, 42, 38, 0.06),
+                 0 4px 12px rgba(45, 42, 38, 0.04);
+  --shadow-warm-lg: 0 4px 8px rgba(45, 42, 38, 0.06),
+                    0 12px 28px rgba(45, 42, 38, 0.08);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   PAGE STRUCTURE
+   ============================================================ */
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-terra);
+  margin-bottom: 16px;
+}
+
+.page-eyebrow::before,
+.page-eyebrow::after {
+  content: "";
+  width: 24px;
+  height: 1.5px;
+  background: var(--accent-terra);
+  opacity: 0.4;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  text-wrap: balance;
+  margin-bottom: 12px;
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 50ch;
+  margin: 0 auto;
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   BENTO GRID
+   Named grid-template-areas for editorial asymmetry.
+   8 cells: hero-stat, feature-a, feature-b, testimonial,
+   gradient-accent, image, metrics, cta
+   ============================================================ */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+  gap: 16px;
+  grid-template-areas:
+    "hero    hero    feat-a  feat-a"
+    "hero    hero    feat-b  image"
+    "quote   quote   feat-b  image"
+    "metrics metrics grad    grad";
+}
+
+/* ============================================================
+   SHARED CELL STYLES
+   ============================================================ */
+.cell {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-warm);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.33, 1, 0.68, 1),
+              box-shadow 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.cell:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-warm-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+  .cell:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   CELL: HERO STAT (2x2)
+   Large number with contextual detail. The anchor piece.
+   ============================================================ */
+.cell--hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  min-height: 320px;
+}
+
+.cell--hero .hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 6px 14px;
+  background: rgba(45, 90, 61, 0.08);
+  color: var(--accent-green);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 100px;
+}
+
+.cell--hero .hero-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+}
+
+.cell--hero .hero-number {
+  font-size: clamp(3.5rem, 7vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  margin: 16px 0 8px;
+}
+
+.cell--hero .hero-label {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.cell--hero .hero-detail {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cell--hero .hero-detail .trend-up {
+  color: var(--accent-green);
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+/* Subtle background pattern for depth */
+.cell--hero::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(194, 120, 92, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   CELL: FEATURE A (2x1 — icon + title + description)
+   ============================================================ */
+.cell--feat-a {
+  grid-area: feat-a;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cell--feat-a .feat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent-terra) 0%, #D4956F 100%);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.cell--feat-a .feat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feat-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.feat-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ============================================================
+   CELL: FEATURE B (1x2 — vertical feature, stacked layout)
+   ============================================================ */
+.cell--feat-b {
+  grid-area: feat-b;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cell--feat-b .feat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent-green) 0%, #3D7A55 100%);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.cell--feat-b .feat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cell--feat-b .feat-visual {
+  flex: 1;
+  min-height: 100px;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(135deg, rgba(45, 90, 61, 0.05) 0%, transparent 60%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 28px,
+      var(--border) 28px,
+      var(--border) 29px
+    );
+}
+
+/* ============================================================
+   CELL: TESTIMONIAL (2x1 — quote with avatar)
+   ============================================================ */
+.cell--quote {
+  grid-area: quote;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cell--quote .quote-mark {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--accent-terra);
+  opacity: 0.5;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.cell--quote .quote-text {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text);
+  font-style: italic;
+}
+
+.cell--quote .quote-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.cell--quote .quote-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-terra) 0%, var(--accent-green) 100%);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cell--quote .quote-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cell--quote .quote-role {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   CELL: IMAGE PLACEHOLDER (1x2 — tall image)
+   CSS gradient simulates a photograph.
+   ============================================================ */
+.cell--image {
+  grid-area: image;
+  padding: 0;
+  background:
+    linear-gradient(
+      175deg,
+      #D4B896 0%,
+      #C2785C 35%,
+      #2D5A3D 70%,
+      #1A3A28 100%
+    );
+  position: relative;
+  min-height: 240px;
+}
+
+.cell--image .image-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,0,0,0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cell--image .image-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  opacity: 0.9;
+}
+
+.cell--image .image-caption span {
+  display: block;
+  font-weight: 400;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   CELL: METRICS ROW (2x1 — three mini stats)
+   ============================================================ */
+.cell--metrics {
+  grid-area: metrics;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 0;
+}
+
+.metric {
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.metric + .metric {
+  border-left: 1px solid var(--border);
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.metric-value .metric-unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-terra);
+}
+
+.metric-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ============================================================
+   CELL: GRADIENT ACCENT (2x1 — decorative)
+   Terracotta-to-green gradient with embossed typography.
+   ============================================================ */
+.cell--grad {
+  grid-area: grad;
+  background:
+    linear-gradient(135deg, var(--accent-terra) 0%, #A8604A 40%, var(--accent-green) 100%);
+  border: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cell--grad::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(0,0,0,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cell--grad .grad-big {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  font-size: clamp(5rem, 10vw, 8rem);
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.1;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cell--grad .grad-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  position: relative;
+}
+
+.cell--grad .grad-sub {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin-top: 6px;
+  position: relative;
+}
+
+.cell--grad .grad-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0.9;
+  position: relative;
+  cursor: pointer;
+}
+
+.cell--grad .grad-arrow svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  transition: transform 0.2s ease-out;
+}
+
+.cell--grad:hover .grad-arrow svg {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell--grad:hover .grad-arrow svg {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   4-col -> 2-col -> 1-col
+   ============================================================ */
+@media (max-width: 900px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "hero    hero"
+      "feat-a  feat-a"
+      "feat-b  image"
+      "quote   quote"
+      "metrics metrics"
+      "grad    grad";
+  }
+
+  .cell--hero { min-height: 260px; padding: 32px; }
+  .cell--hero .hero-number { font-size: 3.5rem; }
+}
+
+@media (max-width: 580px) {
+  .page { padding: 40px 16px 60px; }
+  .page-header { margin-bottom: 32px; }
+
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hero"
+      "feat-a"
+      "feat-b"
+      "image"
+      "quote"
+      "metrics"
+      "grad";
+  }
+
+  .cell { padding: 24px; }
+  .cell--hero { min-height: auto; padding: 28px; }
+  .cell--hero .hero-number { font-size: 3rem; }
+
+  .cell--image { min-height: 200px; }
+
+  .cell--metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .metric + .metric {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .metric { text-align: left; padding: 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="page-header">
+    <div class="page-eyebrow">Platform Overview</div>
+    <h1 class="page-title">Built for scale,<br>designed for humans</h1>
+    <p class="page-subtitle">Everything you need to ship faster, measured in outcomes that matter.</p>
+  </header>
+
+  <div class="bento">
+
+    <!-- HERO STAT: 2x2 anchor cell -->
+    <div class="cell cell--hero">
+      <div class="hero-badge">Live</div>
+      <div>
+        <div class="hero-number">10M+</div>
+        <div class="hero-label">Active users worldwide</div>
+      </div>
+      <div class="hero-detail">
+        <span class="trend-up">+27%</span> growth this quarter vs. last year
+      </div>
+    </div>
+
+    <!-- FEATURE A: 2x1 icon + title + description -->
+    <div class="cell cell--feat-a">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <div class="feat-title">Edge-native processing</div>
+      <div class="feat-desc">Deploy compute to 280+ locations. Sub-50ms latency for 95% of global users, with automatic failover and zero cold starts.</div>
+    </div>
+
+    <!-- FEATURE B: 1x2 vertical feature -->
+    <div class="cell cell--feat-b">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div class="feat-title">Composable architecture</div>
+      <div class="feat-desc">Every feature is a building block. Mix, extend, and ship without breaking what already works.</div>
+      <div class="feat-visual" aria-hidden="true"></div>
+    </div>
+
+    <!-- TESTIMONIAL: 2x1 quote -->
+    <div class="cell cell--quote">
+      <div class="quote-mark" aria-hidden="true">"</div>
+      <blockquote class="quote-text">We cut our deployment pipeline from 45 minutes to under 3. The team ships daily now instead of weekly sprints.</blockquote>
+      <div class="quote-author">
+        <div class="quote-avatar" aria-hidden="true">ML</div>
+        <div>
+          <div class="quote-name">Maya Lindgren</div>
+          <div class="quote-role">VP Engineering, Trellis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGE PLACEHOLDER: 1x2 tall -->
+    <div class="cell cell--image">
+      <div class="image-overlay" aria-hidden="true"></div>
+      <div class="image-caption">
+        Dashboard preview
+        <span>Real-time analytics at a glance</span>
+      </div>
+    </div>
+
+    <!-- METRICS ROW: 2x1 three mini stats -->
+    <div class="cell cell--metrics">
+      <div class="metric">
+        <div class="metric-value">99.99<span class="metric-unit">%</span></div>
+        <div class="metric-label">Uptime SLA</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">280<span class="metric-unit">+</span></div>
+        <div class="metric-label">Edge locations</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">&lt;50<span class="metric-unit">ms</span></div>
+        <div class="metric-label">P95 latency</div>
+      </div>
+    </div>
+
+    <!-- GRADIENT ACCENT: 2x1 decorative CTA -->
+    <div class="cell cell--grad">
+      <div class="grad-big" aria-hidden="true">GO</div>
+      <div class="grad-title">Ready to build something remarkable?</div>
+      <div class="grad-sub">Free tier included. No credit card required.</div>
+      <div class="grad-arrow" role="link" tabindex="0">
+        Get started
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

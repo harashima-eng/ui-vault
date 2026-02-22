@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimonial Marquee</title>
+<style>
+/* ============================================================
+   TESTIMONIAL MARQUEE — CSS-Only Infinite Scroll
+   Two rows, opposing directions, pause on hover, edge fade.
+   Editorial / warm organic palette.
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #FDF8F0;
+  color: #2C2C2C;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Section ---- */
+
+.testimonials {
+  width: 100%;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+/* ---- Header ---- */
+
+.testimonials-header {
+  text-align: center;
+  padding: 0 24px 56px;
+}
+
+.testimonials-eyebrow {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #D4837A;
+  margin-bottom: 16px;
+}
+
+.testimonials-heading {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.25rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #2C2C2C;
+  text-wrap: balance;
+  margin-bottom: 16px;
+}
+
+.testimonials-heading em {
+  font-style: italic;
+  color: #D4837A;
+}
+
+.testimonials-sub {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #8B8580;
+  max-width: 48ch;
+  margin: 0 auto;
+}
+
+/* ---- Marquee Track ---- */
+
+.marquee {
+  position: relative;
+  width: 100%;
+  /* Edge fade masks */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+.marquee + .marquee {
+  margin-top: 24px;
+}
+
+.marquee-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: marquee-left 45s linear infinite;
+}
+
+.marquee--reverse .marquee-track {
+  animation-name: marquee-right;
+  animation-duration: 50s;
+}
+
+/* Pause on hover */
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* ---- Testimonial Card ---- */
+
+.card {
+  flex-shrink: 0;
+  width: 340px;
+  background: #FFFFFF;
+  border: 1px solid #EDE8E0;
+  border-radius: 12px;
+  padding: 28px 26px 24px;
+  box-shadow:
+    0 1px 3px rgba(44, 44, 44, 0.04),
+    0 4px 12px rgba(44, 44, 44, 0.03);
+  transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.card:hover {
+  box-shadow:
+    0 4px 8px rgba(44, 44, 44, 0.06),
+    0 12px 28px rgba(44, 44, 44, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Stars */
+.card-stars {
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  color: #D4837A;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+/* Quote */
+.card-quote {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #2C2C2C;
+  margin-bottom: 22px;
+}
+
+/* Author row */
+.card-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avatar-sage   { background: linear-gradient(135deg, #A3B18A, #8FA378); }
+.avatar-rose   { background: linear-gradient(135deg, #D4837A, #C77B73); }
+.avatar-brown  { background: linear-gradient(135deg, #B8956A, #A6845E); }
+.avatar-clay   { background: linear-gradient(135deg, #C9A388, #B89070); }
+.avatar-moss   { background: linear-gradient(135deg, #7A9B6D, #6E8F62); }
+.avatar-mauve  { background: linear-gradient(135deg, #B99AAC, #A88B9D); }
+.avatar-sand   { background: linear-gradient(135deg, #D2BFA0, #C4AE8C); }
+.avatar-dusk   { background: linear-gradient(135deg, #9B8EA8, #8D7F9B); }
+.avatar-terra  { background: linear-gradient(135deg, #C7856D, #B5755E); }
+.avatar-olive  { background: linear-gradient(135deg, #8B9E6B, #7C8F5E); }
+
+.card-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2C2C2C;
+  line-height: 1.3;
+}
+
+.card-role {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #8B8580;
+  line-height: 1.3;
+}
+
+/* ---- Reduced Motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation-play-state: paused;
+  }
+}
+</style>
+</head>
+<body>
+
+<section class="testimonials" aria-label="Customer testimonials">
+  <div class="testimonials-header">
+    <p class="testimonials-eyebrow">Testimonials</p>
+    <h2 class="testimonials-heading">Loved by <em>thousands</em> of people</h2>
+    <p class="testimonials-sub">Join a community that has already discovered a better way to work, create, and grow together.</p>
+  </div>
+
+  <!-- Row 1 — scrolls left -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <!-- SET A (originals) -->
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">This completely changed the way I approach my morning workflow. Everything feels intentional now, like the tool was designed around how I actually think.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-sage"></div>
+          <div>
+            <div class="card-name">Amelia Chen</div>
+            <div class="card-role">Product Designer, Figment</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I was skeptical at first, but within a week I couldn't imagine going back. The attention to small details is remarkable.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-rose"></div>
+          <div>
+            <div class="card-name">Marcus Rivera</div>
+            <div class="card-role">Freelance Writer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Our entire team migrated in one afternoon. The onboarding was so seamless that nobody even needed documentation. That never happens.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-brown"></div>
+          <div>
+            <div class="card-name">Sofia Lindgren</div>
+            <div class="card-role">Engineering Lead, Terracotta</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Finally, something that respects my time. I spend less time managing the tool and more time doing the work that matters to me.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-clay"></div>
+          <div>
+            <div class="card-name">James Okafor</div>
+            <div class="card-role">Photographer &amp; Art Director</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I have recommended this to every founder I know. It is rare to find something this polished that also delivers real substance underneath.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-moss"></div>
+          <div>
+            <div class="card-name">Priya Kapoor</div>
+            <div class="card-role">CEO, Bloom Studio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SET B (duplicates for seamless loop) -->
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">This completely changed the way I approach my morning workflow. Everything feels intentional now, like the tool was designed around how I actually think.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-sage"></div>
+          <div>
+            <div class="card-name">Amelia Chen</div>
+            <div class="card-role">Product Designer, Figment</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I was skeptical at first, but within a week I couldn't imagine going back. The attention to small details is remarkable.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-rose"></div>
+          <div>
+            <div class="card-name">Marcus Rivera</div>
+            <div class="card-role">Freelance Writer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Our entire team migrated in one afternoon. The onboarding was so seamless that nobody even needed documentation. That never happens.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-brown"></div>
+          <div>
+            <div class="card-name">Sofia Lindgren</div>
+            <div class="card-role">Engineering Lead, Terracotta</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Finally, something that respects my time. I spend less time managing the tool and more time doing the work that matters to me.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-clay"></div>
+          <div>
+            <div class="card-name">James Okafor</div>
+            <div class="card-role">Photographer &amp; Art Director</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I have recommended this to every founder I know. It is rare to find something this polished that also delivers real substance underneath.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-moss"></div>
+          <div>
+            <div class="card-name">Priya Kapoor</div>
+            <div class="card-role">CEO, Bloom Studio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2 — scrolls right (reverse) -->
+  <div class="marquee marquee--reverse" aria-hidden="true">
+    <div class="marquee-track">
+      <!-- SET A (originals) -->
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">The aesthetic choices alone sold me, but the functionality underneath is what keeps me here. Beautiful and practical is a rare combination.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-mauve"></div>
+          <div>
+            <div class="card-name">Emiko Tanaka</div>
+            <div class="card-role">Brand Strategist, Palettera</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I switched from three separate tools to just this one. My workflow is cleaner, my output is better, and I actually enjoy the process now.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-sand"></div>
+          <div>
+            <div class="card-name">Liam Ashworth</div>
+            <div class="card-role">Content Creator</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Support responded within ten minutes and actually solved the issue. That level of care tells you everything about the team behind the product.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-dusk"></div>
+          <div>
+            <div class="card-name">Nina Petrova</div>
+            <div class="card-role">Operations Manager, Kinfolk Co.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">We've seen a measurable improvement in how our clients engage with deliverables. It just makes everything look and feel more considered.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-terra"></div>
+          <div>
+            <div class="card-name">Daniel Moreau</div>
+            <div class="card-role">Creative Director, Atelier Nine</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Honestly, I thought the hype was overblown. Then I tried it for a weekend project and ended up rebuilding my entire personal site with it.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-olive"></div>
+          <div>
+            <div class="card-name">Ava Johansson</div>
+            <div class="card-role">Frontend Developer</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SET B (duplicates for seamless loop) -->
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">The aesthetic choices alone sold me, but the functionality underneath is what keeps me here. Beautiful and practical is a rare combination.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-mauve"></div>
+          <div>
+            <div class="card-name">Emiko Tanaka</div>
+            <div class="card-role">Brand Strategist, Palettera</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">I switched from three separate tools to just this one. My workflow is cleaner, my output is better, and I actually enjoy the process now.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-sand"></div>
+          <div>
+            <div class="card-name">Liam Ashworth</div>
+            <div class="card-role">Content Creator</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Support responded within ten minutes and actually solved the issue. That level of care tells you everything about the team behind the product.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-dusk"></div>
+          <div>
+            <div class="card-name">Nina Petrova</div>
+            <div class="card-role">Operations Manager, Kinfolk Co.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">We've seen a measurable improvement in how our clients engage with deliverables. It just makes everything look and feel more considered.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-terra"></div>
+          <div>
+            <div class="card-name">Daniel Moreau</div>
+            <div class="card-role">Creative Director, Atelier Nine</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="card-quote">Honestly, I thought the hype was overblown. Then I tried it for a weekend project and ended up rebuilding my entire personal site with it.</p>
+        <div class="card-author">
+          <div class="card-avatar avatar-olive"></div>
+          <div>
+            <div class="card-name">Ava Johansson</div>
+            <div class="card-role">Frontend Developer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Mega Footer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end}
+.mf{--bg:#111;--sf:#1a1a1a;--lk:#b0b0b0;--hd:#fff;--am:#F59E0B;--rs:#F43F5E;--vi:#8B5CF6;--sp:rgba(255,255,255,.08);color:var(--lk);font-size:14px;line-height:1.5}
+.fa{height:3px;background:linear-gradient(to right,var(--am),var(--rs),var(--vi))}
+.fm{background:var(--bg);background-image:radial-gradient(circle,rgba(255,255,255,.04) 1px,transparent 1px);background-size:24px 24px;padding:56px 40px 48px}
+.fg{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px}
+.fb-name{font-size:20px;font-weight:700;color:var(--hd);letter-spacing:-.01em;margin-bottom:12px}
+.fb-tag{font-size:14px;line-height:1.6;margin-bottom:24px;max-width:260px}
+.fs{display:flex;gap:16px;list-style:none}
+.fs a{display:inline-flex;align-items:center;justify-content:center;color:var(--lk);transition:color .2s ease-out}
+.fs a:hover{color:var(--hd)}
+.fs a:focus-visible{outline:2px solid var(--vi);outline-offset:3px;border-radius:2px}
+.fs svg{width:20px;height:20px;fill:currentColor}
+.fnh{font-size:11px;font-weight:600;color:var(--hd);text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px}
+.fnl{list-style:none}
+.fnl li{line-height:2.2}
+.fnl a{color:var(--lk);text-decoration:none;transition:color .15s ease-out}
+.fnl a:hover{color:var(--hd)}
+.fnl a:focus-visible{outline:2px solid var(--vi);outline-offset:2px;border-radius:2px}
+.fn{background:var(--sf);padding:32px 40px}
+.fni{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.fnl-label{font-size:15px;font-weight:600;color:var(--hd);white-space:nowrap}
+.fnf{display:flex;gap:10px;flex:1;max-width:420px}
+.fne{flex:1;min-width:0;padding:10px 16px;font-size:14px;font-family:inherit;color:var(--hd);background:var(--bg);border:1px solid var(--sp);border-radius:8px;outline:none;transition:border-color .15s ease-out,box-shadow .15s ease-out}
+.fne::placeholder{color:#666}
+.fne:focus-visible{border-color:var(--vi);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+.fsb{padding:10px 24px;font-size:14px;font-weight:600;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--am),var(--rs),var(--vi));border:none;border-radius:100px;cursor:pointer;white-space:nowrap;transition:box-shadow .2s ease-out}
+.fsb:hover{box-shadow:0 0 20px rgba(244,63,94,.35),0 0 40px rgba(139,92,246,.2)}
+.fsb:focus-visible{outline:2px solid var(--vi);outline-offset:3px}
+.fsb:active{transform:scale(.97)}
+.fbt{background:var(--bg);background-image:radial-gradient(circle,rgba(255,255,255,.04) 1px,transparent 1px);background-size:24px 24px;border-top:1px solid var(--sp);padding:20px 40px}
+.fbi{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.fc{font-size:13px;color:#777}
+.fl{display:flex;gap:24px;list-style:none}
+.fl a{font-size:13px;color:#777;text-decoration:none;transition:color .15s ease-out}
+.fl a:hover{color:var(--hd)}
+.fl a:focus-visible{outline:2px solid var(--vi);outline-offset:2px;border-radius:2px}
+@media(max-width:768px){
+.fm{padding:40px 24px 36px}
+.fg{grid-template-columns:1fr 1fr;gap:36px 32px}
+.fn{padding:28px 24px}
+.fbt{padding:18px 24px}
+}
+@media(max-width:480px){
+.fm{padding:36px 20px 32px}
+.fg{grid-template-columns:1fr;gap:32px}
+.fn{padding:24px 20px}
+.fni{flex-direction:column;align-items:flex-start}
+.fnf{flex-direction:column;max-width:100%;width:100%}
+.fbt{padding:16px 20px}
+.fbi{flex-direction:column;gap:12px;text-align:center}
+.fl{gap:16px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<footer class="mf" role="contentinfo">
+<div class="fa" aria-hidden="true"></div>
+<div class="fm"><div class="fg">
+<div>
+<div class="fb-name">Acme Inc</div>
+<p class="fb-tag">Building tools that help teams ship better products, faster.</p>
+<ul class="fs" aria-label="Social media">
+<li><a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24H16.17l-5.21-6.82L4.99 21.75H1.68l7.73-8.84L1.25 2.25H8.08l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></a></li>
+<li><a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-3.16 19.5c.5.08.68-.22.68-.48v-1.7C6.73 19.91 6.14 18 6.14 18a2.69 2.69 0 00-1.12-1.46c-.91-.62.07-.61.07-.61a2.13 2.13 0 011.53 1.03 2.16 2.16 0 002.91.83c.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94a3.89 3.89 0 011.03-2.68c-.1-.26-.45-1.28.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 015.02 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.65a3.86 3.86 0 011.02 2.68c0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0012 2z"/></svg></a></li>
+<li><a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zM8.34 18.34V9.76H5.66v8.58h2.68zm-1.34-9.75a1.55 1.55 0 100-3.1 1.55 1.55 0 000 3.1zm10.66 9.75v-4.7c0-2.52-.54-4.46-3.49-4.46-1.42 0-2.37.78-2.76 1.52h-.04V9.76H8.76v8.58h2.68v-4.24c0-1.22.23-2.4 1.74-2.4s1.51 1.4 1.51 2.48v4.16h2.67z"/></svg></a></li>
+<li><a href="#" aria-label="Discord"><svg viewBox="0 0 24 24"><path d="M19.54 5.33a18.3 18.3 0 00-4.51-1.4c-.19.35-.42.82-.57 1.19a16.9 16.9 0 00-5.08 0c-.15-.37-.38-.84-.58-1.19a18.3 18.3 0 00-4.51 1.4A19.15 19.15 0 00.89 17.96a18.4 18.4 0 005.55 2.8c.45-.61.84-1.25 1.19-1.93a12 12 0 01-1.87-.9l.45-.36c3.57 1.65 7.47 1.65 11.01 0l.46.36c-.6.35-1.22.65-1.88.9.35.68.75 1.32 1.19 1.93a18.35 18.35 0 005.55-2.8 19.1 19.1 0 00-3.42-12.63zM8.35 15.19c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.88 2.23-1.98 2.23zm7.3 0c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.87 2.23-1.98 2.23z"/></svg></a></li>
+</ul>
+</div>
+<nav aria-label="Product">
+<div class="fnh">Product</div>
+<ul class="fnl">
+<li><a href="#">Features</a></li>
+<li><a href="#">Integrations</a></li>
+<li><a href="#">Pricing</a></li>
+<li><a href="#">Changelog</a></li>
+<li><a href="#">API</a></li>
+<li><a href="#">Status</a></li>
+</ul>
+</nav>
+<nav aria-label="Company">
+<div class="fnh">Company</div>
+<ul class="fnl">
+<li><a href="#">About</a></li>
+<li><a href="#">Blog</a></li>
+<li><a href="#">Careers</a></li>
+<li><a href="#">Press</a></li>
+<li><a href="#">Partners</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</nav>
+<nav aria-label="Resources">
+<div class="fnh">Resources</div>
+<ul class="fnl">
+<li><a href="#">Documentation</a></li>
+<li><a href="#">Guides</a></li>
+<li><a href="#">Support</a></li>
+<li><a href="#">Community</a></li>
+<li><a href="#">Templates</a></li>
+<li><a href="#">Security</a></li>
+</ul>
+</nav>
+</div></div>
+<section class="fn" aria-label="Newsletter">
+<div class="fni">
+<label class="fnl-label" for="fe">Stay updated</label>
+<form class="fnf" onsubmit="return false">
+<input type="email" id="fe" class="fne" placeholder="Enter your email" autocomplete="email" required>
+<button type="submit" class="fsb">Subscribe</button>
+</form>
+</div>
+</section>
+<div class="fbt"><div class="fbi">
+<span class="fc">&copy; 2026 Acme Inc. All rights reserved.</span>
+<ul class="fl" aria-label="Legal">
+<li><a href="#">Privacy</a></li>
+<li><a href="#">Terms</a></li>
+<li><a href="#">Cookies</a></li>
+</ul>
+</div></div>
+</footer>
+</body>
+</html>

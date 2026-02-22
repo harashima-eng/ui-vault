@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient Mesh Hero</title>
+<style>
+/* ============================================================
+   REGISTERED CUSTOM PROPERTIES
+   @property enables smooth interpolation of hue values
+   that CSS cannot normally transition (e.g., colors in gradients).
+   ============================================================ */
+@property --hue-1 {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 270;
+}
+@property --hue-2 {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 210;
+}
+@property --hue-3 {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 180;
+}
+@property --hue-4 {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 320;
+}
+@property --x-1 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 25%;
+}
+@property --y-1 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 35%;
+}
+@property --x-2 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 70%;
+}
+@property --y-2 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 25%;
+}
+@property --x-3 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 55%;
+}
+@property --y-3 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 70%;
+}
+@property --x-4 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 15%;
+}
+@property --y-4 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 65%;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #050505;
+  color: #f0f0f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   HERO SECTION
+   The gradient mesh is built from 4 large radial gradients
+   layered on a pseudo-element. Each blob drifts via @keyframes
+   animating the registered --x-N / --y-N / --hue-N properties.
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  animation:
+    drift-1  18s ease-in-out infinite alternate,
+    drift-2  22s ease-in-out infinite alternate,
+    drift-3  26s ease-in-out infinite alternate,
+    drift-4  20s ease-in-out infinite alternate,
+    hue-shift-1 12s ease-in-out infinite alternate,
+    hue-shift-2 16s ease-in-out infinite alternate,
+    hue-shift-3 20s ease-in-out infinite alternate,
+    hue-shift-4 14s ease-in-out infinite alternate;
+  background:
+    radial-gradient(
+      ellipse 55% 55% at var(--x-1) var(--y-1),
+      oklch(0.55 0.22 var(--hue-1)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at var(--x-2) var(--y-2),
+      oklch(0.50 0.20 var(--hue-2)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at var(--x-3) var(--y-3),
+      oklch(0.48 0.18 var(--hue-3)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 45% 55% at var(--x-4) var(--y-4),
+      oklch(0.52 0.24 var(--hue-4)) 0%,
+      transparent 70%
+    );
+}
+
+/* Subtle noise texture over the mesh to reduce banding */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   POSITION DRIFT KEYFRAMES
+   Each blob orbits its own path. Offsets are staggered to
+   prevent synchronized loops.
+   ============================================================ */
+@keyframes drift-1 {
+  0%   { --x-1: 20%;  --y-1: 30%; }
+  33%  { --x-1: 35%;  --y-1: 45%; }
+  66%  { --x-1: 28%;  --y-1: 22%; }
+  100% { --x-1: 40%;  --y-1: 38%; }
+}
+@keyframes drift-2 {
+  0%   { --x-2: 72%;  --y-2: 22%; }
+  33%  { --x-2: 60%;  --y-2: 38%; }
+  66%  { --x-2: 78%;  --y-2: 30%; }
+  100% { --x-2: 55%;  --y-2: 18%; }
+}
+@keyframes drift-3 {
+  0%   { --x-3: 50%;  --y-3: 68%; }
+  33%  { --x-3: 65%;  --y-3: 55%; }
+  66%  { --x-3: 42%;  --y-3: 75%; }
+  100% { --x-3: 58%;  --y-3: 60%; }
+}
+@keyframes drift-4 {
+  0%   { --x-4: 18%;  --y-4: 62%; }
+  33%  { --x-4: 30%;  --y-4: 72%; }
+  66%  { --x-4: 12%;  --y-4: 55%; }
+  100% { --x-4: 25%;  --y-4: 68%; }
+}
+
+/* ============================================================
+   HUE ROTATION KEYFRAMES
+   Colors shift independently at different rates, creating
+   a constantly evolving palette that never quite repeats.
+   ============================================================ */
+@keyframes hue-shift-1 {
+  0%   { --hue-1: 270; }
+  50%  { --hue-1: 300; }
+  100% { --hue-1: 250; }
+}
+@keyframes hue-shift-2 {
+  0%   { --hue-2: 210; }
+  50%  { --hue-2: 240; }
+  100% { --hue-2: 195; }
+}
+@keyframes hue-shift-3 {
+  0%   { --hue-3: 175; }
+  50%  { --hue-3: 155; }
+  100% { --hue-3: 195; }
+}
+@keyframes hue-shift-4 {
+  0%   { --hue-4: 320; }
+  50%  { --hue-4: 340; }
+  100% { --hue-4: 290; }
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 48px;
+  position: relative;
+  z-index: 10;
+}
+
+.nav-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-decoration: none;
+}
+
+.nav-logo span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: oklch(0.72 0.2 270);
+  border-radius: 50%;
+  margin-left: 2px;
+  vertical-align: super;
+  font-size: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+  padding: 0;
+}
+
+.nav-links a {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 450;
+  transition: color 0.2s ease-out;
+}
+
+.nav-links a:hover {
+  color: #fff;
+}
+
+.nav-cta {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.nav-cta:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   HERO CONTENT
+   ============================================================ */
+.hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 10;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px 6px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  font-size: 0.8125rem;
+  font-weight: 450;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 40px;
+  letter-spacing: 0.01em;
+}
+
+.hero-badge-dot {
+  width: 7px;
+  height: 7px;
+  background: oklch(0.75 0.18 155);
+  border-radius: 50%;
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero-title {
+  font-size: clamp(2.75rem, 6vw + 0.5rem, 5rem);
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: #fff;
+  text-wrap: balance;
+  margin-bottom: 24px;
+}
+
+.hero-title .gradient-word {
+  background: linear-gradient(
+    135deg,
+    oklch(0.78 0.18 270),
+    oklch(0.72 0.20 210),
+    oklch(0.76 0.16 175)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: clamp(1.0625rem, 1.5vw + 0.25rem, 1.3125rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 540px;
+  text-wrap: pretty;
+  margin-bottom: 48px;
+}
+
+/* ============================================================
+   CTA BUTTONS
+   ============================================================ */
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  font-size: 0.9375rem;
+  font-weight: 550;
+  border-radius: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.60 0.20 270),
+    oklch(0.55 0.22 240)
+  );
+  color: #fff;
+  box-shadow:
+    0 1px 2px oklch(0% 0 0 / 0.3),
+    0 4px 16px oklch(0.55 0.20 260 / 0.3),
+    inset 0 1px 0 oklch(100% 0 0 / 0.1);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px oklch(0% 0 0 / 0.3),
+    0 8px 24px oklch(0.55 0.20 260 / 0.4),
+    inset 0 1px 0 oklch(100% 0 0 / 0.12);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: color 0.2s ease-out, border-color 0.2s ease-out, background-color 0.2s ease-out;
+}
+
+.btn-secondary:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   FOCUS STYLES
+   ============================================================ */
+a:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid oklch(0.72 0.18 270);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .hero::before {
+    animation: none;
+  }
+  .hero-badge-dot {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .nav {
+    padding: 20px 24px;
+  }
+  .nav-links .hide-mobile {
+    display: none;
+  }
+  .nav-links {
+    gap: 20px;
+  }
+  .hero-content {
+    padding-bottom: 60px;
+  }
+  .hero-badge {
+    margin-bottom: 32px;
+  }
+  .hero-subtitle {
+    margin-bottom: 36px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+  .btn {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+  <section class="hero">
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#" class="nav-logo">Vault<span>dot</span></a>
+      <ul class="nav-links">
+        <li class="hide-mobile"><a href="#">Components</a></li>
+        <li class="hide-mobile"><a href="#">Templates</a></li>
+        <li class="hide-mobile"><a href="#">Showcase</a></li>
+        <li><a href="#" class="nav-cta">Get Started</a></li>
+      </ul>
+    </nav>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot" aria-hidden="true"></span>
+        Now in public beta
+      </div>
+      <h1 class="hero-title">Design Without <span class="gradient-word">Limits</span></h1>
+      <p class="hero-subtitle">A curated vault of production-grade UI components, patterns, and full-page designs. Copy, customize, and ship faster.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary">Browse Collection</a>
+        <a href="#" class="btn btn-secondary">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vertical Sidebar Navigation</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#1E293B;--hv:#334155;--sw:260px;--cw:60px;--t:#F8FAFC;--m:#94A3B8;--a:#10B981;--bd:#8B5CF6;--mb:#F1F5F9;--f:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{font-family:var(--f);display:flex;min-height:100dvh;background:var(--mb);color:#1E293B}
+svg{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* Sidebar */
+.s{position:relative;display:flex;flex-direction:column;width:var(--sw);min-height:100dvh;background:var(--bg);transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0;z-index:100}
+.s.c{width:var(--cw)}
+
+/* Header */
+.hd{display:flex;align-items:center;gap:12px;padding:20px 16px 16px;border-bottom:1px solid rgba(148,163,184,.12)}
+.lo{flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--a),#14B8A6);border-radius:8px}
+.lo svg{width:16px;height:16px;stroke:#fff}
+.tt{font-size:15px;font-weight:700;color:var(--t);white-space:nowrap;transition:opacity .15s ease-out;letter-spacing:-.01em}
+.s.c .tt,.s.c .lb,.s.c .ui,.s.c .sl,.s.c .si{opacity:0;pointer-events:none}
+
+/* Buttons */
+.cb,.nb,.tb,.st,.mi{background:none;border:none;cursor:pointer;font-family:var(--f);color:var(--m)}
+.cb:focus-visible,.nb:focus-visible,.tb:focus-visible,.st:focus-visible,.mi:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.nb:focus-visible,.tb:focus-visible,.st:focus-visible{outline-offset:-2px}
+
+/* Collapse */
+.cb{margin-left:auto;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background-color .15s ease-out,color .15s ease-out}
+.cb:hover{background:var(--hv);color:var(--t)}
+.cb svg{width:18px;height:18px;stroke:currentColor;transition:transform .2s ease-out}
+.s.c .cb svg{transform:rotate(180deg)}.s.c .cb{margin-left:0}
+
+/* Search */
+.sr{padding:12px 12px 4px}
+.sw{position:relative;display:flex;align-items:center}
+.ic{position:absolute;left:10px;width:16px;height:16px;color:var(--m);pointer-events:none;stroke:currentColor}
+.si{width:100%;padding:8px 12px 8px 32px;background:var(--hv);border:1px solid transparent;border-radius:8px;color:var(--t);font-family:var(--f);font-size:13px;outline:none;transition:opacity .15s ease-out,border-color .15s ease-out}
+.si::placeholder{color:var(--m)}.si:focus-visible{border-color:var(--a)}
+.s.c .ic{left:50%;transform:translateX(-50%)}
+
+/* Nav */
+.nv{padding:8px;flex:1}
+.nl{list-style:none;display:flex;flex-direction:column;gap:2px}
+.ni{position:relative}
+.nb{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:500;white-space:nowrap;transition:background-color .15s ease-out,color .15s ease-out;text-align:left}
+.nb:hover{background:var(--hv);color:var(--t)}
+.nb svg{width:20px;height:20px;flex-shrink:0;stroke:currentColor}
+.lb{transition:opacity .15s ease-out}
+
+/* Active */
+.ni.a .nb{background:rgba(16,185,129,.08);color:var(--a)}
+.ni.a .nb::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:24px;background:var(--a);border-radius:0 3px 3px 0}
+
+/* Badge */
+.bg{margin-left:auto;min-width:20px;height:20px;padding:0 6px;display:flex;align-items:center;justify-content:center;background:var(--bd);color:#fff;font-size:11px;font-weight:700;border-radius:10px;line-height:1}
+.s.c .bg{position:absolute;top:4px;right:4px;margin-left:0;min-width:16px;height:16px;padding:0 4px;font-size:9px}
+
+/* Teams */
+.sc{padding:4px 8px 8px}
+.st{display:flex;align-items:center;width:100%;padding:8px 12px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:color .15s ease-out}
+.st:hover{color:var(--t)}.st:focus-visible{border-radius:6px}
+.sl{transition:opacity .15s ease-out}
+.ch{margin-left:auto;width:14px;height:14px;stroke:currentColor;transition:transform .2s ease-out,opacity .15s ease-out}
+.st[aria-expanded="true"] .ch{transform:rotate(180deg)}
+.s.c .ch{opacity:0}
+.tl{list-style:none;display:flex;flex-direction:column;gap:2px;overflow:hidden;max-height:200px;transition:max-height .2s ease-out,opacity .15s ease-out}
+.tl.h{max-height:0;opacity:0}.s.c .tl{max-height:0;opacity:0}
+.tb{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;transition:background-color .15s ease-out,color .15s ease-out;white-space:nowrap;text-align:left}
+.tb:hover{background:var(--hv);color:var(--t)}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sd.on{background:var(--a)}.sd.aw{background:#F59E0B}.sd.bs{background:#EF4444}
+
+/* User */
+.us{margin-top:auto;padding:12px;border-top:1px solid rgba(148,163,184,.12)}
+.uc{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;transition:background-color .15s ease-out;cursor:default}
+.uc:hover{background:var(--hv)}
+.ua{position:relative;flex-shrink:0;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--a),#14B8A6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.uo{position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:var(--a);border:2px solid var(--bg)}
+.ui{display:flex;flex-direction:column;min-width:0;transition:opacity .15s ease-out}
+.un{font-size:13px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ur{font-size:11px;color:var(--m)}
+
+/* Main */
+.mc{flex:1;min-width:0;padding:32px 40px}
+.mi{display:none;width:40px;height:40px;align-items:center;justify-content:center;background:#fff;border:1px solid #CBD5E1;border-radius:8px;color:#475569;margin-bottom:24px;transition:background-color .15s ease-out,color .15s ease-out}
+.mi:hover{background:#F8FAFC;color:#1E293B}.mi svg{width:20px;height:20px;stroke:currentColor}
+.mh{font-size:28px;font-weight:800;color:#0F172A;letter-spacing:-.02em;text-wrap:balance}
+.ms{font-size:15px;color:#64748B;margin-top:6px;line-height:1.5}
+
+/* Backdrop */
+.bk{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s ease-out}
+.bk.v{opacity:1;pointer-events:auto}
+
+@media(max-width:768px){
+  .s{position:fixed;top:0;left:0;height:100dvh;width:var(--sw);transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:none}
+  .s.c{width:var(--sw)}
+  .s.c .lb,.s.c .tt,.s.c .ui,.s.c .sl,.s.c .si{opacity:1;pointer-events:auto}
+  .s.c .ch{opacity:1}
+  .s.c .tl:not(.h){max-height:200px;opacity:1}
+  .s.c .bg{position:static;margin-left:auto;min-width:20px;height:20px;padding:0 6px;font-size:11px}
+  .s.c .cb svg{transform:none}
+  .s.mo{transform:translateX(0);box-shadow:0 8px 32px rgba(15,23,42,.35)}
+  .bk{display:block}.mi{display:flex}.mc{padding:20px 16px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bk" id="bk" aria-hidden="true"></div>
+<aside class="s" id="s" role="complementary" aria-label="Sidebar navigation">
+  <div class="hd">
+    <div class="lo" aria-hidden="true"><svg viewBox="0 0 16 16" stroke-width="2"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg></div>
+    <span class="tt">Workspace</span>
+    <button class="cb" id="cb" aria-label="Collapse sidebar" aria-expanded="true"><svg viewBox="0 0 18 18" stroke="currentColor"><line x1="4" y1="5" x2="14" y2="5"/><line x1="4" y1="9" x2="14" y2="9"/><line x1="4" y1="13" x2="14" y2="13"/></svg></button>
+  </div>
+  <div class="sr"><div class="sw"><svg class="ic" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><line x1="10.2" y1="10.2" x2="14" y2="14"/></svg><input type="search" class="si" placeholder="Search..." aria-label="Search navigation"></div></div>
+  <nav class="nv" aria-label="Primary">
+    <ul class="nl" role="list">
+      <li class="ni a"><button class="nb" aria-current="page"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg><span class="lb">Dashboard</span></button></li>
+      <li class="ni"><button class="nb"><svg viewBox="0 0 20 20"><path d="M4 4h12a2 2 0 012 2v8a2 2 0 01-2 2H6l-4 3V6a2 2 0 012-2z"/></svg><span class="lb">Messages</span><span class="bg" aria-label="3 unread">3</span></button></li>
+      <li class="ni"><button class="nb"><svg viewBox="0 0 20 20"><path d="M3 7V5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2v-2"/><path d="M7 3v14"/></svg><span class="lb">Projects</span></button></li>
+      <li class="ni"><button class="nb"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="2"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="7" y1="4" x2="7" y2="1.5"/><line x1="13" y1="4" x2="13" y2="1.5"/></svg><span class="lb">Calendar</span></button></li>
+      <li class="ni"><button class="nb"><svg viewBox="0 0 20 20"><path d="M12 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V8z"/><polyline points="12 3 12 8 17 8"/></svg><span class="lb">Documents</span></button></li>
+      <li class="ni"><button class="nb"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2M4.93 4.93l1.41 1.41m7.32 7.32l1.41 1.41M4.93 15.07l1.41-1.41m7.32-7.32l1.41-1.41"/></svg><span class="lb">Settings</span></button></li>
+    </ul>
+  </nav>
+  <div class="sc">
+    <button class="st" id="st" aria-expanded="true" aria-controls="tl"><span class="sl">Teams</span><svg class="ch" viewBox="0 0 14 14"><polyline points="3 5 7 9 11 5"/></svg></button>
+    <ul class="tl" id="tl" role="list">
+      <li><button class="tb"><span class="sd on" aria-label="Active"></span><span class="lb">Design</span></button></li>
+      <li><button class="tb"><span class="sd aw" aria-label="Away"></span><span class="lb">Engineering</span></button></li>
+      <li><button class="tb"><span class="sd bs" aria-label="Busy"></span><span class="lb">Marketing</span></button></li>
+    </ul>
+  </div>
+  <div class="us"><div class="uc"><div class="ua" aria-hidden="true">JD<span class="uo"></span></div><div class="ui"><span class="un">Jane Doe</span><span class="ur">Admin</span></div></div></div>
+</aside>
+<main class="mc">
+  <button class="mi" id="mi" aria-label="Open navigation menu"><svg viewBox="0 0 20 20"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg></button>
+  <h1 class="mh">Dashboard</h1>
+  <p class="ms">Welcome back, Jane. Here is what is happening today.</p>
+</main>
+<script>
+!function(){var s=document.getElementById('s'),cb=document.getElementById('cb'),st=document.getElementById('st'),tl=document.getElementById('tl'),mi=document.getElementById('mi'),bk=document.getElementById('bk'),mq=matchMedia('(max-width:768px)');
+cb.onclick=function(){if(mq.matches){cl();return}var c=s.classList.toggle('c');cb.setAttribute('aria-expanded',!c+'');cb.setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');if(c){tl.classList.add('h');st.setAttribute('aria-expanded','false')}};
+st.onclick=function(){if(s.classList.contains('c')&&!mq.matches)return;var e=st.getAttribute('aria-expanded')==='true';st.setAttribute('aria-expanded',!e+'');tl.classList.toggle('h',e)};
+function op(){s.classList.add('mo');bk.classList.add('v');bk.setAttribute('aria-hidden','false');mi.setAttribute('aria-expanded','true');cb.focus()}
+function cl(){s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true');mi.setAttribute('aria-expanded','false');mi.focus()}
+mi.onclick=op;bk.onclick=cl;
+document.onkeydown=function(e){if(e.key==='Escape'&&s.classList.contains('mo'))cl()};
+mq.onchange=function(){if(!mq.matches){s.classList.remove('mo');bk.classList.remove('v');bk.setAttribute('aria-hidden','true')}}}()
+</script>
+</body>
+</html>

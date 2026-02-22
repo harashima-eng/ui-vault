@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f3f1;--surface:#fff;--night:#1a1a2e;--sidebar-w:220px;
+  --text:#1c1c1e;--text-muted:#6e6e73;--text-faint:#a1a1a6;
+  --border:#e8e6e3;--blue:#3366ff;--blue-soft:#eef2ff;
+  --green:#1a9e5c;--green-soft:#e6f7ef;--red:#d93636;--red-soft:#fef0f0;
+  --amber:#e6940a;--amber-soft:#fff8eb;
+  --shadow-sm:0 1px 3px rgba(28,28,30,.06),0 1px 2px rgba(28,28,30,.04);
+  --shadow-md:0 4px 12px rgba(28,28,30,.07),0 2px 4px rgba(28,28,30,.04);
+  --radius:12px;--radius-sm:8px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100dvh;overflow-x:hidden}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  width:var(--sidebar-w);min-height:100dvh;background:var(--night);
+  display:flex;flex-direction:column;padding:24px 16px;
+  position:fixed;left:0;top:0;bottom:0;z-index:100;
+  transition:transform .3s ease-out,width .3s ease-out;
+}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:40px;padding:0 4px}
+.sidebar-logo svg{flex-shrink:0}
+.sidebar-logo span{font-size:1.125rem;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap;overflow:hidden}
+.sidebar nav{flex:1;display:flex;flex-direction:column;gap:4px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);
+  color:rgba(255,255,255,.55);font-size:.875rem;font-weight:500;text-decoration:none;
+  transition:background-color .15s ease-out,color .15s ease-out;cursor:pointer;white-space:nowrap;overflow:hidden;
+}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(51,102,255,.25);color:#fff}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)}
+.user-block{display:flex;align-items:center;gap:10px;padding:4px}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  display:grid;place-items:center;color:#fff;font-size:.8rem;font-weight:600;flex-shrink:0;
+}
+.user-info{overflow:hidden}
+.user-info .name{font-size:.8125rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info .role{font-size:.6875rem;color:rgba(255,255,255,.4)}
+
+/* ---- Main ---- */
+.main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 48px;min-width:0;transition:margin-left .3s ease-out}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:1.625rem;font-weight:700;letter-spacing:-.03em;line-height:1.2;color:var(--text)}
+.page-header p{font-size:.875rem;color:var(--text-muted);margin-top:4px}
+
+/* ---- KPI Row ---- */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:var(--surface);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  transition:transform .2s ease-out,box-shadow .2s ease-out;
+}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.kpi-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.kpi-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:grid;place-items:center}
+.kpi-icon.blue{background:var(--blue-soft);color:var(--blue)}
+.kpi-icon.green{background:var(--green-soft);color:var(--green)}
+.kpi-icon.amber{background:var(--amber-soft);color:var(--amber)}
+.kpi-icon.red{background:var(--red-soft);color:var(--red)}
+.kpi-value{font-size:1.75rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:6px}
+.kpi-change{font-size:.75rem;font-weight:600;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px}
+.kpi-change.up{color:var(--green);background:var(--green-soft)}
+.kpi-change.down{color:var(--red);background:var(--red-soft)}
+
+/* ---- Content Grid ---- */
+.content-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;margin-bottom:24px}
+
+/* ---- Chart Card ---- */
+.card{background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:1rem;font-weight:700;letter-spacing:-.01em}
+.card-subtitle{font-size:.75rem;color:var(--text-muted)}
+.badge{font-size:.6875rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--blue-soft);color:var(--blue)}
+.chart-area{display:flex;align-items:flex-end;gap:10px;height:200px;padding-top:8px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+.bar-track{width:100%;height:180px;display:flex;align-items:flex-end;justify-content:center}
+.bar{
+  width:100%;max-width:36px;border-radius:6px 6px 3px 3px;
+  background:linear-gradient(180deg,var(--blue),#5580ff);
+  animation:bar-grow .8s cubic-bezier(.22,1,.36,1) both;
+  position:relative;
+}
+.bar::after{
+  content:attr(data-val);position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+  font-size:.625rem;font-weight:700;color:var(--text-muted);opacity:0;
+  transition:opacity .15s ease-out;white-space:nowrap;
+}
+.bar-group:hover .bar::after{opacity:1}
+.bar-group:hover .bar{background:linear-gradient(180deg,#2952cc,var(--blue))}
+.bar-label{font-size:.6875rem;color:var(--text-faint);font-weight:500}
+@keyframes bar-grow{from{height:0}to{height:var(--h)}}
+.bar{height:var(--h)}
+
+/* ---- Activity Feed ---- */
+.activity-list{display:flex;flex-direction:column;gap:2px}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-avatar{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+.activity-body{min-width:0;flex:1}
+.activity-body .action{font-size:.8125rem;line-height:1.45;color:var(--text)}
+.activity-body .action strong{font-weight:600}
+.activity-body .time{font-size:.6875rem;color:var(--text-faint);margin-top:2px}
+
+/* ---- Table ---- */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+thead th{
+  text-align:left;font-size:.6875rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-muted);padding:12px 16px;
+  border-bottom:2px solid var(--border);white-space:nowrap;
+}
+tbody td{padding:14px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{transition:background-color .15s ease-out}
+tbody tr:hover{background:rgba(51,102,255,.03)}
+tbody tr:last-child td{border-bottom:none}
+.status{font-size:.6875rem;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block}
+.status.completed{background:var(--green-soft);color:var(--green)}
+.status.pending{background:var(--amber-soft);color:var(--amber)}
+.status.cancelled{background:var(--red-soft);color:var(--red)}
+.status.processing{background:var(--blue-soft);color:var(--blue)}
+.amount{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---- Responsive ---- */
+@media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+@media(max-width:860px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .main{padding:20px 16px 40px}
+}
+@media(max-width:700px){
+  .sidebar{transform:translateX(-100%);width:260px}
+  .main{margin-left:0}
+  .kpi-row{grid-template-columns:1fr}
+  .page-header h1{font-size:1.35rem}
+}
+
+/* ---- Reduced Motion ---- */
+@media(prefers-reduced-motion:reduce){
+  .bar{animation:none}
+  .kpi-card,.nav-item,.bar-group .bar::after,tbody tr{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3366ff"/><path d="M8 20V12l6-4 6 4v8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Pulse</span>
+  </div>
+  <nav>
+    <a class="nav-item active" href="#">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 15 7 9 11 12 17 5"/><polyline points="14 5 17 5 17 8"/></svg>
+      Analytics
+    </a>
+    <a class="nav-item" href="#">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17.5c0-3 3.1-5.5 7-5.5s7 2.5 7 5.5"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h14M5 3h10l1 4H4L5 3zM5.5 7v9a1 1 0 001 1h7a1 1 0 001-1V7"/></svg>
+      Orders
+    </a>
+    <a class="nav-item" href="#">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5V10l2.5 2.5"/></svg>
+      Reports
+    </a>
+    <a class="nav-item" href="#" style="margin-top:auto">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M16.4 12.5a1.2 1.2 0 00.2 1.3l.04.04a1.45 1.45 0 11-2.05 2.05l-.04-.04a1.2 1.2 0 00-1.3-.2 1.2 1.2 0 00-.73 1.1v.12a1.45 1.45 0 11-2.9 0v-.06a1.2 1.2 0 00-.79-1.1 1.2 1.2 0 00-1.3.2l-.04.04a1.45 1.45 0 11-2.05-2.05l.04-.04a1.2 1.2 0 00.2-1.3 1.2 1.2 0 00-1.1-.73H4.35a1.45 1.45 0 110-2.9h.06a1.2 1.2 0 001.1-.79 1.2 1.2 0 00-.2-1.3l-.04-.04a1.45 1.45 0 112.05-2.05l.04.04a1.2 1.2 0 001.3.2h.06a1.2 1.2 0 00.73-1.1V4.35a1.45 1.45 0 112.9 0v.06a1.2 1.2 0 00.73 1.1 1.2 1.2 0 001.3-.2l.04-.04a1.45 1.45 0 112.05 2.05l-.04.04a1.2 1.2 0 00-.2 1.3v.06a1.2 1.2 0 001.1.73h.12a1.45 1.45 0 110 2.9h-.06a1.2 1.2 0 00-1.1.73z"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-block">
+      <div class="user-avatar">JD</div>
+      <div class="user-info">
+        <div class="name">Jane Doe</div>
+        <div class="role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+  <header class="page-header">
+    <h1>Dashboard</h1>
+    <p>Welcome back, Jane. Here is what is happening today.</p>
+  </header>
+
+  <!-- KPI Cards -->
+  <section class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span class="kpi-icon blue"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14V6l6-4 6 4v8"/><path d="M6 14v-4h4v4"/></svg></span>
+        Revenue
+      </div>
+      <div class="kpi-value">$48,280</div>
+      <span class="kpi-change up">&#9650; 12.5%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span class="kpi-icon green"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c0-2.5 2.5-4.5 5.5-4.5s5.5 2 5.5 4.5"/></svg></span>
+        Users
+      </div>
+      <div class="kpi-value">2,847</div>
+      <span class="kpi-change up">&#9650; 8.2%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span class="kpi-icon amber"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M5 4V2.5a1 1 0 011-1h4a1 1 0 011 1V4"/></svg></span>
+        Orders
+      </div>
+      <div class="kpi-value">1,234</div>
+      <span class="kpi-change up">&#9650; 23.1%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span class="kpi-icon red"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 11 6.5 6.5 9 9 13 4"/><polyline points="10.5 4 13 4 13 6.5"/></svg></span>
+        Conversion
+      </div>
+      <div class="kpi-value">3.2%</div>
+      <span class="kpi-change down">&#9660; 1.4%</span>
+    </div>
+  </section>
+
+  <!-- Chart + Activity -->
+  <section class="content-grid">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Monthly Revenue</div>
+          <div class="card-subtitle">Performance over the past 10 months</div>
+        </div>
+        <span class="badge">2025</span>
+      </div>
+      <div class="chart-area">
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:45%" data-val="$28k"></div></div><span class="bar-label">Mar</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:62%" data-val="$38k"></div></div><span class="bar-label">Apr</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:38%" data-val="$24k"></div></div><span class="bar-label">May</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:72%" data-val="$44k"></div></div><span class="bar-label">Jun</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:55%" data-val="$34k"></div></div><span class="bar-label">Jul</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:85%" data-val="$52k"></div></div><span class="bar-label">Aug</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:68%" data-val="$42k"></div></div><span class="bar-label">Sep</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:92%" data-val="$56k"></div></div><span class="bar-label">Oct</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:78%" data-val="$48k"></div></div><span class="bar-label">Nov</span></div>
+        <div class="bar-group"><div class="bar-track"><div class="bar" style="--h:80%" data-val="$49k"></div></div><span class="bar-label">Dec</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Recent Activity</div>
+          <div class="card-subtitle">Latest updates</div>
+        </div>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">AK</div>
+          <div class="activity-body">
+            <div class="action"><strong>Anna Kim</strong> placed a new order for $1,240</div>
+            <div class="time">2 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">MR</div>
+          <div class="activity-body">
+            <div class="action"><strong>Mark Reeves</strong> upgraded to Pro plan</div>
+            <div class="time">18 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">SL</div>
+          <div class="activity-body">
+            <div class="action"><strong>Sara Lin</strong> submitted a support ticket</div>
+            <div class="time">1 hour ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">JW</div>
+          <div class="activity-body">
+            <div class="action"><strong>James Wu</strong> completed onboarding flow</div>
+            <div class="time">3 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#ec4899,#db2777)">OP</div>
+          <div class="activity-body">
+            <div class="action"><strong>Olivia Park</strong> refunded order #4021</div>
+            <div class="time">5 hours ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Orders Table -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Recent Orders</div>
+        <div class="card-subtitle">Last 5 transactions</div>
+      </div>
+      <span class="badge">View All</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600;color:var(--blue)">#4025</td><td>Anna Kim</td><td class="amount">$1,240.00</td><td><span class="status completed">Completed</span></td><td>Feb 22, 2026</td></tr>
+          <tr><td style="font-weight:600;color:var(--blue)">#4024</td><td>Mark Reeves</td><td class="amount">$890.00</td><td><span class="status processing">Processing</span></td><td>Feb 21, 2026</td></tr>
+          <tr><td style="font-weight:600;color:var(--blue)">#4023</td><td>Sara Lin</td><td class="amount">$2,100.00</td><td><span class="status completed">Completed</span></td><td>Feb 20, 2026</td></tr>
+          <tr><td style="font-weight:600;color:var(--blue)">#4022</td><td>James Wu</td><td class="amount">$450.00</td><td><span class="status pending">Pending</span></td><td>Feb 19, 2026</td></tr>
+          <tr><td style="font-weight:600;color:var(--blue)">#4021</td><td>Olivia Park</td><td class="amount">$680.00</td><td><span class="status cancelled">Cancelled</span></td><td>Feb 18, 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

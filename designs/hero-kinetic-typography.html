@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinetic Typography Hero</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0}
+
+  body{
+    min-height:100dvh;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    background:#F5F5F5;
+    color:#111111;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* ── Hero ── */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:2rem 1.5rem;
+  }
+
+  .hero-inner{
+    max-width:860px;
+    width:100%;
+  }
+
+  /* ── Headline ── */
+  .headline{
+    font-size:clamp(2.5rem, 8vw, 6rem);
+    font-weight:800;
+    line-height:1.05;
+    letter-spacing:-0.03em;
+    text-wrap:balance;
+    margin-bottom:2rem;
+  }
+
+  .word{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(30px);
+    animation:word-arrive 0.5s ease-out both;
+  }
+
+  .word--accent{
+    color:#E63946;
+  }
+
+  /* Stagger delays — 7 words, starting at 0.3s, 0.12s apart */
+  .word:nth-child(1){animation-delay:0.30s}
+  .word:nth-child(2){animation-delay:0.42s}
+  .word:nth-child(3){animation-delay:0.54s}
+  /* nth-child(4) "Future" — delay set in .word--accent block */
+  .word:nth-child(5){animation-delay:0.78s}
+  .word:nth-child(6){animation-delay:0.90s}
+  .word:nth-child(7){animation-delay:1.02s}
+
+  @keyframes word-arrive{
+    from{
+      opacity:0;
+      transform:translateY(30px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
+  /* ── Accent pulse after all words land ── */
+  .word--accent{
+    animation:
+      word-arrive 0.5s ease-out 0.66s both,
+      accent-pulse 0.6s ease-in-out 1.8s both;
+  }
+
+  @keyframes accent-pulse{
+    0%{text-shadow:0 0 0 transparent}
+    50%{text-shadow:0 2px 20px rgba(230,57,70,0.35)}
+    100%{text-shadow:0 0 0 transparent}
+  }
+
+  /* ── Subtitle ── */
+  .subtitle{
+    font-size:1.1rem;
+    font-weight:400;
+    line-height:1.55;
+    color:#666666;
+    max-width:500px;
+    opacity:0;
+    transform:translateY(12px);
+    animation:fade-up 0.6s ease-out 1.5s both;
+  }
+
+  @keyframes fade-up{
+    from{
+      opacity:0;
+      transform:translateY(12px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
+  /* ── Horizontal rule ── */
+  .rule{
+    width:60px;
+    height:1px;
+    background:#DDDDDD;
+    border:none;
+    margin:1.75rem 0;
+    opacity:0;
+    animation:rule-grow 0.5s ease-out 1.7s both;
+  }
+
+  @keyframes rule-grow{
+    from{
+      opacity:0;
+      transform:scaleX(0);
+      transform-origin:left;
+    }
+    to{
+      opacity:1;
+      transform:scaleX(1);
+      transform-origin:left;
+    }
+  }
+
+  /* ── CTA links ── */
+  .cta-row{
+    display:flex;
+    gap:2rem;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:fade-up 0.5s ease-out 1.9s both;
+  }
+
+  .cta{
+    font-size:0.75rem;
+    font-weight:600;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:#111111;
+    text-decoration:none;
+    position:relative;
+    padding-bottom:3px;
+  }
+
+  .cta::after{
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:0;
+    height:1px;
+    background:#111111;
+    transition:width 0.3s ease-out;
+  }
+
+  .cta:hover::after{
+    width:100%;
+  }
+
+  .cta:focus-visible{
+    outline:2px solid #E63946;
+    outline-offset:4px;
+    border-radius:2px;
+  }
+
+  /* ── Responsive: mobile ── */
+  @media(max-width:600px){
+    .hero{
+      padding:2rem 1.25rem;
+      align-items:flex-end;
+      padding-bottom:4rem;
+    }
+
+    .headline{
+      margin-bottom:1.5rem;
+    }
+
+    .subtitle{
+      font-size:1rem;
+    }
+
+    /* Tighter stagger on mobile: 0.08s apart */
+    .word:nth-child(1){animation-delay:0.25s}
+    .word:nth-child(2){animation-delay:0.33s}
+    .word:nth-child(3){animation-delay:0.41s}
+    /* nth-child(4) "Future" — delay set in .word--accent mobile block */
+    .word:nth-child(5){animation-delay:0.57s}
+    .word:nth-child(6){animation-delay:0.65s}
+    .word:nth-child(7){animation-delay:0.73s}
+
+    .word--accent{
+      animation:
+        word-arrive 0.5s ease-out 0.49s both,
+        accent-pulse 0.6s ease-in-out 1.2s both;
+    }
+
+    .subtitle{animation-delay:1.0s}
+    .rule{animation-delay:1.15s}
+    .cta-row{animation-delay:1.3s}
+  }
+
+  /* ── Reduced motion ── */
+  @media(prefers-reduced-motion:reduce){
+    .word,
+    .subtitle,
+    .rule,
+    .cta-row{
+      animation:none;
+      opacity:1;
+      transform:none;
+    }
+
+    .word--accent{
+      animation:none;
+      opacity:1;
+      transform:none;
+      text-shadow:none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<main class="hero" role="main">
+  <div class="hero-inner">
+
+    <h1 class="headline">
+      <span class="word">We</span>
+      <span class="word">Build</span>
+      <span class="word">The</span>
+      <span class="word word--accent">Future</span>
+      <span class="word">Of</span>
+      <span class="word">Digital</span>
+      <span class="word">Experience</span>
+    </h1>
+
+    <p class="subtitle">
+      Crafting interfaces that move, breathe, and respond
+      &#8212; where every pixel carries intention.
+    </p>
+
+    <hr class="rule" aria-hidden="true">
+
+    <nav class="cta-row" aria-label="Primary actions">
+      <a href="#learn" class="cta">Learn More &#8594;</a>
+      <a href="#start" class="cta">Get Started &#8594;</a>
+    </nav>
+
+  </div>
+</main>
+
+</body>
+</html>
