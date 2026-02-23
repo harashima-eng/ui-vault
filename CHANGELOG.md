@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-23
+
+### Added
+
+- Interactive theming system in the preview panel
+  - Collapsible "Theme" tray between iframe and notes section
+  - 6 color palettes: Original, Ocean, Emerald, Sunset, Violet, Rose
+  - 3 font families: System, Serif, Mono
+  - Border-radius slider (0–24px)
+  - Per-design theme maps that translate canonical properties to each design's CSS variable names
+  - Per-design persistence in localStorage (`ui-vault-palette-{id}`)
+  - GSAP-animated tray open/close
+  - Hardcoded designs show disabled palette swatches (font override still works)
+- Zero changes to existing design files — theming works by injecting CSS variable overrides into the iframe
+
 ## [2.0.0] - 2026-02-22
 
 ### Added
