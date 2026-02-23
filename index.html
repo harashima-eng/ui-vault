@@ -845,114 +845,258 @@ img { display: block; max-width: 100%; }
 }
 
 /* ============================================================
-   THEME TRAY
+   INSPECTOR PANEL
    ============================================================ */
-.theme-tray {
-  border-top: 1px solid var(--color-border);
+.inspector {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+}
+
+.inspector.is-open {
+  transform: translateX(0);
+}
+
+.panel__iframe.inspector-active {
+  width: calc(100% - 280px);
+}
+
+.inspector__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
-.theme-tray__toggle {
+.inspector__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.inspector__close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 0;
+}
+
+.inspector__close:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-alt);
+}
+
+.inspector__sections {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+
+/* ---- Inspector Section (Accordion) ---- */
+.inspector__section {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inspector__section:last-child {
+  border-bottom: none;
+}
+
+.inspector__section-toggle {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: 10px var(--space-6);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
   font-family: inherit;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   background: none;
   border: none;
   cursor: pointer;
 }
 
-.theme-tray__toggle:hover {
-  color: var(--color-text-secondary);
+.inspector__section-toggle:hover {
+  color: var(--color-text-primary);
   background: var(--color-bg-alt);
 }
 
-.theme-tray__toggle:focus-visible {
+.inspector__section-toggle:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
 }
 
-.theme-tray__chevron {
-  margin-left: auto;
+.inspector__section-chevron {
+  flex-shrink: 0;
 }
 
-.theme-tray.is-open .theme-tray__chevron {
+.inspector__section.is-open .inspector__section-chevron {
   transform: rotate(180deg);
 }
 
-.theme-tray__content {
+.inspector__section-content {
   overflow: hidden;
   height: 0;
 }
 
-.theme-tray__section {
-  padding: 0 var(--space-6) var(--space-3);
+.inspector__section-inner {
+  padding: 0 16px 12px;
 }
 
-.theme-tray__section:first-child {
-  padding-top: var(--space-2);
-}
-
-.theme-tray__label {
+/* ---- Inspector Label ---- */
+.inspector__label {
   font-size: 10px;
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-2);
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.theme-tray__palettes {
-  display: flex;
-  gap: 8px;
+.inspector__label-value {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
-.theme-tray__swatch {
-  width: 28px;
-  height: 28px;
+/* ---- Swatches ---- */
+.inspector__swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.inspector__swatch {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   padding: 0;
-  flex-shrink: 0;
+  position: relative;
 }
 
-.theme-tray__swatch:focus-visible {
+.inspector__swatch:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.theme-tray__swatch.is-active {
+.inspector__swatch.is-active {
   border-color: #fff;
   box-shadow: 0 0 0 2px var(--color-accent);
 }
 
-.theme-tray__swatch.is-disabled {
-  opacity: 0.25;
+.inspector__swatch.is-disabled {
+  opacity: 0.2;
   cursor: not-allowed;
 }
 
-.theme-tray__swatch--original {
+.inspector__swatch--original {
   background: conic-gradient(#3B82F6, #10B981, #F59E0B, #A855F7, #EC4899, #3B82F6);
 }
 
-.theme-tray__fonts {
-  display: flex;
-  gap: 6px;
+.inspector__swatch-label {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
 }
 
-.theme-tray__font-chip {
-  padding: 4px 10px;
+.inspector__swatch:hover .inspector__swatch-label {
+  opacity: 1;
+}
+
+/* ---- Hex Input Row ---- */
+.inspector__hex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.inspector__hex-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.inspector__hex-input {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, monospace;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+.inspector__hex-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
+}
+
+/* ---- Sliders ---- */
+.inspector__slider-row {
+  margin-bottom: 10px;
+}
+
+.inspector__slider {
+  width: 100%;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  height: 4px;
+}
+
+.inspector__slider:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ---- Font Chips ---- */
+.inspector__font-chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.inspector__font-chip {
+  padding: 5px 8px;
   font-size: 11px;
   font-family: inherit;
   border-radius: var(--radius-sm);
@@ -960,40 +1104,153 @@ img { display: block; max-width: 100%; }
   background: none;
   color: var(--color-text-secondary);
   cursor: pointer;
+  text-align: center;
 }
 
-.theme-tray__font-chip:focus-visible {
+.inspector__font-chip:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-.theme-tray__font-chip:hover {
+.inspector__font-chip:hover {
   border-color: var(--color-text-tertiary);
 }
 
-.theme-tray__font-chip.is-active {
+.inspector__font-chip.is-active {
   border-color: var(--color-accent);
   color: var(--color-accent);
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(217, 119, 6, 0.06);
 }
 
-.theme-tray__slider {
-  width: 100%;
-  accent-color: var(--color-accent);
-  cursor: pointer;
-}
-
-.theme-tray__slider:disabled {
+.inspector__font-chip.is-disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
 
-.theme-tray__radius-value {
-  font-weight: 400;
-  font-size: 10px;
+/* ---- Toggle Group ---- */
+.inspector__toggle-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.inspector__toggle-btn {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 11px;
+  font-family: inherit;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  background: none;
   color: var(--color-text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.inspector__toggle-btn:last-child {
+  border-right: none;
+}
+
+.inspector__toggle-btn:hover {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-alt);
+}
+
+.inspector__toggle-btn.is-active {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.inspector__toggle-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ---- Preset Buttons ---- */
+.inspector__presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.inspector__preset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.inspector__preset-btn:hover {
+  border-color: var(--color-text-tertiary);
+  background: var(--color-bg-alt);
+}
+
+.inspector__preset-btn.is-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(217, 119, 6, 0.06);
+}
+
+.inspector__preset-btn.is-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.inspector__preset-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inspector__reset-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+}
+
+.inspector__reset-btn:hover {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: var(--color-error);
+}
+
+/* ---- Inspector Toggle Button in Panel Header ---- */
+.panel__btn--inspector {
+  position: relative;
+}
+
+.panel__btn--inspector.is-active {
+  color: var(--color-accent);
+}
+
+/* ---- Mobile: hide inspector ---- */
+@media (max-width: 768px) {
+  .inspector {
+    display: none;
+  }
+  .panel__btn--inspector {
+    display: none;
+  }
+  .panel__iframe.inspector-active {
+    width: 100%;
+  }
 }
 
 /* ============================================================
@@ -1251,6 +1508,12 @@ img { display: block; max-width: 100%; }
         <line x1="7.5" y1="10.5" x2="15" y2="3"/>
       </svg>
     </button>
+    <button class="panel__btn panel__btn--inspector" id="inspectorToggle" aria-label="Toggle inspector" title="Toggle inspector">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="9" r="2.5"/>
+        <path d="M14.7 11.1a1.2 1.2 0 0 0 .24 1.32l.04.04a1.44 1.44 0 1 1-2.04 2.04l-.04-.04a1.2 1.2 0 0 0-1.32-.24 1.2 1.2 0 0 0-.72 1.1v.12a1.44 1.44 0 1 1-2.88 0v-.06a1.2 1.2 0 0 0-.78-1.1 1.2 1.2 0 0 0-1.32.24l-.04.04a1.44 1.44 0 1 1-2.04-2.04l.04-.04a1.2 1.2 0 0 0 .24-1.32 1.2 1.2 0 0 0-1.1-.72h-.12a1.44 1.44 0 0 1 0-2.88h.06a1.2 1.2 0 0 0 1.1-.78 1.2 1.2 0 0 0-.24-1.32l-.04-.04a1.44 1.44 0 1 1 2.04-2.04l.04.04a1.2 1.2 0 0 0 1.32.24h.06a1.2 1.2 0 0 0 .72-1.1v-.12a1.44 1.44 0 0 1 2.88 0v.06a1.2 1.2 0 0 0 .72 1.1 1.2 1.2 0 0 0 1.32-.24l.04-.04a1.44 1.44 0 1 1 2.04 2.04l-.04.04a1.2 1.2 0 0 0-.24 1.32v.06a1.2 1.2 0 0 0 1.1.72h.12a1.44 1.44 0 0 1 0 2.88h-.06a1.2 1.2 0 0 0-1.1.72z"/>
+      </svg>
+    </button>
     <button class="panel__btn" id="panelClose" aria-label="Close preview" title="Close preview">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
         <line x1="4.5" y1="4.5" x2="13.5" y2="13.5"/>
@@ -1260,32 +1523,120 @@ img { display: block; max-width: 100%; }
   </div>
   <div class="panel__body">
     <iframe class="panel__iframe" id="panelIframe" title="Design preview"></iframe>
-  </div>
-  <div class="theme-tray" id="themeTray">
-    <button class="theme-tray__toggle" id="themeTrayToggle" aria-expanded="false" aria-controls="themeTrayContent">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="8" cy="8" r="6"/><path d="M8 2a6 6 0 0 0 0 12V2Z" fill="currentColor" opacity="0.3"/>
-      </svg>
-      <span>Theme</span>
-      <svg class="theme-tray__chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 5.5 7 8.5 10 5.5"/>
-      </svg>
-    </button>
-    <div class="theme-tray__content" id="themeTrayContent">
-      <div class="theme-tray__section">
-        <div class="theme-tray__label">Palette</div>
-        <div class="theme-tray__palettes" id="palettePicker"></div>
+    <!-- Inspector Sidebar -->
+  <div class="inspector" id="inspector">
+    <div class="inspector__header">
+      <span class="inspector__title">Inspector</span>
+      <button class="inspector__close" id="inspectorClose" aria-label="Close inspector">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+          <line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/>
+        </svg>
+      </button>
+    </div>
+    <div class="inspector__sections">
+
+      <!-- Color Section -->
+      <div class="inspector__section is-open" data-section="color">
+        <button class="inspector__section-toggle" aria-expanded="true">
+          <span>Color</span>
+          <svg class="inspector__section-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3 4.5 6 7.5 9 4.5"/></svg>
+        </button>
+        <div class="inspector__section-content">
+          <div class="inspector__section-inner">
+            <div class="inspector__label">Accent</div>
+            <div class="inspector__swatches" id="accentPicker"></div>
+            <div class="inspector__hex-row">
+              <div class="inspector__hex-preview" id="hexPreview"></div>
+              <input type="text" class="inspector__hex-input" id="hexInput" placeholder="#D97706" maxlength="7" spellcheck="false">
+            </div>
+            <div class="inspector__slider-row">
+              <div class="inspector__label">Background <span class="inspector__label-value" id="bgDarknessValue">50%</span></div>
+              <input type="range" class="inspector__slider" id="bgDarknessSlider" min="0" max="100" step="5" value="50">
+            </div>
+            <div class="inspector__slider-row">
+              <div class="inspector__label">Surface Tint <span class="inspector__label-value" id="surfaceTintValue">0%</span></div>
+              <input type="range" class="inspector__slider" id="surfaceTintSlider" min="0" max="100" step="5" value="0">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="theme-tray__section">
-        <div class="theme-tray__label">Font</div>
-        <div class="theme-tray__fonts" id="fontPicker"></div>
+
+      <!-- Typography Section -->
+      <div class="inspector__section" data-section="type">
+        <button class="inspector__section-toggle" aria-expanded="false">
+          <span>Typography</span>
+          <svg class="inspector__section-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3 4.5 6 7.5 9 4.5"/></svg>
+        </button>
+        <div class="inspector__section-content">
+          <div class="inspector__section-inner">
+            <div class="inspector__label">Font Family</div>
+            <div class="inspector__font-chips" id="fontPicker"></div>
+            <div class="inspector__label">Size</div>
+            <div class="inspector__toggle-group" id="fontSizeGroup">
+              <button class="inspector__toggle-btn" data-size="14">Compact</button>
+              <button class="inspector__toggle-btn is-active" data-size="16">Default</button>
+              <button class="inspector__toggle-btn" data-size="18">Relaxed</button>
+              <button class="inspector__toggle-btn" data-size="20">Large</button>
+            </div>
+            <div class="inspector__label">Weight</div>
+            <div class="inspector__toggle-group" id="fontWeightGroup">
+              <button class="inspector__toggle-btn" data-weight="300">Light</button>
+              <button class="inspector__toggle-btn is-active" data-weight="400">Regular</button>
+              <button class="inspector__toggle-btn" data-weight="500">Medium</button>
+              <button class="inspector__toggle-btn" data-weight="600">Semi</button>
+            </div>
+            <div class="inspector__slider-row">
+              <div class="inspector__label">Line Height <span class="inspector__label-value" id="lineHeightValue">1.5</span></div>
+              <input type="range" class="inspector__slider" id="lineHeightSlider" min="1.2" max="2.0" step="0.1" value="1.5">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="theme-tray__section">
-        <div class="theme-tray__label">Radius <span class="theme-tray__radius-value" id="radiusValue">--</span></div>
-        <input type="range" class="theme-tray__slider" id="radiusSlider" min="0" max="24" step="2" value="12">
+
+      <!-- Shape Section -->
+      <div class="inspector__section" data-section="shape">
+        <button class="inspector__section-toggle" aria-expanded="false">
+          <span>Shape</span>
+          <svg class="inspector__section-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3 4.5 6 7.5 9 4.5"/></svg>
+        </button>
+        <div class="inspector__section-content">
+          <div class="inspector__section-inner">
+            <div class="inspector__slider-row">
+              <div class="inspector__label">Radius <span class="inspector__label-value" id="radiusValue">--</span></div>
+              <input type="range" class="inspector__slider" id="radiusSlider" min="0" max="32" step="1" value="12">
+            </div>
+            <div class="inspector__label">Border Width</div>
+            <div class="inspector__toggle-group" id="borderWidthGroup">
+              <button class="inspector__toggle-btn" data-border="0">None</button>
+              <button class="inspector__toggle-btn is-active" data-border="1">Subtle</button>
+              <button class="inspector__toggle-btn" data-border="2">Medium</button>
+              <button class="inspector__toggle-btn" data-border="3">Bold</button>
+            </div>
+            <div class="inspector__slider-row">
+              <div class="inspector__label">Shadow <span class="inspector__label-value" id="shadowValue">50%</span></div>
+              <input type="range" class="inspector__slider" id="shadowSlider" min="0" max="100" step="10" value="50">
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Presets Section -->
+      <div class="inspector__section" data-section="presets">
+        <button class="inspector__section-toggle" aria-expanded="false">
+          <span>Presets</span>
+          <svg class="inspector__section-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3 4.5 6 7.5 9 4.5"/></svg>
+        </button>
+        <div class="inspector__section-content">
+          <div class="inspector__section-inner">
+            <div class="inspector__presets" id="presetPicker"></div>
+            <button class="inspector__reset-btn" id="resetBtn">Reset to Defaults</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+  </div><!-- panel__body -->
   <div class="panel__footer">
     <div class="panel__notes-label">Notes</div>
     <textarea
@@ -1529,6 +1880,136 @@ img { display: block; max-width: 100%; }
       "dateAdded": "2026-02-22",
       "gsap_features": ["hoverScale", "timeline", "scrollReveal", "elastic", "magnetic"],
       "animation_count": 16,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "widget-command-palette",
+      "title": "Command Palette",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["command", "palette", "search", "keyboard", "spotlight", "gsap"],
+      "filePath": "designs/widget-command-palette.html",
+      "description": "macOS Spotlight-style command palette with search, grouped results, keyboard navigation, and GSAP overlay animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "staggerSequence", "fadeIn", "fadeOut"],
+      "animation_count": 6,
+      "plugins_used": []
+    },
+    {
+      "id": "dashboard-data-table",
+      "title": "Data Table",
+      "category": "Dashboards",
+      "type": "component",
+      "tags": ["table", "data", "sortable", "pagination", "select", "gsap"],
+      "filePath": "designs/dashboard-data-table.html",
+      "description": "Professional data table with sortable columns, row selection, bulk actions, pagination, and GSAP stagger entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["staggerSequence", "fadeIn", "slideIn", "hoverScale"],
+      "animation_count": 5,
+      "plugins_used": []
+    },
+    {
+      "id": "layout-kanban-board",
+      "title": "Kanban Board",
+      "category": "Layouts",
+      "type": "full-page",
+      "tags": ["kanban", "board", "tasks", "columns", "cards", "gsap"],
+      "filePath": "designs/layout-kanban-board.html",
+      "description": "Trello-style kanban board with 4 columns, task cards, priority labels, tags, and GSAP column/card stagger entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["staggerSequence", "fadeIn", "slideIn", "hoverLift"],
+      "animation_count": 7,
+      "plugins_used": []
+    },
+    {
+      "id": "pricing-feature-comparison",
+      "title": "Feature Comparison",
+      "category": "Pricing",
+      "type": "component",
+      "tags": ["pricing", "comparison", "features", "toggle", "tiers", "gsap"],
+      "filePath": "designs/pricing-feature-comparison.html",
+      "description": "3-tier feature comparison with monthly/yearly toggle, animated price countup, check/cross indicators, and GSAP column entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "staggerSequence", "numberCountup", "hoverLift"],
+      "animation_count": 6,
+      "plugins_used": []
+    },
+    {
+      "id": "section-team-showcase",
+      "title": "Team Showcase",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["team", "showcase", "cards", "flip", "bio", "gsap"],
+      "filePath": "designs/section-team-showcase.html",
+      "description": "3x2 team member grid with GSAP-powered card flip to reveal bio, social links, and scroll-triggered stagger entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scrollReveal", "staggerSequence", "scaleIn", "timeline"],
+      "animation_count": 6,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "section-faq-accordion",
+      "title": "FAQ Accordion",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["faq", "accordion", "search", "tabs", "expand", "gsap"],
+      "filePath": "designs/section-faq-accordion.html",
+      "description": "FAQ section with search filter, category tabs, GSAP height-animated accordion, and scroll-reveal entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scrollReveal", "staggerSequence", "timeline", "fadeIn"],
+      "animation_count": 7,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "widget-chat",
+      "title": "Chat Widget",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["chat", "widget", "messenger", "bubble", "typing", "gsap"],
+      "filePath": "designs/widget-chat.html",
+      "description": "Floating chat widget with expandable window, message history, typing indicator, and GSAP bubble/message animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "slideIn", "staggerSequence", "timeline"],
+      "animation_count": 8,
+      "plugins_used": []
+    },
+    {
+      "id": "form-file-upload",
+      "title": "File Upload Dropzone",
+      "category": "Forms",
+      "type": "component",
+      "tags": ["upload", "dropzone", "drag", "progress", "files", "gsap"],
+      "filePath": "designs/form-file-upload.html",
+      "description": "Drag-and-drop file upload with progress bars, preview thumbnails, error states, and GSAP entrance/progress animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "slideIn", "timeline", "fadeIn"],
+      "animation_count": 6,
+      "plugins_used": []
+    },
+    {
+      "id": "layout-blog-post",
+      "title": "Blog Post Layout",
+      "category": "Layouts",
+      "type": "full-page",
+      "tags": ["blog", "editorial", "article", "toc", "reading", "gsap"],
+      "filePath": "designs/layout-blog-post.html",
+      "description": "Premium editorial blog post with hero, sticky TOC sidebar, reading progress bar, and GSAP scroll-driven animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scrollReveal", "textRevealByLine", "scrollParallax", "staggerSequence"],
+      "animation_count": 8,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "section-gallery-lightbox",
+      "title": "Image Gallery Lightbox",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["gallery", "lightbox", "images", "masonry", "zoom", "gsap"],
+      "filePath": "designs/section-gallery-lightbox.html",
+      "description": "3-column image gallery with GSAP-powered lightbox, keyboard navigation, prev/next transitions, and scroll-reveal entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scrollReveal", "scaleIn", "fadeIn", "slideIn"],
+      "animation_count": 7,
       "plugins_used": ["ScrollTrigger"]
     }
   ];
@@ -2196,8 +2677,8 @@ img { display: block; max-width: 100%; }
     panelNotes.value = getNotes(id);
     saveStatus.textContent = '';
 
-    /* Theme tray: sync UI and inject on iframe load */
-    syncTrayUI(id);
+    /* Inspector: sync UI and inject on iframe load */
+    syncInspectorUI(id);
     panelIframe.onload = function() {
       if (currentPanelId) { injectTheme(currentPanelId); }
     };
@@ -2220,16 +2701,16 @@ img { display: block; max-width: 100%; }
     panel.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
 
-    /* Reset theme tray */
-    trayOpen = false;
-    themeTray.classList.remove('is-open');
-    themeTrayToggle.setAttribute('aria-expanded', 'false');
-    if (typeof gsap !== 'undefined') {
-      gsap.set(themeTrayContent, { height: 0 });
-    } else {
-      themeTrayContent.style.height = '0';
+    /* Reset inspector */
+    if (inspectorOpen) {
+      inspectorOpen = false;
+      inspectorEl.classList.remove('is-open');
+      inspectorToggleBtn.classList.remove('is-active');
+      panelIframe.classList.remove('inspector-active');
+      if (typeof gsap !== 'undefined') {
+        gsap.set(inspectorEl, { x: '100%' });
+      }
     }
-    themeTrayContent.style.overflow = 'hidden';
 
     /* GSAP panel slide-out */
     if (typeof gsap !== 'undefined' && !UV.prefersReducedMotion) {
@@ -2295,21 +2776,43 @@ img { display: block; max-width: 100%; }
   });
 
   /* ===========================================================
-     THEME TRAY
+     INSPECTOR PANEL
      =========================================================== */
+
+  /* ---- Data Constants ---- */
   var PALETTES = [
-    { id: 'original', name: 'Original', accent: null, bg: null, surface: null, text: null, textMuted: null, border: null },
-    { id: 'ocean',   name: 'Ocean',   accent: '#3B82F6', bg: '#0c1220', surface: '#141e30', text: '#e2e8f0', textMuted: '#94a3b8', border: 'rgba(59,130,246,0.2)' },
-    { id: 'emerald', name: 'Emerald', accent: '#10B981', bg: '#0a1a14', surface: '#122620', text: '#d1fae5', textMuted: '#6ee7b7', border: 'rgba(16,185,129,0.2)' },
-    { id: 'sunset',  name: 'Sunset',  accent: '#F59E0B', bg: '#1a1008', surface: '#261a0a', text: '#fef3c7', textMuted: '#fcd34d', border: 'rgba(245,158,11,0.2)' },
-    { id: 'violet',  name: 'Violet',  accent: '#A855F7', bg: '#14081e', surface: '#1e0e2e', text: '#f3e8ff', textMuted: '#c4b5fd', border: 'rgba(168,85,247,0.2)' },
-    { id: 'rose',    name: 'Rose',    accent: '#EC4899', bg: '#1a0812', surface: '#2a0e1e', text: '#fce7f3', textMuted: '#f9a8d4', border: 'rgba(236,72,153,0.2)' },
+    { id: 'original',  name: 'Original',  accent: null,      bg: null,      surface: null,      text: null,      textMuted: null,      border: null },
+    { id: 'ocean',     name: 'Ocean',     accent: '#3B82F6', bg: '#0c1220', surface: '#141e30', text: '#e2e8f0', textMuted: '#94a3b8', border: 'rgba(59,130,246,0.2)' },
+    { id: 'emerald',   name: 'Emerald',   accent: '#10B981', bg: '#0a1a14', surface: '#122620', text: '#d1fae5', textMuted: '#6ee7b7', border: 'rgba(16,185,129,0.2)' },
+    { id: 'sunset',    name: 'Sunset',    accent: '#F59E0B', bg: '#1a1008', surface: '#261a0a', text: '#fef3c7', textMuted: '#fcd34d', border: 'rgba(245,158,11,0.2)' },
+    { id: 'violet',    name: 'Violet',    accent: '#A855F7', bg: '#14081e', surface: '#1e0e2e', text: '#f3e8ff', textMuted: '#c4b5fd', border: 'rgba(168,85,247,0.2)' },
+    { id: 'rose',      name: 'Rose',      accent: '#EC4899', bg: '#1a0812', surface: '#2a0e1e', text: '#fce7f3', textMuted: '#f9a8d4', border: 'rgba(236,72,153,0.2)' },
+    { id: 'nord',      name: 'Nord',      accent: '#88C0D0', bg: '#2E3440', surface: '#3B4252', text: '#ECEFF4', textMuted: '#D8DEE9', border: 'rgba(136,192,208,0.2)' },
+    { id: 'dracula',   name: 'Dracula',   accent: '#BD93F9', bg: '#282A36', surface: '#44475A', text: '#F8F8F2', textMuted: '#6272A4', border: 'rgba(189,147,249,0.2)' },
+    { id: 'solarized', name: 'Solarized', accent: '#268BD2', bg: '#002B36', surface: '#073642', text: '#839496', textMuted: '#586E75', border: 'rgba(38,139,210,0.2)' },
+    { id: 'tokyo',     name: 'Tokyo Night',accent:'#7AA2F7', bg: '#1A1B26', surface: '#24283B', text: '#C0CAF5', textMuted: '#565F89', border: 'rgba(122,162,247,0.2)' },
+    { id: 'catppuccin',name: 'Catppuccin', accent: '#CBA6F7', bg: '#1E1E2E', surface: '#313244', text: '#CDD6F4', textMuted: '#A6ADC8', border: 'rgba(203,166,247,0.2)' },
+    { id: 'onedark',   name: 'One Dark',  accent: '#61AFEF', bg: '#282C34', surface: '#2C313C', text: '#ABB2BF', textMuted: '#5C6370', border: 'rgba(97,175,239,0.2)' },
   ];
 
   var FONTS = [
-    { id: 'system', name: 'System', stack: null },
-    { id: 'serif',  name: 'Serif',  stack: "'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" },
-    { id: 'mono',   name: 'Mono',   stack: "'SF Mono',SFMono-Regular,ui-monospace,'Cascadia Code',monospace" },
+    { id: 'system',    name: 'System',    stack: null },
+    { id: 'serif',     name: 'Serif',     stack: "'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" },
+    { id: 'mono',      name: 'Mono',      stack: "'SF Mono',SFMono-Regular,ui-monospace,'Cascadia Code',monospace" },
+    { id: 'rounded',   name: 'Rounded',   stack: "'Nunito','Varela Round',system-ui,-apple-system,sans-serif" },
+    { id: 'humanist',  name: 'Humanist',  stack: "'Gill Sans','Gill Sans MT',Calibri,sans-serif" },
+    { id: 'condensed', name: 'Condensed', stack: "'Roboto Condensed','Arial Narrow',sans-serif" },
+  ];
+
+  var PRESETS = [
+    { id: 'original',   name: 'Original',   dot: null,      palette: 'original', font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5, radius: null, borderWidth: 1, shadowIntensity: 50 },
+    { id: 'nord',       name: 'Nord',       dot: '#88C0D0', palette: 'nord',     font: 'serif',  fontSize: 16, fontWeight: 400, lineHeight: 1.6, radius: 12,   borderWidth: 1, shadowIntensity: 30 },
+    { id: 'dracula',    name: 'Dracula',    dot: '#BD93F9', palette: 'dracula',  font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5, radius: 8,    borderWidth: 1, shadowIntensity: 40 },
+    { id: 'solarized',  name: 'Solarized',  dot: '#268BD2', palette: 'solarized',font: 'mono',   fontSize: 14, fontWeight: 400, lineHeight: 1.5, radius: 4,    borderWidth: 1, shadowIntensity: 20 },
+    { id: 'tokyo',      name: 'Tokyo Night', dot: '#7AA2F7', palette: 'tokyo',   font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5, radius: 10,   borderWidth: 1, shadowIntensity: 50 },
+    { id: 'catppuccin', name: 'Catppuccin', dot: '#CBA6F7', palette: 'catppuccin',font:'rounded', fontSize: 16, fontWeight: 400, lineHeight: 1.6, radius: 14,   borderWidth: 1, shadowIntensity: 40 },
+    { id: 'onedark',    name: 'One Dark',   dot: '#61AFEF', palette: 'onedark',  font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5, radius: 6,    borderWidth: 1, shadowIntensity: 40 },
+    { id: 'github',     name: 'GitHub Dark', dot: '#58A6FF', palette: 'original',font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5, radius: 6,    borderWidth: 1, shadowIntensity: 50 },
   ];
 
   var THEME_MAPS = {
@@ -2378,71 +2881,247 @@ img { display: block; max-width: 100%; }
     'hero-kinetic-typography': null,
     'card-toast-notifications': null,
     'section-testimonial-marquee': null,
+    'widget-command-palette': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'dashboard-data-table': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'layout-kanban-board': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'pricing-feature-comparison': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'section-team-showcase': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'section-faq-accordion': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'widget-chat': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: null, font: ['--font']
+    },
+    'form-file-upload': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'layout-blog-post': {
+      bg: ['--bg'], surface: ['--surface'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
+    'section-gallery-lightbox': {
+      bg: ['--bg'], surface: ['--surface', '--surface-raised'], accent: ['--accent'],
+      text: ['--text'], textMuted: ['--text-secondary'], border: ['--border'],
+      radius: ['--radius'], radiusSm: ['--radius-sm'], font: ['--font']
+    },
   };
 
-  /* ---- Theme tray DOM refs ---- */
-  var themeTray = document.getElementById('themeTray');
-  var themeTrayToggle = document.getElementById('themeTrayToggle');
-  var themeTrayContent = document.getElementById('themeTrayContent');
-  var palettePicker = document.getElementById('palettePicker');
+  /* ---- Default theme object ---- */
+  var DEFAULT_THEME = {
+    palette: 'original', customHex: null, bgDarkness: 50, surfaceTint: 0,
+    font: 'system', fontSize: 16, fontWeight: 400, lineHeight: 1.5,
+    radius: null, borderWidth: 1, shadowIntensity: 50, preset: null
+  };
+
+  /* ---- Color Utilities ---- */
+  function hexToRGB(hex) {
+    hex = hex.replace('#', '');
+    return {
+      r: parseInt(hex.substring(0, 2), 16),
+      g: parseInt(hex.substring(2, 4), 16),
+      b: parseInt(hex.substring(4, 6), 16)
+    };
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(function(c) {
+      var h = Math.max(0, Math.min(255, Math.round(c))).toString(16);
+      return h.length === 1 ? '0' + h : h;
+    }).join('');
+  }
+
+  function adjustBrightness(hex, pct) {
+    var rgb = hexToRGB(hex);
+    var factor = pct / 50;
+    return rgbToHex(rgb.r * factor, rgb.g * factor, rgb.b * factor);
+  }
+
+  function blendColors(hex1, hex2, ratio) {
+    var c1 = hexToRGB(hex1);
+    var c2 = hexToRGB(hex2);
+    return rgbToHex(
+      c1.r + (c2.r - c1.r) * ratio,
+      c1.g + (c2.g - c1.g) * ratio,
+      c1.b + (c2.b - c1.b) * ratio
+    );
+  }
+
+  /* ---- Inspector DOM refs ---- */
+  var inspectorEl = document.getElementById('inspector');
+  var inspectorToggleBtn = document.getElementById('inspectorToggle');
+  var inspectorCloseBtn = document.getElementById('inspectorClose');
+  var accentPicker = document.getElementById('accentPicker');
+  var hexPreview = document.getElementById('hexPreview');
+  var hexInput = document.getElementById('hexInput');
+  var bgDarknessSlider = document.getElementById('bgDarknessSlider');
+  var bgDarknessValue = document.getElementById('bgDarknessValue');
+  var surfaceTintSlider = document.getElementById('surfaceTintSlider');
+  var surfaceTintValue = document.getElementById('surfaceTintValue');
   var fontPicker = document.getElementById('fontPicker');
+  var fontSizeGroup = document.getElementById('fontSizeGroup');
+  var fontWeightGroup = document.getElementById('fontWeightGroup');
+  var lineHeightSlider = document.getElementById('lineHeightSlider');
+  var lineHeightValue = document.getElementById('lineHeightValue');
   var radiusSlider = document.getElementById('radiusSlider');
   var radiusValue = document.getElementById('radiusValue');
-  var trayOpen = false;
+  var borderWidthGroup = document.getElementById('borderWidthGroup');
+  var shadowSlider = document.getElementById('shadowSlider');
+  var shadowValue = document.getElementById('shadowValue');
+  var presetPicker = document.getElementById('presetPicker');
+  var resetBtn = document.getElementById('resetBtn');
+  var inspectorOpen = false;
 
-  /* ---- Build palette swatches ---- */
+  /* ---- Build accent swatches ---- */
   PALETTES.forEach(function(p) {
     var btn = document.createElement('button');
-    btn.className = 'theme-tray__swatch' + (p.id === 'original' ? ' theme-tray__swatch--original' : '');
+    btn.className = 'inspector__swatch' + (p.id === 'original' ? ' inspector__swatch--original' : '');
     btn.setAttribute('data-palette', p.id);
     btn.setAttribute('title', p.name);
     btn.setAttribute('aria-label', p.name + ' palette');
     if (p.accent) { btn.style.background = p.accent; }
-    palettePicker.appendChild(btn);
+    accentPicker.appendChild(btn);
   });
 
   /* ---- Build font chips ---- */
   FONTS.forEach(function(f) {
     var btn = document.createElement('button');
-    btn.className = 'theme-tray__font-chip';
+    btn.className = 'inspector__font-chip';
     btn.setAttribute('data-font', f.id);
     btn.textContent = f.name;
     if (f.stack) { btn.style.fontFamily = f.stack; }
     fontPicker.appendChild(btn);
   });
 
-  /* ---- Tray toggle ---- */
-  themeTrayToggle.addEventListener('click', function() {
-    trayOpen = !trayOpen;
-    themeTray.classList.toggle('is-open', trayOpen);
-    themeTrayToggle.setAttribute('aria-expanded', String(trayOpen));
+  /* ---- Build preset buttons ---- */
+  PRESETS.forEach(function(p) {
+    var btn = document.createElement('button');
+    btn.className = 'inspector__preset-btn';
+    btn.setAttribute('data-preset', p.id);
+    if (p.dot) {
+      var dot = document.createElement('span');
+      dot.className = 'inspector__preset-dot';
+      dot.style.background = p.dot;
+      btn.appendChild(dot);
+    }
+    var label = document.createTextNode(p.name);
+    btn.appendChild(label);
+    presetPicker.appendChild(btn);
+  });
+
+  /* ---- Accordion toggle ---- */
+  inspectorEl.querySelectorAll('.inspector__section-toggle').forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+      var section = toggle.closest('.inspector__section');
+      var content = section.querySelector('.inspector__section-content');
+      var isOpen = section.classList.contains('is-open');
+
+      if (typeof gsap !== 'undefined' && !UV.prefersReducedMotion) {
+        if (isOpen) {
+          gsap.to(content, {
+            height: 0, duration: 0.25, ease: 'power2.in',
+            onComplete: function() { content.style.overflow = 'hidden'; }
+          });
+        } else {
+          gsap.set(content, { height: 'auto' });
+          gsap.from(content, {
+            height: 0, duration: 0.3, ease: 'power2.out',
+            onStart: function() { content.style.overflow = 'hidden'; },
+            onComplete: function() { content.style.overflow = ''; }
+          });
+        }
+      } else {
+        content.style.height = isOpen ? '0' : 'auto';
+        content.style.overflow = isOpen ? 'hidden' : '';
+      }
+
+      section.classList.toggle('is-open', !isOpen);
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+    });
+  });
+
+  /* Initialize open section content height */
+  inspectorEl.querySelectorAll('.inspector__section.is-open .inspector__section-content').forEach(function(c) {
+    c.style.height = 'auto';
+  });
+
+  /* ---- Inspector toggle (show/hide sidebar) ---- */
+  function toggleInspector() {
+    inspectorOpen = !inspectorOpen;
+    inspectorToggleBtn.classList.toggle('is-active', inspectorOpen);
 
     if (typeof gsap !== 'undefined' && !UV.prefersReducedMotion) {
-      if (trayOpen) {
-        gsap.set(themeTrayContent, { height: 'auto' });
-        gsap.from(themeTrayContent, {
-          height: 0, duration: 0.3, ease: 'power2.out',
-          onStart: function() { themeTrayContent.style.overflow = 'hidden'; },
-          onComplete: function() { themeTrayContent.style.overflow = ''; }
-        });
+      if (inspectorOpen) {
+        inspectorEl.classList.add('is-open');
+        panelIframe.classList.add('inspector-active');
+        gsap.fromTo(inspectorEl, { x: '100%' }, { x: '0%', duration: 0.3, ease: 'power2.out' });
       } else {
-        gsap.to(themeTrayContent, {
-          height: 0, duration: 0.25, ease: 'power2.in',
-          onComplete: function() { themeTrayContent.style.overflow = 'hidden'; }
+        panelIframe.classList.remove('inspector-active');
+        gsap.to(inspectorEl, {
+          x: '100%', duration: 0.25, ease: 'power2.in',
+          onComplete: function() { inspectorEl.classList.remove('is-open'); }
         });
       }
     } else {
-      themeTrayContent.style.height = trayOpen ? 'auto' : '0';
-      themeTrayContent.style.overflow = trayOpen ? '' : 'hidden';
+      inspectorEl.classList.toggle('is-open', inspectorOpen);
+      panelIframe.classList.toggle('inspector-active', inspectorOpen);
     }
-  });
+  }
 
-  /* ---- localStorage helpers ---- */
+  inspectorToggleBtn.addEventListener('click', toggleInspector);
+  inspectorCloseBtn.addEventListener('click', toggleInspector);
+
+  /* ---- localStorage helpers (with migration) ---- */
   function getDesignTheme(designId) {
     try {
       var raw = localStorage.getItem('ui-vault-palette-' + designId);
-      return raw ? JSON.parse(raw) : { palette: 'original', font: 'system', radius: null };
-    } catch(e) { return { palette: 'original', font: 'system', radius: null }; }
+      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_THEME));
+      var parsed = JSON.parse(raw);
+      /* Migrate old format */
+      if (parsed.fontSize === undefined) {
+        return {
+          palette: parsed.palette || 'original',
+          customHex: null,
+          bgDarkness: 50,
+          surfaceTint: 0,
+          font: parsed.font || 'system',
+          fontSize: 16,
+          fontWeight: 400,
+          lineHeight: 1.5,
+          radius: parsed.radius != null ? parsed.radius : null,
+          borderWidth: 1,
+          shadowIntensity: 50,
+          preset: null
+        };
+      }
+      return parsed;
+    } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_THEME)); }
   }
 
   function setDesignTheme(designId, theme) {
@@ -2456,12 +3135,32 @@ img { display: block; max-width: 100%; }
     var map = THEME_MAPS[designId];
     var rules = [];
     var palette = PALETTES.find(function(p) { return p.id === theme.palette; });
+    var accentHex = theme.customHex || (palette ? palette.accent : null);
 
+    /* Color overrides */
     if (map && palette && palette.id !== 'original') {
+      var bgColor = palette.bg;
+      var surfaceColor = palette.surface;
+
+      /* Apply bgDarkness adjustment */
+      if (bgColor && theme.bgDarkness !== 50) {
+        bgColor = adjustBrightness(bgColor, theme.bgDarkness);
+      }
+      if (surfaceColor && theme.bgDarkness !== 50) {
+        surfaceColor = adjustBrightness(surfaceColor, theme.bgDarkness);
+      }
+
+      /* Apply surfaceTint */
+      if (surfaceColor && accentHex && theme.surfaceTint > 0) {
+        surfaceColor = blendColors(surfaceColor, accentHex, theme.surfaceTint / 100 * 0.3);
+      }
+
+      var usedAccent = accentHex || palette.accent;
+
       var mappings = [
-        { prop: 'bg',       val: palette.bg },
-        { prop: 'surface',  val: palette.surface },
-        { prop: 'accent',   val: palette.accent },
+        { prop: 'bg',       val: bgColor },
+        { prop: 'surface',  val: surfaceColor },
+        { prop: 'accent',   val: usedAccent },
         { prop: 'text',     val: palette.text },
         { prop: 'textMuted',val: palette.textMuted },
         { prop: 'border',   val: palette.border },
@@ -2475,6 +3174,14 @@ img { display: block; max-width: 100%; }
           });
         }
       });
+    } else if (map && accentHex) {
+      /* Custom hex on original palette — only override accent */
+      var accentVars = map.accent;
+      if (accentVars) {
+        accentVars.forEach(function(v) {
+          rules.push(v + ':' + accentHex + ' !important;');
+        });
+      }
     }
 
     /* Radius */
@@ -2489,18 +3196,50 @@ img { display: block; max-width: 100%; }
       }
     }
 
+    /* Border width */
+    if (map && map.border && theme.borderWidth !== 1) {
+      /* We apply border-width as a separate body rule */
+    }
+
+    /* Shadow intensity */
+    var shadowCSS = '';
+    if (theme.shadowIntensity !== 50) {
+      var si = theme.shadowIntensity / 100;
+      shadowCSS = '*{--shadow-override-opacity:' + si + '}';
+    }
+
     /* Font */
     var fontObj = FONTS.find(function(f) { return f.id === theme.font; });
+    var bodyRules = [];
+
     if (fontObj && fontObj.stack) {
       if (map && map.font) {
         map.font.forEach(function(v) { rules.push(v + ':' + fontObj.stack + ' !important;'); });
       }
-      var bodyFont = 'body{font-family:' + fontObj.stack + ' !important;}';
-      return (rules.length > 0 ? ':root{' + rules.join('') + '}' : '') + bodyFont;
+      bodyRules.push('font-family:' + fontObj.stack + ' !important');
     }
 
-    if (rules.length === 0) return '';
-    return ':root{' + rules.join('') + '}';
+    /* Font size */
+    if (theme.fontSize !== 16) {
+      bodyRules.push('font-size:' + theme.fontSize + 'px !important');
+    }
+
+    /* Font weight */
+    if (theme.fontWeight !== 400) {
+      bodyRules.push('font-weight:' + theme.fontWeight + ' !important');
+    }
+
+    /* Line height */
+    if (theme.lineHeight !== 1.5) {
+      bodyRules.push('line-height:' + theme.lineHeight + ' !important');
+    }
+
+    var css = '';
+    if (rules.length > 0) css += ':root{' + rules.join('') + '}';
+    if (bodyRules.length > 0) css += 'body{' + bodyRules.join(';') + '}';
+    if (shadowCSS) css += shadowCSS;
+
+    return css;
   }
 
   function injectTheme(designId) {
@@ -2522,23 +3261,57 @@ img { display: block; max-width: 100%; }
     } catch(e) { /* cross-origin or iframe not loaded */ }
   }
 
-  /* ---- Sync tray UI to current design theme ---- */
-  function syncTrayUI(designId) {
+  /* ---- Sync inspector UI to current design theme ---- */
+  function syncInspectorUI(designId) {
     var theme = getDesignTheme(designId);
     var map = THEME_MAPS[designId];
     var isHardcoded = (map === null);
 
-    palettePicker.querySelectorAll('.theme-tray__swatch').forEach(function(btn) {
+    /* Accent swatches */
+    accentPicker.querySelectorAll('.inspector__swatch').forEach(function(btn) {
       var pid = btn.getAttribute('data-palette');
-      btn.classList.toggle('is-active', pid === theme.palette);
+      btn.classList.toggle('is-active', pid === theme.palette && !theme.customHex);
       btn.classList.toggle('is-disabled', isHardcoded && pid !== 'original');
       btn.disabled = isHardcoded && pid !== 'original';
     });
 
-    fontPicker.querySelectorAll('.theme-tray__font-chip').forEach(function(btn) {
+    /* Hex input */
+    var palette = PALETTES.find(function(p) { return p.id === theme.palette; });
+    var displayHex = theme.customHex || (palette && palette.accent) || '#D97706';
+    hexInput.value = displayHex;
+    hexPreview.style.background = displayHex;
+    hexInput.disabled = isHardcoded;
+
+    /* Bg darkness */
+    bgDarknessSlider.value = theme.bgDarkness;
+    bgDarknessValue.textContent = theme.bgDarkness + '%';
+    bgDarknessSlider.disabled = isHardcoded || theme.palette === 'original';
+
+    /* Surface tint */
+    surfaceTintSlider.value = theme.surfaceTint;
+    surfaceTintValue.textContent = theme.surfaceTint + '%';
+    surfaceTintSlider.disabled = isHardcoded || theme.palette === 'original';
+
+    /* Font chips */
+    fontPicker.querySelectorAll('.inspector__font-chip').forEach(function(btn) {
       btn.classList.toggle('is-active', btn.getAttribute('data-font') === theme.font);
     });
 
+    /* Font size */
+    fontSizeGroup.querySelectorAll('.inspector__toggle-btn').forEach(function(btn) {
+      btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-size')) === theme.fontSize);
+    });
+
+    /* Font weight */
+    fontWeightGroup.querySelectorAll('.inspector__toggle-btn').forEach(function(btn) {
+      btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-weight')) === theme.fontWeight);
+    });
+
+    /* Line height */
+    lineHeightSlider.value = theme.lineHeight;
+    lineHeightValue.textContent = theme.lineHeight.toFixed(1);
+
+    /* Radius */
     if (theme.radius != null) {
       radiusSlider.value = theme.radius;
       radiusValue.textContent = theme.radius + 'px';
@@ -2546,41 +3319,198 @@ img { display: block; max-width: 100%; }
       radiusSlider.value = 12;
       radiusValue.textContent = '--';
     }
-
     radiusSlider.disabled = isHardcoded || !map || !map.radius;
+
+    /* Border width */
+    borderWidthGroup.querySelectorAll('.inspector__toggle-btn').forEach(function(btn) {
+      btn.classList.toggle('is-active', parseInt(btn.getAttribute('data-border')) === theme.borderWidth);
+      btn.disabled = isHardcoded;
+    });
+
+    /* Shadow */
+    shadowSlider.value = theme.shadowIntensity;
+    shadowValue.textContent = theme.shadowIntensity + '%';
+
+    /* Presets */
+    presetPicker.querySelectorAll('.inspector__preset-btn').forEach(function(btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-preset') === theme.preset);
+      btn.classList.toggle('is-disabled', isHardcoded && btn.getAttribute('data-preset') !== 'original');
+      btn.disabled = isHardcoded && btn.getAttribute('data-preset') !== 'original';
+    });
   }
 
-  /* ---- Event handlers ---- */
-  palettePicker.addEventListener('click', function(e) {
-    var btn = e.target.closest('.theme-tray__swatch');
-    if (!btn || btn.disabled || !currentPanelId) return;
+  /* ---- Helper: update theme and inject ---- */
+  function applyThemeChange() {
+    if (!currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    syncInspectorUI(currentPanelId);
+    injectTheme(currentPanelId);
+  }
 
+  /* ---- Event: accent swatch click ---- */
+  accentPicker.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__swatch');
+    if (!btn || btn.disabled || !currentPanelId) return;
     var theme = getDesignTheme(currentPanelId);
     theme.palette = btn.getAttribute('data-palette');
+    theme.customHex = null;
+    theme.preset = null;
     setDesignTheme(currentPanelId, theme);
-    syncTrayUI(currentPanelId);
+    syncInspectorUI(currentPanelId);
     injectTheme(currentPanelId);
   });
 
-  fontPicker.addEventListener('click', function(e) {
-    var btn = e.target.closest('.theme-tray__font-chip');
-    if (!btn || !currentPanelId) return;
+  /* ---- Event: hex input ---- */
+  hexInput.addEventListener('input', function() {
+    var val = hexInput.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      if (!currentPanelId) return;
+      var theme = getDesignTheme(currentPanelId);
+      theme.customHex = val;
+      theme.preset = null;
+      hexPreview.style.background = val;
+      setDesignTheme(currentPanelId, theme);
+      injectTheme(currentPanelId);
+    }
+  });
 
+  /* ---- Event: bg darkness slider ---- */
+  bgDarknessSlider.addEventListener('input', function() {
+    if (!currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.bgDarkness = parseInt(bgDarknessSlider.value);
+    bgDarknessValue.textContent = theme.bgDarkness + '%';
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: surface tint slider ---- */
+  surfaceTintSlider.addEventListener('input', function() {
+    if (!currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.surfaceTint = parseInt(surfaceTintSlider.value);
+    surfaceTintValue.textContent = theme.surfaceTint + '%';
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: font chip click ---- */
+  fontPicker.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__font-chip');
+    if (!btn || !currentPanelId) return;
     var theme = getDesignTheme(currentPanelId);
     theme.font = btn.getAttribute('data-font');
+    theme.preset = null;
     setDesignTheme(currentPanelId, theme);
-    syncTrayUI(currentPanelId);
+    syncInspectorUI(currentPanelId);
     injectTheme(currentPanelId);
   });
 
+  /* ---- Event: font size toggle ---- */
+  fontSizeGroup.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__toggle-btn');
+    if (!btn || !currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.fontSize = parseInt(btn.getAttribute('data-size'));
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    syncInspectorUI(currentPanelId);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: font weight toggle ---- */
+  fontWeightGroup.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__toggle-btn');
+    if (!btn || !currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.fontWeight = parseInt(btn.getAttribute('data-weight'));
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    syncInspectorUI(currentPanelId);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: line height slider ---- */
+  lineHeightSlider.addEventListener('input', function() {
+    if (!currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.lineHeight = parseFloat(lineHeightSlider.value);
+    lineHeightValue.textContent = theme.lineHeight.toFixed(1);
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: radius slider ---- */
   radiusSlider.addEventListener('input', function() {
     if (!currentPanelId) return;
     var val = parseInt(radiusSlider.value);
     radiusValue.textContent = val + 'px';
-
     var theme = getDesignTheme(currentPanelId);
     theme.radius = val;
+    theme.preset = null;
     setDesignTheme(currentPanelId, theme);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: border width toggle ---- */
+  borderWidthGroup.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__toggle-btn');
+    if (!btn || btn.disabled || !currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.borderWidth = parseInt(btn.getAttribute('data-border'));
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    syncInspectorUI(currentPanelId);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: shadow slider ---- */
+  shadowSlider.addEventListener('input', function() {
+    if (!currentPanelId) return;
+    var theme = getDesignTheme(currentPanelId);
+    theme.shadowIntensity = parseInt(shadowSlider.value);
+    shadowValue.textContent = theme.shadowIntensity + '%';
+    theme.preset = null;
+    setDesignTheme(currentPanelId, theme);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: preset click ---- */
+  presetPicker.addEventListener('click', function(e) {
+    var btn = e.target.closest('.inspector__preset-btn');
+    if (!btn || btn.disabled || !currentPanelId) return;
+    var presetId = btn.getAttribute('data-preset');
+    var preset = PRESETS.find(function(p) { return p.id === presetId; });
+    if (!preset) return;
+
+    var theme = getDesignTheme(currentPanelId);
+    theme.palette = preset.palette;
+    theme.customHex = null;
+    theme.font = preset.font;
+    theme.fontSize = preset.fontSize;
+    theme.fontWeight = preset.fontWeight;
+    theme.lineHeight = preset.lineHeight;
+    theme.radius = preset.radius;
+    theme.borderWidth = preset.borderWidth;
+    theme.shadowIntensity = preset.shadowIntensity;
+    theme.bgDarkness = 50;
+    theme.surfaceTint = 0;
+    theme.preset = presetId;
+    setDesignTheme(currentPanelId, theme);
+    syncInspectorUI(currentPanelId);
+    injectTheme(currentPanelId);
+  });
+
+  /* ---- Event: reset button ---- */
+  resetBtn.addEventListener('click', function() {
+    if (!currentPanelId) return;
+    localStorage.removeItem('ui-vault-palette-' + currentPanelId);
+    syncInspectorUI(currentPanelId);
     injectTheme(currentPanelId);
   });
 

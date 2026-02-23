@@ -1,6 +1,6 @@
 # UI Vault
 
-A GSAP-powered design warehouse: 17 production-grade UI components and full-page designs with rich animations, all self-contained HTML.
+A GSAP-powered design warehouse: 27 production-grade UI components and full-page designs with rich animations, a professional inspector panel, and all self-contained HTML.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -8,14 +8,15 @@ A GSAP-powered design warehouse: 17 production-grade UI components and full-page
 
 ## Features
 
-- **GSAP animations** across all 17 designs (ScrollTrigger, Flip, TextPlugin)
+- **27 designs** across 10 categories with GSAP animations (ScrollTrigger, Flip, TextPlugin)
+- **Inspector panel** — Figma-style design token editor with 12 color palettes, 6 fonts, shape controls, and 8 named presets (Nord, Dracula, Tokyo Night, etc.)
 - **Animation controls** on every design page (Replay, 0.3x, 1x, 3x speed)
 - **Search** with 150ms debounce across titles, categories, and tags
 - **10 categories** with sidebar filtering and item counts
 - **Grid and list views** persisted in localStorage
 - **Favorites system** with star toggle and localStorage persistence
 - **Dark/light mode** with system preference detection
-- **Full-screen preview panel** with iframe rendering
+- **Full-screen preview panel** with iframe rendering and inspector sidebar
 - **Per-design notes** with auto-save (500ms debounce)
 - **Lazy loading** via IntersectionObserver for iframe thumbnails
 - **Keyboard navigation** (Escape, Enter, Space)
@@ -42,6 +43,16 @@ A GSAP-powered design warehouse: 17 production-grade UI components and full-page
 | 15 | GSAP Text Effects | GSAP | full-page | Typewriter, scramble, character reveal, gradient sweep |
 | 16 | GSAP Flip Gallery | GSAP | full-page | Grid/list/masonry switching, category filtering |
 | 17 | GSAP Micro Interactions | GSAP | full-page | Magnetic buttons, liquid toggles, tilt cards |
+| 18 | Command Palette | Cards | component | Overlay scaleIn, stagger results, keyboard nav |
+| 19 | Data Table | Dashboards | component | Row stagger, sort flash, bulk action slideIn |
+| 20 | Kanban Board | Layouts | full-page | Column stagger, card entrance, hover lift |
+| 21 | Feature Comparison | Pricing | component | Column scaleIn, price countup, toggle Flip |
+| 22 | Team Showcase | Sections | component | 3D card flip, scroll reveal, stagger entrance |
+| 23 | FAQ Accordion | Sections | component | Height animation, Flip filter, search reveal |
+| 24 | Chat Widget | Cards | component | Bubble pulse, window scaleIn, message stagger |
+| 25 | File Upload Dropzone | Forms | component | Progress animation, checkmark scaleIn, error shake |
+| 26 | Blog Post Layout | Layouts | full-page | Scroll parallax, reading progress scrub, TOC highlight |
+| 27 | Image Gallery Lightbox | Sections | component | Lightbox zoom, slide transitions, scroll reveal |
 
 ## GSAP Stack
 
@@ -63,7 +74,7 @@ ui-vault/
   index.html              # Main warehouse app
   catalog.json            # Design metadata with GSAP info
   animations/gsap-utils.js  # Shared GSAP utility library
-  designs/                # 17 self-contained HTML files
+  designs/                # 27 self-contained HTML files
 ```
 
 ## Adding New Designs
@@ -108,9 +119,9 @@ ui-vault/
 
 ## Roadmap
 
-- Interactive theming: swap color palettes and typography per design
-- More design components across all categories
 - GSAP ScrollSmoother integration
+- Export theme as JSON/CSS
+- Responsive preview breakpoints in inspector
 
 ## License
 

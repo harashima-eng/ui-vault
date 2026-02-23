@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanban Board</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Dark productivity UI. Linear/Notion-inspired kanban.
+   ============================================================ */
+:root {
+  --bg: #0E0F11;
+  --surface: #161719;
+  --surface-raised: #1E2023;
+  --accent: #6C5CE7;
+  --text: #E8E6E3;
+  --text-secondary: #9B9A97;
+  --text-tertiary: #5F5E5B;
+  --border: rgba(255, 255, 255, 0.07);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --success: #2ECC71;
+  --warning: #F39C12;
+  --error: #E74C3C;
+  --info: #3498DB;
+
+  /* Column accent colors */
+  --col-backlog: #6B7280;
+  --col-progress: #3B82F6;
+  --col-review: #F59E0B;
+  --col-done: #10B981;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.board-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.board-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent) 0%, #8B5CF6 100%);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.board-logo svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.board-name {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.board-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.board-project {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.board-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.board-search svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.board-search kbd {
+  font-family: inherit;
+  font-size: 0.6875rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-tertiary);
+  margin-left: 12px;
+}
+
+.avatar-group {
+  display: flex;
+  margin-left: 16px;
+}
+
+.avatar-group .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  display: grid;
+  place-items: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.avatar-group .avatar + .avatar {
+  margin-left: -8px;
+}
+
+.avatar-group .avatar:nth-child(1) { background: #6C5CE7; }
+.avatar-group .avatar:nth-child(2) { background: #00B894; }
+.avatar-group .avatar:nth-child(3) { background: #E17055; }
+.avatar-group .avatar:nth-child(4) { background: #0984E3; z-index: 0; }
+
+.btn-new-task {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding: 7px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-new-task svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+/* ============================================================
+   BOARD AREA
+   ============================================================ */
+.board {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  overflow-x: auto;
+  align-items: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+.board::-webkit-scrollbar { height: 6px; }
+.board::-webkit-scrollbar-track { background: transparent; }
+.board::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* ============================================================
+   COLUMN
+   ============================================================ */
+.column {
+  flex: 0 0 300px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 80px);
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 14px;
+  position: relative;
+}
+
+.column-header::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 3px;
+}
+
+.column[data-status="backlog"] .column-header::before { background: var(--col-backlog); }
+.column[data-status="progress"] .column-header::before { background: var(--col-progress); }
+.column[data-status="review"] .column-header::before { background: var(--col-review); }
+.column[data-status="done"] .column-header::before { background: var(--col-done); }
+
+.column-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.column[data-status="backlog"] .column-dot { background: var(--col-backlog); }
+.column[data-status="progress"] .column-dot { background: var(--col-progress); }
+.column[data-status="review"] .column-dot { background: var(--col-review); }
+.column[data-status="done"] .column-dot { background: var(--col-done); }
+
+.column-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.column-count {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.06);
+  padding: 1px 7px;
+  border-radius: 100px;
+}
+
+.column-add {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.column-add svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.column-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.06) transparent;
+}
+
+.column-cards::-webkit-scrollbar { width: 4px; }
+.column-cards::-webkit-scrollbar-track { background: transparent; }
+.column-cards::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: grab;
+  position: relative;
+}
+
+.card-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.card-priority::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.card-priority[data-priority="critical"]::before { background: var(--error); }
+.card-priority[data-priority="critical"] { color: var(--error); }
+.card-priority[data-priority="high"]::before { background: var(--warning); }
+.card-priority[data-priority="high"] { color: var(--warning); }
+.card-priority[data-priority="medium"]::before { background: var(--info); }
+.card-priority[data-priority="medium"] { color: var(--info); }
+.card-priority[data-priority="low"]::before { background: var(--success); }
+.card-priority[data-priority="low"] { color: var(--success); }
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+
+.card-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.tag--accent { background: rgba(108, 92, 231, 0.12); color: #A29BFE; border-color: rgba(108,92,231,0.2); }
+.tag--blue { background: rgba(52, 152, 219, 0.12); color: #74B9FF; border-color: rgba(52,152,219,0.2); }
+.tag--green { background: rgba(46, 204, 113, 0.12); color: #55EFC4; border-color: rgba(46,204,113,0.2); }
+.tag--orange { background: rgba(243, 156, 18, 0.12); color: #FFEAA7; border-color: rgba(243,156,18,0.2); }
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.card-due {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-due svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.card-due.overdue { color: var(--error); }
+
+/* ============================================================
+   NEW TASK FORM
+   ============================================================ */
+.new-card-form {
+  background: var(--surface);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.new-card-form.visible {
+  display: flex;
+}
+
+.new-card-form input,
+.new-card-form textarea {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  outline: none;
+  resize: none;
+}
+
+.new-card-form input:focus,
+.new-card-form textarea:focus {
+  border-color: rgba(108, 92, 231, 0.5);
+}
+
+.new-card-form input::placeholder,
+.new-card-form textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-submit {
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .board-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .board-search { display: none; }
+  .board-sep { display: none; }
+  .board-project { display: none; }
+
+  .board { padding: 16px; gap: 12px; }
+  .column { flex: 0 0 280px; min-width: 280px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="board-header">
+  <div class="board-logo">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+  </div>
+  <span class="board-name">Acme Corp</span>
+  <span class="board-sep"></span>
+  <span class="board-project">Product Roadmap Q1</span>
+
+  <div class="board-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    Search tasks...
+    <kbd>&#8984;K</kbd>
+  </div>
+
+  <div class="avatar-group">
+    <div class="avatar">JK</div>
+    <div class="avatar">AL</div>
+    <div class="avatar">MT</div>
+    <div class="avatar">+3</div>
+  </div>
+
+  <button class="btn-new-task" id="newTaskBtn">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    New Task
+  </button>
+</header>
+
+<!-- ============================================================
+     BOARD
+     ============================================================ -->
+<main class="board">
+
+  <!-- BACKLOG -->
+  <div class="column" data-status="backlog">
+    <div class="column-header">
+      <div class="column-dot"></div>
+      <span class="column-title">Backlog</span>
+      <span class="column-count">4</span>
+      <button class="column-add" aria-label="Add task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="column-cards">
+      <div class="card">
+        <div class="card-priority" data-priority="high">High</div>
+        <div class="card-title">Redesign onboarding flow</div>
+        <div class="card-desc">Simplify the 5-step wizard into a progressive disclosure pattern</div>
+        <div class="card-tags">
+          <span class="tag tag--accent">Design</span>
+          <span class="tag tag--blue">UX</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#E17055;">SM</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 5</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="medium">Medium</div>
+        <div class="card-title">Add dark mode support</div>
+        <div class="card-desc">Implement CSS custom property theming with system preference detection</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Frontend</span>
+          <span class="tag tag--green">A11y</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#0984E3;">JK</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 12</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="low">Low</div>
+        <div class="card-title">Update documentation</div>
+        <div class="card-desc">Rewrite API reference with interactive examples</div>
+        <div class="card-tags">
+          <span class="tag">Docs</span>
+          <span class="tag tag--orange">Content</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#6C5CE7;">AL</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 18</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="critical">Critical</div>
+        <div class="card-title">Fix auth token refresh</div>
+        <div class="card-desc">Sessions expire silently after 30m causing data loss</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Backend</span>
+          <span class="tag tag--accent">Security</span>
+          <span class="tag">Bug</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#00B894;">MT</div>
+          <div class="card-due overdue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Overdue</div>
+        </div>
+      </div>
+      <!-- New task form (hidden by default) -->
+      <div class="new-card-form" id="newCardForm">
+        <input type="text" placeholder="Task title..." id="newCardTitle">
+        <textarea rows="2" placeholder="Brief description..." id="newCardDesc"></textarea>
+        <div class="form-actions">
+          <button class="btn-cancel" id="cancelNewCard">Cancel</button>
+          <button class="btn-submit" id="submitNewCard">Add Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN PROGRESS -->
+  <div class="column" data-status="progress">
+    <div class="column-header">
+      <div class="column-dot"></div>
+      <span class="column-title">In Progress</span>
+      <span class="column-count">3</span>
+      <button class="column-add" aria-label="Add task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="column-cards">
+      <div class="card">
+        <div class="card-priority" data-priority="critical">Critical</div>
+        <div class="card-title">Payment gateway migration</div>
+        <div class="card-desc">Migrate from Stripe v2 to v3 API with zero downtime</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Backend</span>
+          <span class="tag tag--accent">Payments</span>
+          <span class="tag tag--orange">Infra</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#E17055;">SM</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Feb 28</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="high">High</div>
+        <div class="card-title">Implement search filters</div>
+        <div class="card-desc">Add faceted search with autocomplete and recent history</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Frontend</span>
+          <span class="tag tag--green">Search</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#0984E3;">JK</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 2</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="medium">Medium</div>
+        <div class="card-title">Build notification center</div>
+        <div class="card-desc">Bell icon with grouped notifications and mark-all-read</div>
+        <div class="card-tags">
+          <span class="tag tag--accent">Design</span>
+          <span class="tag tag--blue">Frontend</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#6C5CE7;">AL</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 8</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="column" data-status="review">
+    <div class="column-header">
+      <div class="column-dot"></div>
+      <span class="column-title">Review</span>
+      <span class="column-count">2</span>
+      <button class="column-add" aria-label="Add task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="column-cards">
+      <div class="card">
+        <div class="card-priority" data-priority="high">High</div>
+        <div class="card-title">Dashboard analytics charts</div>
+        <div class="card-desc">Real-time SVG charts with drill-down and export capability</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Frontend</span>
+          <span class="tag tag--orange">Data</span>
+          <span class="tag tag--accent">Charts</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#00B894;">MT</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Feb 25</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="low">Low</div>
+        <div class="card-title">Email template refresh</div>
+        <div class="card-desc">Update transactional emails with new brand guidelines</div>
+        <div class="card-tags">
+          <span class="tag tag--accent">Design</span>
+          <span class="tag tag--orange">Email</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#E17055;">SM</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Mar 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div class="column" data-status="done">
+    <div class="column-header">
+      <div class="column-dot"></div>
+      <span class="column-title">Done</span>
+      <span class="column-count">3</span>
+      <button class="column-add" aria-label="Add task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="column-cards">
+      <div class="card">
+        <div class="card-priority" data-priority="critical">Critical</div>
+        <div class="card-title">SSO integration</div>
+        <div class="card-desc">SAML + OAuth2 provider support with JIT provisioning</div>
+        <div class="card-tags">
+          <span class="tag tag--accent">Security</span>
+          <span class="tag tag--blue">Backend</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#0984E3;">JK</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Completed</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="medium">Medium</div>
+        <div class="card-title">Mobile responsive layout</div>
+        <div class="card-desc">Full responsive grid with touch-optimized interactions</div>
+        <div class="card-tags">
+          <span class="tag tag--blue">Frontend</span>
+          <span class="tag tag--green">Mobile</span>
+          <span class="tag">Responsive</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#6C5CE7;">AL</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Completed</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-priority" data-priority="high">High</div>
+        <div class="card-title">CI/CD pipeline setup</div>
+        <div class="card-desc">Automated testing and deployment via GitHub Actions</div>
+        <div class="card-tags">
+          <span class="tag tag--orange">DevOps</span>
+          <span class="tag tag--green">CI/CD</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-avatar" style="background:#00B894;">MT</div>
+          <div class="card-due"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── 1. Header entrance ── */
+  var headerTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  headerTl.from('.board-header', { opacity: 0, y: -20, duration: 0.5 });
+  headerTl.from('.board-logo, .board-name, .board-sep, .board-project', {
+    opacity: 0, x: -15, duration: 0.4, stagger: 0.06
+  }, '-=0.2');
+  headerTl.from('.board-search, .avatar-group, .btn-new-task', {
+    opacity: 0, x: 15, duration: 0.4, stagger: 0.08
+  }, '-=0.3');
+
+  /* ── 2. Columns stagger from left ── */
+  var columns = document.querySelectorAll('.column');
+  gsap.from(columns, {
+    opacity: 0,
+    x: -40,
+    duration: 0.6,
+    ease: 'power3.out',
+    stagger: 0.12,
+    delay: 0.3
+  });
+
+  /* ── 3. Cards stagger per column ── */
+  columns.forEach(function (col, colIndex) {
+    var cards = col.querySelectorAll('.card');
+    gsap.from(cards, {
+      opacity: 0,
+      y: 25,
+      duration: 0.45,
+      ease: 'power2.out',
+      stagger: 0.07,
+      delay: 0.5 + colIndex * 0.15
+    });
+  });
+
+  /* ── 4. Card hover lift ── */
+  UV.hoverLift('.card', {
+    y: -4,
+    shadow: '0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(108,92,231,0.15)',
+    restShadow: 'none'
+  });
+
+  /* ── 5. Button hover effects ── */
+  var newTaskBtn = document.getElementById('newTaskBtn');
+  newTaskBtn.addEventListener('mouseenter', function () {
+    gsap.to(newTaskBtn, { scale: 1.04, duration: 0.2, ease: 'power2.out' });
+  });
+  newTaskBtn.addEventListener('mouseleave', function () {
+    gsap.to(newTaskBtn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+  });
+
+  /* Column add button hover */
+  document.querySelectorAll('.column-add').forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () {
+      gsap.to(btn, { scale: 1.15, rotation: 90, duration: 0.25, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', function () {
+      gsap.to(btn, { scale: 1, rotation: 0, duration: 0.25, ease: 'power2.out' });
+    });
+  });
+
+  /* ── 6. New task form: slideDown / slideUp ── */
+  var newCardForm = document.getElementById('newCardForm');
+  var newCardTitle = document.getElementById('newCardTitle');
+  var cancelBtn = document.getElementById('cancelNewCard');
+  var submitBtn = document.getElementById('submitNewCard');
+
+  function showForm() {
+    newCardForm.classList.add('visible');
+    gsap.fromTo(newCardForm,
+      { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 },
+      { opacity: 1, height: 'auto', paddingTop: 14, paddingBottom: 14, duration: 0.35, ease: 'power3.out',
+        onComplete: function () { newCardTitle.focus(); }
+      }
+    );
+  }
+
+  function hideForm() {
+    gsap.to(newCardForm, {
+      opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, duration: 0.25, ease: 'power2.in',
+      onComplete: function () {
+        newCardForm.classList.remove('visible');
+        newCardTitle.value = '';
+        document.getElementById('newCardDesc').value = '';
+      }
+    });
+  }
+
+  newTaskBtn.addEventListener('click', showForm);
+
+  /* Column add buttons also open form */
+  var backlogAddBtn = document.querySelector('.column[data-status="backlog"] .column-add');
+  if (backlogAddBtn) backlogAddBtn.addEventListener('click', showForm);
+
+  cancelBtn.addEventListener('click', hideForm);
+
+  submitBtn.addEventListener('click', function () {
+    var title = newCardTitle.value.trim();
+    if (!title) {
+      /* Shake animation for empty input */
+      gsap.to(newCardTitle, { x: -6, duration: 0.06, ease: 'power2.inOut',
+        onComplete: function () {
+          gsap.to(newCardTitle, { x: 6, duration: 0.06, ease: 'power2.inOut',
+            onComplete: function () {
+              gsap.to(newCardTitle, { x: 0, duration: 0.06, ease: 'power2.inOut' });
+            }
+          });
+        }
+      });
+      return;
+    }
+
+    var desc = document.getElementById('newCardDesc').value.trim() || 'No description provided';
+
+    /* Build new card via safe DOM methods */
+    var newCard = document.createElement('div');
+    newCard.className = 'card';
+
+    var priority = document.createElement('div');
+    priority.className = 'card-priority';
+    priority.setAttribute('data-priority', 'medium');
+    priority.textContent = 'Medium';
+    newCard.appendChild(priority);
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'card-title';
+    titleEl.textContent = title;
+    newCard.appendChild(titleEl);
+
+    var descEl = document.createElement('div');
+    descEl.className = 'card-desc';
+    descEl.textContent = desc;
+    newCard.appendChild(descEl);
+
+    var tags = document.createElement('div');
+    tags.className = 'card-tags';
+    var tagNew = document.createElement('span');
+    tagNew.className = 'tag tag--accent';
+    tagNew.textContent = 'New';
+    tags.appendChild(tagNew);
+    newCard.appendChild(tags);
+
+    var footer = document.createElement('div');
+    footer.className = 'card-footer';
+
+    var avatar = document.createElement('div');
+    avatar.className = 'card-avatar';
+    avatar.style.background = '#6C5CE7';
+    avatar.textContent = 'You';
+    footer.appendChild(avatar);
+
+    var due = document.createElement('div');
+    due.className = 'card-due';
+    due.textContent = 'No date';
+    footer.appendChild(due);
+
+    newCard.appendChild(footer);
+
+    /* Insert before form */
+    newCardForm.parentNode.insertBefore(newCard, newCardForm);
+
+    /* Animate entrance */
+    gsap.from(newCard, { opacity: 0, y: -15, scale: 0.96, duration: 0.4, ease: 'back.out(1.7)' });
+
+    /* Attach hover */
+    UV.hoverLift(newCard, {
+      y: -4,
+      shadow: '0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(108,92,231,0.15)',
+      restShadow: 'none'
+    });
+
+    /* Update count */
+    var countEl = document.querySelector('.column[data-status="backlog"] .column-count');
+    var current = parseInt(countEl.textContent, 10);
+    countEl.textContent = current + 1;
+
+    hideForm();
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

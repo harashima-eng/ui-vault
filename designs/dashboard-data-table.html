@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Table Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0B0D11;
+  --surface:#13161C;
+  --surface-hover:#1A1D25;
+  --surface-selected:rgba(99,131,255,0.08);
+  --accent:#6383FF;
+  --accent-hover:#7B96FF;
+  --accent-dim:rgba(99,131,255,0.15);
+  --text:#E8E9ED;
+  --text-secondary:#8B8F9A;
+  --text-tertiary:#565960;
+  --border:rgba(255,255,255,0.07);
+  --border-strong:rgba(255,255,255,0.12);
+  --radius:12px;
+  --radius-sm:8px;
+  --radius-xs:6px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --success:#34D399;
+  --success-dim:rgba(52,211,153,0.12);
+  --warning:#FBBF24;
+  --warning-dim:rgba(251,191,36,0.12);
+  --error:#F87171;
+  --error-dim:rgba(248,113,113,0.12);
+  --shadow-card:0 1px 3px rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.2);
+}
+
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;padding:48px 32px;overflow-x:hidden}
+
+/* ---- Background Pattern ---- */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(99,131,255,0.04) 1px, transparent 0);
+  background-size:32px 32px;
+  pointer-events:none;z-index:0;
+}
+
+/* ---- Card Container ---- */
+.table-card{
+  width:100%;max-width:1120px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-card);
+  overflow:hidden;
+  position:relative;z-index:1;
+}
+
+/* ---- Header Bar ---- */
+.table-header{
+  display:flex;align-items:center;gap:12px;
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+}
+.table-title{
+  font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;
+  color:var(--text);margin-right:auto;
+  display:flex;align-items:center;gap:10px;
+}
+.table-title .count{
+  font-size:0.75rem;font-weight:500;
+  background:var(--accent-dim);color:var(--accent);
+  padding:2px 8px;border-radius:20px;
+}
+
+.search-box{
+  position:relative;display:flex;align-items:center;
+}
+.search-box svg{
+  position:absolute;left:10px;
+  color:var(--text-tertiary);pointer-events:none;
+}
+.search-box input{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-xs);
+  padding:8px 12px 8px 34px;
+  font-size:0.8125rem;font-family:var(--font);
+  color:var(--text);width:220px;
+  outline:none;
+}
+.search-box input::placeholder{color:var(--text-tertiary)}
+.search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+
+.filter-btn,.add-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:var(--radius-xs);
+  font-size:0.8125rem;font-weight:500;font-family:var(--font);
+  cursor:pointer;border:none;
+}
+.filter-btn{
+  background:transparent;color:var(--text-secondary);
+  border:1px solid var(--border);
+}
+.filter-btn:hover{background:var(--surface-hover);color:var(--text)}
+
+.add-btn{
+  background:var(--accent);color:#fff;font-weight:600;
+}
+.add-btn:hover{background:var(--accent-hover)}
+
+/* ---- Bulk Action Bar ---- */
+.bulk-bar{
+  display:none;align-items:center;gap:12px;
+  padding:12px 24px;
+  background:var(--accent-dim);
+  border-bottom:1px solid rgba(99,131,255,0.15);
+}
+.bulk-bar.visible{display:flex}
+.bulk-bar .bulk-count{
+  font-size:0.8125rem;font-weight:600;color:var(--accent);
+}
+.bulk-bar .bulk-actions{display:flex;gap:8px;margin-left:auto}
+.bulk-bar .bulk-actions button{
+  padding:6px 12px;border-radius:var(--radius-xs);
+  font-size:0.75rem;font-weight:500;font-family:var(--font);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-secondary);cursor:pointer;
+}
+.bulk-bar .bulk-actions button:hover{color:var(--text);background:var(--surface-hover)}
+.bulk-bar .bulk-actions button.danger{
+  border-color:var(--error-dim);color:var(--error);
+}
+.bulk-bar .bulk-actions button.danger:hover{background:var(--error-dim)}
+
+/* ---- Table ---- */
+.data-table{width:100%;border-collapse:collapse}
+
+.data-table thead th{
+  padding:12px 16px;
+  font-size:0.6875rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--text-tertiary);
+  text-align:left;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+  cursor:default;
+  user-select:none;
+  position:relative;
+}
+.data-table thead th:first-child{padding-left:24px;width:44px}
+.data-table thead th:last-child{padding-right:24px;width:48px;text-align:right}
+
+th.sortable{cursor:pointer}
+th.sortable:hover{color:var(--text-secondary)}
+th .sort-arrow{
+  display:inline-block;margin-left:4px;
+  font-size:0.625rem;color:var(--text-tertiary);
+  opacity:0;
+}
+th.sortable:hover .sort-arrow{opacity:0.5}
+th.sorted .sort-arrow{opacity:1;color:var(--accent)}
+
+/* ---- Table Rows ---- */
+.data-table tbody tr{border-bottom:1px solid var(--border)}
+.data-table tbody tr:last-child{border-bottom:none}
+
+.data-table tbody td{
+  padding:14px 16px;
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  vertical-align:middle;
+}
+.data-table tbody td:first-child{padding-left:24px}
+.data-table tbody td:last-child{padding-right:24px;text-align:right}
+
+.data-table tbody tr.selected{background:var(--surface-selected)}
+
+/* ---- Checkbox ---- */
+.checkbox{
+  width:16px;height:16px;
+  appearance:none;-webkit-appearance:none;
+  border:1.5px solid var(--text-tertiary);
+  border-radius:4px;cursor:pointer;
+  display:grid;place-items:center;
+  background:transparent;
+  position:relative;flex-shrink:0;
+}
+.checkbox:checked{
+  background:var(--accent);border-color:var(--accent);
+}
+.checkbox:checked::after{
+  content:'';display:block;
+  width:4px;height:7px;
+  border:solid #fff;border-width:0 1.5px 1.5px 0;
+  transform:rotate(45deg) translate(-0.5px,-0.5px);
+}
+
+/* ---- User Cell ---- */
+.user-cell{display:flex;align-items:center;gap:12px}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:0.6875rem;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.user-name{font-weight:600;color:var(--text);font-size:0.8125rem}
+
+/* ---- Badges ---- */
+.role-badge{
+  display:inline-block;
+  padding:3px 10px;border-radius:20px;
+  font-size:0.6875rem;font-weight:500;
+}
+.role-badge.admin{background:var(--accent-dim);color:var(--accent)}
+.role-badge.editor{background:rgba(168,85,247,0.12);color:#A855F7}
+.role-badge.viewer{background:rgba(255,255,255,0.06);color:var(--text-tertiary)}
+.role-badge.manager{background:var(--warning-dim);color:var(--warning)}
+
+/* ---- Status ---- */
+.status{display:flex;align-items:center;gap:6px;font-size:0.8125rem}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-dot.active{background:var(--success)}
+.status-dot.inactive{background:var(--text-tertiary)}
+.status-dot.pending{background:var(--warning)}
+
+.status.active .status-label{color:var(--success)}
+.status.inactive .status-label{color:var(--text-tertiary)}
+.status.pending .status-label{color:var(--warning)}
+
+/* ---- Actions ---- */
+.actions-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--text-tertiary);padding:4px;
+  border-radius:var(--radius-xs);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.actions-btn:hover{color:var(--text);background:var(--surface-hover)}
+
+/* ---- Pagination ---- */
+.pagination{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;
+  border-top:1px solid var(--border);
+}
+.pagination-info{font-size:0.75rem;color:var(--text-tertiary)}
+.pagination-controls{display:flex;align-items:center;gap:4px}
+.page-btn{
+  width:32px;height:32px;
+  display:grid;place-items:center;
+  border-radius:var(--radius-xs);
+  font-size:0.8125rem;font-weight:500;
+  border:1px solid transparent;
+  background:transparent;color:var(--text-secondary);
+  cursor:pointer;font-family:var(--font);
+}
+.page-btn:hover{background:var(--surface-hover);color:var(--text)}
+.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.page-btn.nav{color:var(--text-tertiary);font-size:0.75rem}
+.page-btn.nav:hover{color:var(--text)}
+.page-btn:disabled{opacity:0.3;cursor:default;pointer-events:none}
+</style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+
+<div class="table-card" id="tableCard">
+  <!-- Header Bar -->
+  <div class="table-header" id="tableHeader">
+    <div class="table-title">
+      Users
+      <span class="count">47 users</span>
+    </div>
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search users..." id="searchInput">
+    </div>
+    <button class="filter-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filter
+    </button>
+    <button class="add-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add User
+    </button>
+  </div>
+
+  <!-- Bulk Action Bar -->
+  <div class="bulk-bar" id="bulkBar">
+    <span class="bulk-count" id="bulkCount">0 selected</span>
+    <div class="bulk-actions">
+      <button>Export</button>
+      <button>Suspend</button>
+      <button class="danger">Delete</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div style="overflow-x:auto">
+    <table class="data-table" id="dataTable">
+      <thead>
+        <tr>
+          <th><input type="checkbox" class="checkbox" id="selectAll"></th>
+          <th class="sortable sorted" data-col="name" data-dir="asc">Name <span class="sort-arrow">&#9650;</span></th>
+          <th class="sortable" data-col="email">Email <span class="sort-arrow">&#9650;</span></th>
+          <th class="sortable" data-col="role">Role <span class="sort-arrow">&#9650;</span></th>
+          <th class="sortable" data-col="status">Status <span class="sort-arrow">&#9650;</span></th>
+          <th class="sortable" data-col="lastActive">Last Active <span class="sort-arrow">&#9650;</span></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" id="pagination">
+    <div class="pagination-info">Showing 1-10 of 47 results</div>
+    <div class="pagination-controls">
+      <button class="page-btn nav" disabled>&lsaquo;</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">5</button>
+      <button class="page-btn nav">&rsaquo;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- Data ---- */
+var users = [
+  { name:'Sarah Chen', email:'sarah.chen@company.com', role:'admin', status:'active', lastActive:'2 min ago', color:'#6383FF' },
+  { name:'Marcus Rivera', email:'m.rivera@company.com', role:'editor', status:'active', lastActive:'15 min ago', color:'#A855F7' },
+  { name:'Anya Petrov', email:'anya.petrov@company.com', role:'admin', status:'active', lastActive:'1 hr ago', color:'#34D399' },
+  { name:'James Okonkwo', email:'j.okonkwo@company.com', role:'viewer', status:'inactive', lastActive:'3 days ago', color:'#FBBF24' },
+  { name:'Mei Lin Zhang', email:'meilin.z@company.com', role:'editor', status:'active', lastActive:'Just now', color:'#F87171' },
+  { name:'David Kim', email:'david.kim@company.com', role:'manager', status:'pending', lastActive:'5 hr ago', color:'#38BDF8' },
+  { name:'Olivia Nakamura', email:'o.nakamura@company.com', role:'viewer', status:'inactive', lastActive:'1 week ago', color:'#FB923C' },
+  { name:'Ethan Brooks', email:'e.brooks@company.com', role:'editor', status:'active', lastActive:'30 min ago', color:'#818CF8' },
+  { name:'Priya Sharma', email:'p.sharma@company.com', role:'admin', status:'active', lastActive:'12 min ago', color:'#F472B6' },
+  { name:'Carlos Mendez', email:'c.mendez@company.com', role:'viewer', status:'pending', lastActive:'2 days ago', color:'#2DD4BF' },
+];
+
+function getInitials(name) {
+  return name.split(' ').map(function(w){ return w[0]; }).join('');
+}
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function renderRows() {
+  var tbody = document.getElementById('tableBody');
+  /* Clear existing rows */
+  while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+
+  users.forEach(function(u, i) {
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-index', i);
+
+    /* Checkbox cell */
+    var tdCheck = document.createElement('td');
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'checkbox row-check';
+    cb.setAttribute('data-index', i);
+    tdCheck.appendChild(cb);
+    tr.appendChild(tdCheck);
+
+    /* Name + Avatar cell */
+    var tdName = document.createElement('td');
+    var userCell = document.createElement('div');
+    userCell.className = 'user-cell';
+    var avatar = document.createElement('div');
+    avatar.className = 'user-avatar';
+    avatar.style.background = u.color;
+    avatar.textContent = getInitials(u.name);
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'user-name';
+    nameSpan.textContent = u.name;
+    userCell.appendChild(avatar);
+    userCell.appendChild(nameSpan);
+    tdName.appendChild(userCell);
+    tr.appendChild(tdName);
+
+    /* Email */
+    var tdEmail = document.createElement('td');
+    tdEmail.textContent = u.email;
+    tr.appendChild(tdEmail);
+
+    /* Role badge */
+    var tdRole = document.createElement('td');
+    var badge = document.createElement('span');
+    badge.className = 'role-badge ' + u.role;
+    badge.textContent = cap(u.role);
+    tdRole.appendChild(badge);
+    tr.appendChild(tdRole);
+
+    /* Status */
+    var tdStatus = document.createElement('td');
+    var statusDiv = document.createElement('div');
+    statusDiv.className = 'status ' + u.status;
+    var dot = document.createElement('span');
+    dot.className = 'status-dot ' + u.status;
+    var label = document.createElement('span');
+    label.className = 'status-label';
+    label.textContent = cap(u.status);
+    statusDiv.appendChild(dot);
+    statusDiv.appendChild(label);
+    tdStatus.appendChild(statusDiv);
+    tr.appendChild(tdStatus);
+
+    /* Last Active */
+    var tdTime = document.createElement('td');
+    tdTime.textContent = u.lastActive;
+    tr.appendChild(tdTime);
+
+    /* Actions */
+    var tdActions = document.createElement('td');
+    var actBtn = document.createElement('button');
+    actBtn.className = 'actions-btn';
+    actBtn.setAttribute('aria-label', 'Actions');
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'currentColor');
+    ['5','12','19'].forEach(function(cy) {
+      var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', '12');
+      c.setAttribute('cy', cy);
+      c.setAttribute('r', '2');
+      svg.appendChild(c);
+    });
+    actBtn.appendChild(svg);
+    tdActions.appendChild(actBtn);
+    tr.appendChild(tdActions);
+
+    tbody.appendChild(tr);
+  });
+}
+
+renderRows();
+
+/* ---- Selection Logic ---- */
+var selectedRows = new Set();
+
+function updateBulkBar() {
+  var bar = document.getElementById('bulkBar');
+  var count = selectedRows.size;
+  if (count > 0) {
+    bar.classList.add('visible');
+    document.getElementById('bulkCount').textContent = count + ' selected';
+    if (!reducedMotion) {
+      gsap.fromTo(bar, {opacity:0, y:-10}, {opacity:1, y:0, duration:0.3, ease:'power2.out'});
+    }
+  } else {
+    if (!reducedMotion) {
+      gsap.to(bar, {opacity:0, y:-10, duration:0.2, ease:'power2.in', onComplete:function(){ bar.classList.remove('visible'); }});
+    } else {
+      bar.classList.remove('visible');
+    }
+  }
+}
+
+document.getElementById('tableBody').addEventListener('change', function(e) {
+  if (!e.target.classList.contains('row-check')) return;
+  var idx = e.target.getAttribute('data-index');
+  var row = e.target.closest('tr');
+  if (e.target.checked) {
+    selectedRows.add(idx);
+    row.classList.add('selected');
+  } else {
+    selectedRows.delete(idx);
+    row.classList.remove('selected');
+  }
+  document.getElementById('selectAll').checked = selectedRows.size === users.length;
+  updateBulkBar();
+});
+
+document.getElementById('selectAll').addEventListener('change', function(e) {
+  var checks = document.querySelectorAll('.row-check');
+  var rows = document.querySelectorAll('#tableBody tr');
+  selectedRows.clear();
+  checks.forEach(function(cb, i) {
+    cb.checked = e.target.checked;
+    if (e.target.checked) {
+      selectedRows.add(String(i));
+      rows[i].classList.add('selected');
+    } else {
+      rows[i].classList.remove('selected');
+    }
+  });
+  updateBulkBar();
+});
+
+/* ---- Row Hover (GSAP) ---- */
+if (!reducedMotion) {
+  document.getElementById('tableBody').addEventListener('mouseenter', function(e) {
+    var row = e.target.closest('tr');
+    if (row && !row.classList.contains('selected')) {
+      gsap.to(row, {backgroundColor:'var(--surface-hover)', duration:0.2, ease:'power1.out'});
+    }
+  }, true);
+  document.getElementById('tableBody').addEventListener('mouseleave', function(e) {
+    var row = e.target.closest('tr');
+    if (row && !row.classList.contains('selected')) {
+      gsap.to(row, {backgroundColor:'transparent', duration:0.2, ease:'power1.out'});
+    }
+  }, true);
+}
+
+/* ---- Column Sort ---- */
+document.querySelectorAll('th.sortable').forEach(function(th) {
+  th.addEventListener('click', function() {
+    var dir = th.getAttribute('data-dir');
+    var newDir = (dir === 'asc') ? 'desc' : 'asc';
+
+    /* Reset all */
+    document.querySelectorAll('th.sortable').forEach(function(t) {
+      t.classList.remove('sorted');
+      t.removeAttribute('data-dir');
+      t.querySelector('.sort-arrow').textContent = '\u25B2';
+    });
+
+    th.classList.add('sorted');
+    th.setAttribute('data-dir', newDir);
+    th.querySelector('.sort-arrow').textContent = newDir === 'asc' ? '\u25B2' : '\u25BC';
+
+    /* Flash column cells */
+    if (!reducedMotion) {
+      var colIdx = Array.from(th.parentNode.children).indexOf(th);
+      var cells = document.querySelectorAll('#tableBody tr td:nth-child(' + (colIdx + 1) + ')');
+      gsap.fromTo(cells, {backgroundColor:'var(--accent-dim)'}, {backgroundColor:'transparent', duration:0.6, ease:'power2.out'});
+    }
+  });
+});
+
+/* ---- Pagination ---- */
+document.querySelector('.pagination-controls').addEventListener('click', function(e) {
+  var btn = e.target.closest('.page-btn');
+  if (!btn || btn.classList.contains('nav') || btn.classList.contains('active')) return;
+
+  document.querySelectorAll('.page-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+
+  if (!reducedMotion) {
+    gsap.fromTo('#tableBody tr', {opacity:0, y:8}, {opacity:1, y:0, duration:0.3, stagger:0.03, ease:'power2.out'});
+  }
+});
+
+/* ---- GSAP Entrance Animations ---- */
+if (!reducedMotion) {
+  var mainTl = gsap.timeline({ defaults:{ ease:'power3.out' } });
+
+  mainTl
+    .from('#tableCard', { opacity:0, y:40, duration:0.7 })
+    .from('#tableHeader', { opacity:0, y:-15, duration:0.4 }, '-=0.3')
+    .from('#tableHeader .search-box, #tableHeader .filter-btn, #tableHeader .add-btn', {
+      opacity:0, y:-10, duration:0.3, stagger:0.06
+    }, '-=0.2')
+    .from('thead th', { opacity:0, y:-10, duration:0.3, stagger:0.04 }, '-=0.15')
+    .from('#tableBody tr', { opacity:0, x:-20, duration:0.35, stagger:0.05 }, '-=0.1')
+    .from('#pagination', { opacity:0, y:10, duration:0.3 }, '-=0.15')
+    .from('.page-btn', { opacity:0, scale:0.8, duration:0.25, stagger:0.03 }, '-=0.15');
+}
+
+UV.addControlPanel();
+</script>
+</body>
+</html>

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Post Layout</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Dark editorial. Medium/Ghost-inspired reading experience.
+   ============================================================ */
+:root {
+  --bg: #0C0D0F;
+  --surface: #151618;
+  --accent: #7C6AEF;
+  --accent-soft: rgba(124, 106, 239, 0.12);
+  --text: #E5E3DF;
+  --text-secondary: #9C9A96;
+  --text-tertiary: #5E5C58;
+  --border: rgba(255, 255, 255, 0.07);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 100;
+  width: 0%;
+  will-change: transform;
+  transform-origin: left;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: flex-end;
+  padding: 80px 24px 60px;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(124, 106, 239, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, rgba(99, 179, 237, 0.1) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 90%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 10%, rgba(52, 211, 153, 0.06) 0%, transparent 35%),
+    linear-gradient(180deg, var(--bg) 0%, rgba(12,13,15,0.6) 50%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+/* Mesh grid overlay for texture */
+.hero-mesh {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.hero-category::before {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 4.5vw + 0.5rem, 3.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  text-wrap: balance;
+  margin-bottom: 24px;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #4ECDC4 100%);
+  display: grid;
+  place-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.hero-author-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hero-author-role {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.hero-sep {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.hero-date,
+.hero-readtime {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.hero-readtime {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hero-readtime svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-tertiary);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+   CONTENT LAYOUT (Main + Sidebar)
+   ============================================================ */
+.content-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 60px;
+  position: relative;
+}
+
+/* ============================================================
+   SHARE SIDEBAR (floating left)
+   ============================================================ */
+.share-bar {
+  position: fixed;
+  left: max(24px, calc((100vw - 960px) / 2 - 72px));
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+}
+
+.share-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.share-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============================================================
+   ARTICLE CONTENT
+   ============================================================ */
+.article {
+  max-width: 660px;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.article > * + * {
+  margin-top: 24px;
+}
+
+.article h2 {
+  font-size: 1.625rem;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-top: 56px;
+  margin-bottom: 16px;
+  text-wrap: balance;
+  scroll-margin-top: 24px;
+}
+
+.article h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+  margin-top: 40px;
+  margin-bottom: 12px;
+  scroll-margin-top: 24px;
+}
+
+.article p {
+  text-wrap: pretty;
+}
+
+.article strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.article a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(124, 106, 239, 0.3);
+  text-underline-offset: 3px;
+}
+
+/* Blockquote */
+.article blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 16px 24px;
+  margin: 32px 0;
+  background: var(--surface);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--text);
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+/* Inline code */
+.article code {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.875em;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  color: #E5C07B;
+}
+
+/* Code block */
+.article pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #ABB2BF;
+  margin: 28px 0;
+}
+
+.article pre code {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Image placeholder */
+.article-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(124,106,239,0.08) 0%, rgba(99,179,237,0.06) 50%, rgba(236,72,153,0.04) 100%),
+    var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  margin: 32px 0;
+}
+
+/* Callout box */
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(124, 106, 239, 0.2);
+  border-radius: var(--radius-sm);
+  margin: 32px 0;
+}
+
+.callout-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.callout-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+}
+
+.callout-text {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.callout-text strong {
+  font-weight: 700;
+}
+
+/* Unordered list */
+.article ul {
+  padding-left: 24px;
+  margin: 16px 0;
+}
+
+.article ul li {
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.article ul li::marker {
+  color: var(--accent);
+}
+
+/* ============================================================
+   TOC SIDEBAR
+   ============================================================ */
+.toc {
+  position: sticky;
+  top: 32px;
+  align-self: start;
+}
+
+.toc-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toc-link {
+  display: block;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+
+.toc-link.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.toc-link.sub {
+  padding-left: 24px;
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   AUTHOR BIO
+   ============================================================ */
+.author-bio {
+  max-width: 660px;
+  margin: 64px auto 0;
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.author-bio-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #4ECDC4 100%);
+  display: grid;
+  place-items: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.author-bio-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.author-bio-role {
+  font-size: 0.8125rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.author-bio-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.author-bio-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.author-bio-links a {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.author-bio-links a svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+   RELATED ARTICLES
+   ============================================================ */
+.related {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 64px 24px 100px;
+}
+
+.related-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.related-title {
+  font-size: 1.5rem;
+  font-weight: 750;
+  color: var(--text);
+  margin-bottom: 32px;
+  letter-spacing: -0.015em;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.related-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.related-card-image {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, rgba(124,106,239,0.06), rgba(99,179,237,0.06));
+  border-bottom: 1px solid var(--border);
+}
+
+.related-card:nth-child(2) .related-card-image {
+  background: linear-gradient(135deg, rgba(236,72,153,0.06), rgba(252,211,77,0.06));
+}
+
+.related-card:nth-child(3) .related-card-image {
+  background: linear-gradient(135deg, rgba(52,211,153,0.06), rgba(59,130,246,0.06));
+}
+
+.related-card-body {
+  padding: 20px;
+}
+
+.related-card-cat {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.related-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.related-card-excerpt {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.related-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.related-card-meta .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .content-wrap {
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 700px;
+  }
+
+  .toc { display: none; }
+  .share-bar { display: none; }
+
+  .related-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero { min-height: 400px; padding: 60px 16px 40px; }
+  .hero-title { font-size: 1.75rem; }
+  .hero-meta { gap: 10px; }
+  .content-wrap { padding: 32px 16px 60px; }
+  .article { font-size: 1rem; }
+  .author-bio { flex-direction: column; padding: 24px; }
+  .related { padding: 40px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS BAR
+     ============================================================ -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-mesh" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+    <div class="hero-category">Engineering</div>
+    <h1 class="hero-title">Building resilient systems: lessons from scaling to 10 million users</h1>
+    <div class="hero-meta">
+      <div class="hero-author">
+        <div class="hero-avatar">NK</div>
+        <div>
+          <div class="hero-author-name">Nadia Kowalski</div>
+          <div class="hero-author-role">Principal Engineer</div>
+        </div>
+      </div>
+      <div class="hero-sep"></div>
+      <div class="hero-date">February 18, 2026</div>
+      <div class="hero-sep"></div>
+      <div class="hero-readtime">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        12 min read
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     SHARE SIDEBAR
+     ============================================================ -->
+<div class="share-bar" id="shareBar">
+  <button class="share-btn" aria-label="Share on Twitter">
+    <svg viewBox="0 0 24 24"><path d="M4 4l11.733 16H20L8.267 4z"/><path d="M4 20l6.768-6.768M15.5 8.5L20 4"/></svg>
+  </button>
+  <button class="share-btn" aria-label="Share on LinkedIn">
+    <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+  </button>
+  <button class="share-btn" aria-label="Copy link">
+    <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+  </button>
+  <button class="share-btn" aria-label="Bookmark">
+    <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+  </button>
+</div>
+
+<!-- ============================================================
+     CONTENT + TOC
+     ============================================================ -->
+<div class="content-wrap">
+
+  <article class="article" id="articleContent">
+
+    <p>Scaling a platform from a few thousand users to millions is not a linear challenge. Every order of magnitude reveals new failure modes, new bottlenecks, and new architectural decisions that seemed perfectly reasonable at smaller scale but now threaten the entire system. This is the story of how we rebuilt our infrastructure from the ground up, and the principles we discovered along the way.</p>
+
+    <h2 id="section-architecture">Rethinking the architecture</h2>
+
+    <p>Our original monolith served us well for the first two years. A single Rails application, a PostgreSQL database, and a Redis cache layer handled everything from user authentication to real-time notifications. But at 500,000 daily active users, the cracks started showing.</p>
+
+    <p>Database connection pooling became a constant firefight. Background jobs would pile up during peak hours. Deployments that once took seconds now required 15-minute maintenance windows. We needed a fundamentally different approach, one that <strong>embraced failure as a first-class concern</strong> rather than treating it as an exception.</p>
+
+    <blockquote>The goal is not to prevent failure, but to ensure that when failure happens, its blast radius is contained and recovery is automatic.</blockquote>
+
+    <h3 id="section-event-driven">Event-driven decomposition</h3>
+
+    <p>Rather than splitting the monolith into dozens of microservices overnight, a pattern known to cause more problems than it solves, we adopted an incremental event-driven decomposition strategy. The key insight was to identify <strong>bounded contexts</strong> with the highest change velocity and extract those first.</p>
+
+    <ul>
+      <li><strong>Notifications service</strong> was extracted first, reducing main application load by 30%</li>
+      <li><strong>Search indexing</strong> moved to an async pipeline with Kafka, eliminating write amplification</li>
+      <li><strong>Payment processing</strong> became an isolated service with its own data store and retry logic</li>
+      <li><strong>User analytics</strong> shifted to a dedicated ClickHouse cluster for real-time aggregation</li>
+    </ul>
+
+    <div class="callout">
+      <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+      <div class="callout-text"><strong>Key takeaway:</strong> Decompose by change velocity, not by technical layer. Services that change together should stay together. Services that change independently should be extracted.</div>
+    </div>
+
+    <h2 id="section-observability">Observability as infrastructure</h2>
+
+    <p>You cannot fix what you cannot see. At our scale, traditional logging was insufficient. We needed <strong>structured observability</strong> across three pillars: metrics, traces, and logs, all correlated by request ID.</p>
+
+    <p>We built a custom telemetry pipeline using OpenTelemetry that captures every significant operation across service boundaries. Each request generates a trace that flows through our entire stack, from the edge CDN through the API gateway, into individual services, and back.</p>
+
+    <pre><code>// Trace context propagation across service boundaries
+const span = tracer.startSpan('process.payment', {
+  attributes: {
+    'payment.amount': amount,
+    'payment.currency': currency,
+    'user.tier': userTier
+  }
+});
+
+try {
+  const result = await paymentGateway.charge(span.context);
+  span.setStatus({ code: SpanStatusCode.OK });
+  return result;
+} catch (err) {
+  span.recordException(err);
+  span.setStatus({ code: SpanStatusCode.ERROR });
+  throw err;
+} finally {
+  span.end();
+}</code></pre>
+
+    <h3 id="section-alerting">Alert fatigue and smart thresholds</h3>
+
+    <p>One of the most insidious problems at scale is alert fatigue. When your monitoring system fires hundreds of alerts per day, the team stops paying attention, and that is when real incidents get missed. We solved this by implementing <strong>dynamic thresholds</strong> based on statistical anomaly detection rather than static values.</p>
+
+    <div class="article-image" aria-label="Dashboard screenshot placeholder">Monitoring Dashboard</div>
+
+    <p>Our alerting system now uses a rolling 7-day baseline to calculate expected ranges for each metric. Alerts only fire when a metric deviates by more than three standard deviations from its expected value for the same time window. This reduced our alert volume by 85% while catching 100% of actual incidents.</p>
+
+    <h2 id="section-resilience">Designing for resilience</h2>
+
+    <p>Resilience is not a feature you bolt on. It is an architectural property that must be designed into every layer of the system. We implemented several patterns that, together, create a self-healing infrastructure.</p>
+
+    <h3 id="section-circuit-breakers">Circuit breakers and graceful degradation</h3>
+
+    <p>Every external dependency, whether it is a third-party API, a database, or another internal service, is wrapped in a <code>circuit breaker</code>. When a dependency starts failing, the circuit opens and requests are immediately routed to a fallback path rather than piling up and cascading the failure.</p>
+
+    <p>The key innovation was implementing <strong>graceful degradation tiers</strong>. Rather than a binary working/broken state, each feature can operate at reduced functionality. For example, our recommendation engine falls back to a cached popular items list, then to a static curated list, before finally showing a generic empty state.</p>
+
+    <h2 id="section-culture">Building an on-call culture</h2>
+
+    <p>Technical solutions are only half the battle. The human systems around your infrastructure are equally important. We invested heavily in building a healthy on-call culture that respects engineers' time while ensuring rapid incident response.</p>
+
+    <p>Every incident triggers a blameless postmortem within 48 hours. These postmortems follow a structured template that focuses on <strong>systemic causes</strong> rather than individual actions. The output is always a set of concrete action items with assigned owners and deadlines, tracked in our engineering backlog alongside feature work.</p>
+
+    <blockquote>The best infrastructure is invisible. When things are working well, nobody thinks about infrastructure. Our job is to keep it that way.</blockquote>
+
+    <p>Building for scale is a continuous journey, not a destination. The principles we have outlined, incremental decomposition, structured observability, designed resilience, and healthy operational culture, have served us well through multiple orders of magnitude of growth. We hope they serve you too.</p>
+
+  </article>
+
+  <!-- TOC SIDEBAR -->
+  <aside class="toc" id="tocSidebar">
+    <div class="toc-label">On this page</div>
+    <ol class="toc-list">
+      <li><a class="toc-link" href="#section-architecture" data-target="section-architecture">Rethinking the architecture</a></li>
+      <li><a class="toc-link sub" href="#section-event-driven" data-target="section-event-driven">Event-driven decomposition</a></li>
+      <li><a class="toc-link" href="#section-observability" data-target="section-observability">Observability as infrastructure</a></li>
+      <li><a class="toc-link sub" href="#section-alerting" data-target="section-alerting">Alert fatigue and thresholds</a></li>
+      <li><a class="toc-link" href="#section-resilience" data-target="section-resilience">Designing for resilience</a></li>
+      <li><a class="toc-link sub" href="#section-circuit-breakers" data-target="section-circuit-breakers">Circuit breakers</a></li>
+      <li><a class="toc-link" href="#section-culture" data-target="section-culture">Building on-call culture</a></li>
+    </ol>
+  </aside>
+
+</div>
+
+<!-- ============================================================
+     AUTHOR BIO
+     ============================================================ -->
+<section class="content-wrap" style="padding-top:0;">
+  <div class="author-bio">
+    <div class="author-bio-avatar">NK</div>
+    <div>
+      <div class="author-bio-name">Nadia Kowalski</div>
+      <div class="author-bio-role">Principal Engineer at Acme Platform</div>
+      <div class="author-bio-text">Nadia has spent 12 years building distributed systems at scale. Previously at Stripe and Datadog, she now leads the platform infrastructure team responsible for serving 10 million daily active users.</div>
+      <div class="author-bio-links">
+        <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M4 4l11.733 16H20L8.267 4z"/><path d="M4 20l6.768-6.768M15.5 8.5L20 4"/></svg></a>
+        <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></a>
+        <a href="#" aria-label="Website"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     RELATED ARTICLES
+     ============================================================ -->
+<section class="related">
+  <div class="related-label">Continue reading</div>
+  <h2 class="related-title">Related articles</h2>
+  <div class="related-grid">
+
+    <article class="related-card">
+      <div class="related-card-image"></div>
+      <div class="related-card-body">
+        <div class="related-card-cat">Infrastructure</div>
+        <h3 class="related-card-title">Zero-downtime deployments with blue-green Kubernetes</h3>
+        <p class="related-card-excerpt">How we achieved seamless deployments across 40+ services without a single second of downtime or user impact.</p>
+        <div class="related-card-meta">
+          <span>Alex Rivera</span>
+          <span class="dot"></span>
+          <span>8 min read</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="related-card">
+      <div class="related-card-image"></div>
+      <div class="related-card-body">
+        <div class="related-card-cat">Performance</div>
+        <h3 class="related-card-title">Profiling Node.js in production: a practical guide</h3>
+        <p class="related-card-excerpt">Real-world techniques for identifying memory leaks, CPU bottlenecks, and event loop stalls in live applications.</p>
+        <div class="related-card-meta">
+          <span>Jordan Lee</span>
+          <span class="dot"></span>
+          <span>11 min read</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="related-card">
+      <div class="related-card-image"></div>
+      <div class="related-card-body">
+        <div class="related-card-cat">Architecture</div>
+        <h3 class="related-card-title">From monolith to modular: our two-year migration story</h3>
+        <p class="related-card-excerpt">The incremental approach that let us modernize without rewriting, including the mistakes we made along the way.</p>
+        <div class="related-card-meta">
+          <span>Priya Sharma</span>
+          <span class="dot"></span>
+          <span>15 min read</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── 1. Reading progress bar (scrub) ── */
+  var progressBar = document.getElementById('progressBar');
+  gsap.to(progressBar, {
+    width: '100%',
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#articleContent',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.3
+    }
+  });
+
+  /* ── 2. Hero entrance timeline ── */
+  var heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  heroTl.from('.hero-bg', { opacity: 0, scale: 1.05, duration: 1.2 });
+  heroTl.from('.hero-category', { opacity: 0, x: -20, duration: 0.5 }, '-=0.7');
+  heroTl.from('.hero-title', { opacity: 0, y: 30, duration: 0.7 }, '-=0.3');
+  heroTl.from('.hero-meta > *', { opacity: 0, y: 15, duration: 0.4, stagger: 0.08 }, '-=0.3');
+
+  /* ── 3. Share bar stagger entrance ── */
+  gsap.from('#shareBar .share-btn', {
+    opacity: 0,
+    x: -20,
+    duration: 0.4,
+    stagger: 0.08,
+    ease: 'power2.out',
+    delay: 1
+  });
+
+  /* Share button hover */
+  document.querySelectorAll('.share-btn').forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () {
+      gsap.to(btn, { scale: 1.15, duration: 0.2, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', function () {
+      gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+    });
+  });
+
+  /* ── 4. Article content scroll reveals ── */
+  var contentEls = document.querySelectorAll('.article > h2, .article > h3, .article > p, .article > blockquote, .article > pre, .article > ul, .callout, .article-image');
+  contentEls.forEach(function (el) {
+    gsap.from(el, {
+      opacity: 0,
+      y: 25,
+      duration: 0.6,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  /* ── 5. TOC active state with ScrollTrigger ── */
+  var tocLinks = document.querySelectorAll('.toc-link');
+  var sections = [];
+
+  tocLinks.forEach(function (link) {
+    var targetId = link.getAttribute('data-target');
+    var section = document.getElementById(targetId);
+    if (section) sections.push({ el: section, link: link });
+  });
+
+  sections.forEach(function (item) {
+    ScrollTrigger.create({
+      trigger: item.el,
+      start: 'top 30%',
+      end: 'bottom 30%',
+      onEnter: function () { setActiveLink(item.link); },
+      onEnterBack: function () { setActiveLink(item.link); }
+    });
+  });
+
+  function setActiveLink(activeLink) {
+    tocLinks.forEach(function (link) {
+      if (link === activeLink) {
+        link.classList.add('active');
+        /* Animate the active state */
+        gsap.fromTo(link, { backgroundColor: 'rgba(124,106,239,0)' }, { backgroundColor: 'rgba(124,106,239,0.12)', duration: 0.3, ease: 'power2.out' });
+      } else {
+        link.classList.remove('active');
+        gsap.to(link, { backgroundColor: 'rgba(124,106,239,0)', duration: 0.2, ease: 'power2.out' });
+      }
+    });
+  }
+
+  /* ── 6. Author bio scroll reveal ── */
+  UV.scrollReveal('.author-bio', { y: 30, duration: 0.6 });
+
+  /* ── 7. Related articles scroll reveal with stagger ── */
+  gsap.from('.related-label, .related-title', {
+    opacity: 0,
+    y: 20,
+    duration: 0.5,
+    stagger: 0.1,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '.related',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  gsap.from('.related-card', {
+    opacity: 0,
+    y: 35,
+    duration: 0.55,
+    stagger: 0.1,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '.related-grid',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  /* Related card hover */
+  UV.hoverLift('.related-card', {
+    y: -5,
+    shadow: '0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(124,106,239,0.1)',
+    restShadow: 'none'
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

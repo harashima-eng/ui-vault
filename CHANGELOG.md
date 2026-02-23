@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-02-23
+
+### Added
+
+- Professional Figma-style Inspector panel replacing the basic theme tray
+  - 12 color palettes: Original, Ocean, Emerald, Sunset, Violet, Rose, Nord, Dracula, Solarized, Tokyo Night, Catppuccin, One Dark
+  - Custom hex accent input with live preview
+  - Background darkness slider (0-100%)
+  - Surface tint slider (blends surface toward accent)
+  - 6 font families: System, Serif, Mono, Rounded, Humanist, Condensed
+  - Font size scale: Compact (14px), Default (16px), Relaxed (18px), Large (20px)
+  - Font weight toggle: Light, Regular, Medium, Semi-bold
+  - Line height slider (1.2-2.0)
+  - Border radius slider (0-32px, fine step)
+  - Border width toggle: None, Subtle, Medium, Bold
+  - Shadow intensity slider
+  - 8 named presets: Original, Nord, Dracula, Solarized, Tokyo Night, Catppuccin, One Dark, GitHub Dark
+  - Reset button to clear all overrides
+  - GSAP-animated accordion sections and sidebar slide
+  - localStorage migration from v1.1 format
+- 10 new design components (27 total):
+  - Command Palette (Cards) — Spotlight-style search with keyboard nav
+  - Data Table (Dashboards) — sortable, selectable, paginated
+  - Kanban Board (Layouts) — 4-column task board with cards
+  - Feature Comparison (Pricing) — 3-tier with monthly/yearly toggle
+  - Team Showcase (Sections) — 3x2 grid with GSAP flip to bio
+  - FAQ Accordion (Sections) — search, category tabs, GSAP height animation
+  - Chat Widget (Cards) — floating bubble, expandable window, typing indicator
+  - File Upload Dropzone (Forms) — drag/drop, progress bars, error states
+  - Blog Post Layout (Layouts) — hero, sticky TOC, reading progress bar
+  - Image Gallery Lightbox (Sections) — masonry grid, lightbox with keyboard nav
+
+### Changed
+
+- Theme system: inspector sidebar (280px) replaces collapsible tray
+- Inspector toggles via gear icon in panel header
+- Per-design theme data expanded: customHex, bgDarkness, surfaceTint, fontSize, fontWeight, lineHeight, borderWidth, shadowIntensity
+- catalog.json version bumped to 3
+- Design count: 17 to 27
+
+### Removed
+
+- Simple theme tray UI (replaced by inspector panel)
+
 ## [1.1.0] - 2026-02-23
 
 ### Added

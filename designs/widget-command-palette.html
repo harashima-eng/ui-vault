@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Palette</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0c0d10;
+  --surface:#16181d;
+  --surface-raised:#1e2028;
+  --accent:#6366f1;
+  --accent-soft:rgba(99,102,241,0.12);
+  --accent-glow:rgba(99,102,241,0.35);
+  --text:#e8e9ed;
+  --text-secondary:#8b8d98;
+  --text-tertiary:#5c5e6a;
+  --border:rgba(255,255,255,0.08);
+  --border-active:rgba(99,102,241,0.4);
+  --radius:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --kbd-bg:#25272e;
+  --kbd-border:rgba(255,255,255,0.12);
+  --highlight-bg:rgba(99,102,241,0.08);
+  --scrollbar-thumb:rgba(255,255,255,0.1);
+}
+
+body{
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  overflow:hidden;
+}
+
+/* ─── Dot Grid Background ──────────────────── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ─── Ambient Glows ────────────────────────── */
+body::after{
+  content:'';
+  position:fixed;
+  width:500px;height:500px;
+  top:20%;left:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+  opacity:0.3;
+}
+
+/* ─── Trigger Area ─────────────────────────── */
+.trigger-area{
+  position:relative;
+  z-index:1;
+  text-align:center;
+}
+
+.trigger-area h1{
+  font-size:clamp(28px,4vw,42px);
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:-0.02em;
+  color:var(--text);
+  margin-bottom:8px;
+  text-wrap:balance;
+}
+
+.trigger-area p{
+  font-size:15px;
+  color:var(--text-secondary);
+  margin-bottom:32px;
+}
+
+.trigger-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 24px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  color:var(--text-secondary);
+  font-size:14px;
+  font-family:var(--font);
+  cursor:pointer;
+  user-select:none;
+}
+
+.trigger-btn kbd{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  padding:3px 7px;
+  background:var(--kbd-bg);
+  border:1px solid var(--kbd-border);
+  border-radius:5px;
+  font-family:var(--font);
+  font-size:12px;
+  color:var(--text-tertiary);
+  line-height:1;
+}
+
+/* ─── Overlay ──────────────────────────────── */
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:min(18vh,160px);
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.overlay-bg{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:0;
+}
+
+.overlay.open{
+  visibility:visible;
+  pointer-events:auto;
+}
+
+/* ─── Palette Modal ────────────────────────── */
+.palette{
+  position:relative;
+  z-index:101;
+  width:min(580px,92vw);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.3),
+    0 16px 70px rgba(0,0,0,0.55),
+    0 0 40px var(--accent-glow);
+  overflow:hidden;
+  opacity:0;
+  transform:scale(0.96) translateY(-8px);
+}
+
+/* ─── Search Input ─────────────────────────── */
+.palette-search{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+
+.palette-search svg{
+  flex-shrink:0;
+  color:var(--text-tertiary);
+}
+
+.palette-search input{
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  font-size:15px;
+  font-family:var(--font);
+  color:var(--text);
+  caret-color:var(--accent);
+}
+
+.palette-search input::placeholder{
+  color:var(--text-tertiary);
+}
+
+.palette-search .search-esc{
+  padding:3px 7px;
+  background:var(--kbd-bg);
+  border:1px solid var(--kbd-border);
+  border-radius:5px;
+  font-size:11px;
+  color:var(--text-tertiary);
+  font-family:var(--font);
+  line-height:1;
+}
+
+/* ─── Results Area ─────────────────────────── */
+.palette-results{
+  max-height:380px;
+  overflow-y:auto;
+  padding:6px 0;
+  scrollbar-width:thin;
+  scrollbar-color:var(--scrollbar-thumb) transparent;
+}
+
+.palette-results::-webkit-scrollbar{width:6px}
+.palette-results::-webkit-scrollbar-track{background:transparent}
+.palette-results::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px}
+
+.results-group{
+  padding:4px 0;
+}
+
+.results-group:not(:first-child){
+  border-top:1px solid var(--border);
+  margin-top:2px;
+  padding-top:6px;
+}
+
+.group-label{
+  padding:6px 18px 4px;
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--text-tertiary);
+}
+
+/* ─── Result Items ─────────────────────────── */
+.result-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:9px 18px;
+  cursor:pointer;
+  border-radius:0;
+  position:relative;
+}
+
+.result-item::before{
+  content:'';
+  position:absolute;
+  inset:2px 8px;
+  border-radius:8px;
+  background:transparent;
+  pointer-events:none;
+  z-index:0;
+}
+
+.result-item.active::before{
+  background:var(--highlight-bg);
+}
+
+.result-item .item-icon{
+  position:relative;
+  z-index:1;
+  flex-shrink:0;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--surface-raised);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text-secondary);
+}
+
+.result-item.active .item-icon{
+  color:var(--accent);
+  border-color:var(--border-active);
+  background:var(--accent-soft);
+}
+
+.result-item .item-icon svg{
+  width:16px;height:16px;
+}
+
+.item-text{
+  position:relative;
+  z-index:1;
+  flex:1;
+  min-width:0;
+}
+
+.item-title{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.result-item.active .item-title{
+  color:#fff;
+}
+
+.item-subtitle{
+  font-size:12px;
+  color:var(--text-tertiary);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.item-shortcut{
+  position:relative;
+  z-index:1;
+  display:flex;
+  gap:4px;
+  flex-shrink:0;
+}
+
+.item-shortcut kbd{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  padding:2px 6px;
+  background:var(--kbd-bg);
+  border:1px solid var(--kbd-border);
+  border-radius:4px;
+  font-size:11px;
+  font-family:var(--font);
+  color:var(--text-tertiary);
+  line-height:1;
+}
+
+/* ─── Footer ───────────────────────────────── */
+.palette-footer{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:10px 18px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+  color:var(--text-tertiary);
+}
+
+.footer-hint{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.footer-hint kbd{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  padding:1px 4px;
+  background:var(--kbd-bg);
+  border:1px solid var(--kbd-border);
+  border-radius:3px;
+  font-size:10px;
+  font-family:var(--font);
+  color:var(--text-tertiary);
+  line-height:1;
+}
+
+/* ─── No Results ───────────────────────────── */
+.no-results{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:48px 24px 40px;
+  text-align:center;
+}
+
+.no-results.visible{
+  display:flex;
+}
+
+.no-results svg{
+  color:var(--text-tertiary);
+  margin-bottom:16px;
+  opacity:0.5;
+}
+
+.no-results .no-results-title{
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-secondary);
+  margin-bottom:4px;
+}
+
+.no-results .no-results-sub{
+  font-size:13px;
+  color:var(--text-tertiary);
+}
+
+/* ─── Responsive ───────────────────────────── */
+@media(max-width:500px){
+  .item-shortcut{display:none}
+  .palette-footer{flex-wrap:wrap;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+
+<!-- ─── Trigger ───────────────────────────── -->
+<div class="trigger-area">
+  <h1>Command Palette</h1>
+  <p>Navigate anywhere, launch anything. Instantly.</p>
+  <button class="trigger-btn" id="triggerBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    Search commands...
+    <kbd><span style="font-size:13px">&#8984;</span>K</kbd>
+  </button>
+</div>
+
+<!-- ─── Overlay + Palette ─────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="overlay-bg" id="overlayBg"></div>
+  <div class="palette" id="palette" role="dialog" aria-label="Command palette">
+
+    <!-- Search -->
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Type a command or search..." autocomplete="off" spellcheck="false">
+      <span class="search-esc">ESC</span>
+    </div>
+
+    <!-- Results -->
+    <div class="palette-results" id="resultsContainer">
+
+      <!-- Recent -->
+      <div class="results-group" data-group="recent">
+        <div class="group-label">Recent</div>
+        <div class="result-item active" data-action="open-settings">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">Settings</div>
+            <div class="item-subtitle">Open application settings</div>
+          </div>
+          <div class="item-shortcut"><kbd><span style="font-size:12px">&#8984;</span></kbd><kbd>,</kbd></div>
+        </div>
+        <div class="result-item" data-action="new-file">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">New File</div>
+            <div class="item-subtitle">Create a new untitled file</div>
+          </div>
+          <div class="item-shortcut"><kbd><span style="font-size:12px">&#8984;</span></kbd><kbd>N</kbd></div>
+        </div>
+        <div class="result-item" data-action="recent-project">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">ui-vault</div>
+            <div class="item-subtitle">~/Projects/ui-vault</div>
+          </div>
+          <div class="item-shortcut"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="results-group" data-group="actions">
+        <div class="group-label">Actions</div>
+        <div class="result-item" data-action="toggle-theme">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">Toggle Theme</div>
+            <div class="item-subtitle">Switch between light and dark mode</div>
+          </div>
+          <div class="item-shortcut"><kbd><span style="font-size:12px">&#8984;</span></kbd><kbd><span style="font-size:12px">&#8679;</span></kbd><kbd>T</kbd></div>
+        </div>
+        <div class="result-item" data-action="git-commit">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">Git: Commit</div>
+            <div class="item-subtitle">Commit staged changes</div>
+          </div>
+          <div class="item-shortcut"></div>
+        </div>
+        <div class="result-item" data-action="format-doc">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">Format Document</div>
+            <div class="item-subtitle">Apply code formatting</div>
+          </div>
+          <div class="item-shortcut"><kbd><span style="font-size:12px">&#8997;</span></kbd><kbd><span style="font-size:12px">&#8679;</span></kbd><kbd>F</kbd></div>
+        </div>
+        <div class="result-item" data-action="go-to-line">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">Go to Line</div>
+            <div class="item-subtitle">Jump to a specific line number</div>
+          </div>
+          <div class="item-shortcut"><kbd><span style="font-size:12px">&#8963;</span></kbd><kbd>G</kbd></div>
+        </div>
+      </div>
+
+      <!-- Files -->
+      <div class="results-group" data-group="files">
+        <div class="group-label">Files</div>
+        <div class="result-item" data-action="file-index">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">index.html</div>
+            <div class="item-subtitle">src/index.html</div>
+          </div>
+          <div class="item-shortcut"></div>
+        </div>
+        <div class="result-item" data-action="file-app">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">app.config.ts</div>
+            <div class="item-subtitle">src/app.config.ts</div>
+          </div>
+          <div class="item-shortcut"></div>
+        </div>
+        <div class="result-item" data-action="file-readme">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          </div>
+          <div class="item-text">
+            <div class="item-title">README.md</div>
+            <div class="item-subtitle">README.md</div>
+          </div>
+          <div class="item-shortcut"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No results state -->
+    <div class="no-results" id="noResults">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
+      <div class="no-results-title">No results found</div>
+      <div class="no-results-sub">Try a different search term</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="palette-footer">
+      <span class="footer-hint"><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+      <span class="footer-hint"><kbd>&crarr;</kbd> Open</span>
+      <span class="footer-hint"><kbd>ESC</kbd> Close</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+(function() {
+  'use strict';
+
+  var overlay = document.getElementById('overlay');
+  var overlayBg = document.getElementById('overlayBg');
+  var palette = document.getElementById('palette');
+  var searchInput = document.getElementById('searchInput');
+  var resultsContainer = document.getElementById('resultsContainer');
+  var noResults = document.getElementById('noResults');
+  var triggerBtn = document.getElementById('triggerBtn');
+  var isOpen = false;
+  var activeIndex = 0;
+
+  // ─── Data ───────────────────────────────────
+  var allItems = Array.from(document.querySelectorAll('.result-item'));
+  var allGroups = Array.from(document.querySelectorAll('.results-group'));
+
+  // ─── Open / Close ───────────────────────────
+  function open() {
+    if (isOpen) return;
+    isOpen = true;
+    overlay.classList.add('open');
+    searchInput.value = '';
+    filterResults('');
+    setActive(0);
+
+    if (!reducedMotion) {
+      gsap.killTweensOf([overlayBg, palette, '.result-item']);
+      gsap.set(overlayBg, { opacity: 0 });
+      gsap.set(palette, { opacity: 0, scale: 0.96, y: -8 });
+
+      var tl = gsap.timeline();
+      tl.to(overlayBg, { opacity: 1, duration: 0.25, ease: 'power2.out' });
+      tl.to(palette, { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.4)' }, 0.05);
+
+      var visibleItems = getVisibleItems();
+      if (visibleItems.length) {
+        gsap.set(visibleItems, { opacity: 0, x: -12 });
+        tl.to(visibleItems, {
+          opacity: 1, x: 0,
+          duration: 0.25,
+          ease: 'power2.out',
+          stagger: 0.03,
+        }, 0.15);
+      }
+    } else {
+      gsap.set(overlayBg, { opacity: 1 });
+      gsap.set(palette, { opacity: 1, scale: 1, y: 0 });
+      gsap.set(allItems, { opacity: 1, x: 0 });
+    }
+
+    requestAnimationFrame(function() { searchInput.focus(); });
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+
+    if (!reducedMotion) {
+      var tl = gsap.timeline({
+        onComplete: function() {
+          overlay.classList.remove('open');
+        }
+      });
+      tl.to(palette, { opacity: 0, scale: 0.97, y: -6, duration: 0.18, ease: 'power2.in' });
+      tl.to(overlayBg, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.05);
+    } else {
+      overlay.classList.remove('open');
+      gsap.set(overlayBg, { opacity: 0 });
+      gsap.set(palette, { opacity: 0 });
+    }
+
+    triggerBtn.focus();
+  }
+
+  // ─── Filtering ──────────────────────────────
+  function filterResults(query) {
+    var q = query.toLowerCase().trim();
+    var hasVisible = false;
+
+    allGroups.forEach(function(group) {
+      var items = group.querySelectorAll('.result-item');
+      var groupHasVisible = false;
+
+      items.forEach(function(item) {
+        var title = item.querySelector('.item-title').textContent.toLowerCase();
+        var subtitle = item.querySelector('.item-subtitle').textContent.toLowerCase();
+        var match = !q || title.indexOf(q) !== -1 || subtitle.indexOf(q) !== -1;
+
+        if (match) {
+          item.style.display = '';
+          groupHasVisible = true;
+          hasVisible = true;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      group.style.display = groupHasVisible ? '' : 'none';
+    });
+
+    resultsContainer.style.display = hasVisible ? '' : 'none';
+    if (hasVisible) {
+      noResults.classList.remove('visible');
+    } else {
+      noResults.classList.add('visible');
+    }
+
+    // Animate visible items in
+    if (hasVisible && !reducedMotion && q) {
+      var vis = getVisibleItems();
+      gsap.fromTo(vis, { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.2, ease: 'power2.out', stagger: 0.025 });
+    }
+
+    setActive(0);
+  }
+
+  function getVisibleItems() {
+    return allItems.filter(function(item) { return item.style.display !== 'none'; });
+  }
+
+  // ─── Active Item ────────────────────────────
+  function setActive(index) {
+    var visible = getVisibleItems();
+    if (!visible.length) return;
+    activeIndex = Math.max(0, Math.min(index, visible.length - 1));
+
+    allItems.forEach(function(item) { item.classList.remove('active'); });
+    visible[activeIndex].classList.add('active');
+
+    // GSAP highlight glow
+    if (!reducedMotion) {
+      gsap.to(visible[activeIndex], {
+        duration: 0.15,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    }
+
+    // Scroll active into view
+    visible[activeIndex].scrollIntoView({ block: 'nearest' });
+  }
+
+  function selectActive() {
+    var visible = getVisibleItems();
+    if (!visible.length) return;
+    var item = visible[activeIndex];
+    var action = item.getAttribute('data-action');
+
+    // Flash effect
+    if (!reducedMotion) {
+      gsap.fromTo(item, {
+        backgroundColor: 'var(--accent-soft)',
+      }, {
+        backgroundColor: 'transparent',
+        duration: 0.4,
+        ease: 'power2.out',
+      });
+    }
+
+    close();
+  }
+
+  // ─── Events ─────────────────────────────────
+  searchInput.addEventListener('input', function() {
+    filterResults(this.value);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    // Cmd+K or Ctrl+K toggle
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      if (isOpen) close(); else open();
+      return;
+    }
+
+    if (!isOpen) return;
+
+    var visible = getVisibleItems();
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(activeIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(activeIndex - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      selectActive();
+    }
+  });
+
+  overlayBg.addEventListener('click', close);
+
+  triggerBtn.addEventListener('click', function() {
+    open();
+  });
+
+  // Mouse hover on items
+  allItems.forEach(function(item, i) {
+    item.addEventListener('mouseenter', function() {
+      var visible = getVisibleItems();
+      var idx = visible.indexOf(item);
+      if (idx !== -1) setActive(idx);
+    });
+    item.addEventListener('click', function() {
+      selectActive();
+    });
+  });
+
+  // ─── Entrance Animation ─────────────────────
+  if (!reducedMotion) {
+    var enterTl = gsap.timeline();
+    enterTl.from('.trigger-area h1', { opacity: 0, y: -20, duration: 0.5, ease: 'power3.out' });
+    enterTl.from('.trigger-area p', { opacity: 0, y: -12, duration: 0.4, ease: 'power3.out' }, '-=0.3');
+    enterTl.from('.trigger-btn', { opacity: 0, y: 20, scale: 0.95, duration: 0.5, ease: 'back.out(1.7)' }, '-=0.2');
+
+    // Pulse hint on trigger button
+    gsap.to('.trigger-btn', {
+      boxShadow: '0 0 20px var(--accent-glow), 0 0 60px rgba(99,102,241,0.1)',
+      duration: 1.5,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: 1.5,
+    });
+  }
+
+  // ─── Trigger Hover ──────────────────────────
+  if (!reducedMotion) {
+    triggerBtn.addEventListener('mouseenter', function() {
+      gsap.to(triggerBtn, {
+        scale: 1.03,
+        y: -2,
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+    triggerBtn.addEventListener('mouseleave', function() {
+      gsap.to(triggerBtn, {
+        scale: 1,
+        y: 0,
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+  }
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

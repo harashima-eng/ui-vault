@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "designs": [
     {
       "id": "hero-gradient-mesh",
@@ -220,6 +220,136 @@
       "dateAdded": "2026-02-22",
       "gsap_features": ["hoverScale", "timeline", "scrollReveal", "elastic", "magnetic"],
       "animation_count": 16,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "widget-command-palette",
+      "title": "Command Palette",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["command", "palette", "spotlight", "search", "keyboard", "modal", "dark", "gsap"],
+      "filePath": "designs/widget-command-palette.html",
+      "description": "macOS Spotlight / VS Code style command palette with search filtering, grouped results (Recent, Actions, Files), keyboard navigation, GSAP overlay fade, modal scaleIn, stagger entrance, and highlight glow.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["timeline", "scaleIn", "fadeIn", "staggerSequence", "hoverScale"],
+      "animation_count": 7,
+      "plugins_used": []
+    },
+    {
+      "id": "widget-chat",
+      "title": "Chat Widget",
+      "category": "Cards",
+      "type": "component",
+      "tags": ["chat", "widget", "messaging", "floating", "intercom", "support", "dark", "gsap"],
+      "filePath": "designs/widget-chat.html",
+      "description": "Floating Intercom-style chat widget with circular bubble trigger, unread badge, expandable chat window, alternating user/agent messages, GSAP typing dots animation, message slide-in, and bubble pulse effects.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["timeline", "scaleIn", "fadeIn", "staggerSequence", "hoverScale"],
+      "animation_count": 9,
+      "plugins_used": []
+    },
+    {
+      "id": "dashboard-data-table",
+      "title": "Data Table",
+      "category": "Dashboards",
+      "type": "component",
+      "tags": ["table", "data", "sortable", "pagination", "select", "bulk", "dark", "gsap"],
+      "filePath": "designs/dashboard-data-table.html",
+      "description": "Professional data table with sortable columns, row selection, bulk actions bar, pagination controls, and GSAP stagger entrance animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["staggerSequence", "fadeIn", "slideIn", "hoverScale"],
+      "animation_count": 5,
+      "plugins_used": []
+    },
+    {
+      "id": "layout-kanban-board",
+      "title": "Kanban Board",
+      "category": "Layouts",
+      "type": "full-page",
+      "tags": ["kanban", "board", "tasks", "columns", "cards", "project", "dark", "gsap"],
+      "filePath": "designs/layout-kanban-board.html",
+      "description": "Trello-style kanban board with 4 status columns, task cards with priority labels and tags, inline new task form, and GSAP column/card stagger entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["staggerSequence", "fadeIn", "slideIn", "hoverLift"],
+      "animation_count": 7,
+      "plugins_used": []
+    },
+    {
+      "id": "pricing-feature-comparison",
+      "title": "Feature Comparison",
+      "category": "Pricing",
+      "type": "component",
+      "tags": ["pricing", "comparison", "features", "toggle", "tiers", "dark", "gsap"],
+      "filePath": "designs/pricing-feature-comparison.html",
+      "description": "3-tier feature comparison table with monthly/yearly toggle, animated price countup, check/cross indicators, Popular badge, and GSAP column stagger entrance.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "staggerSequence", "numberCountup", "hoverLift"],
+      "animation_count": 6,
+      "plugins_used": []
+    },
+    {
+      "id": "section-team-showcase",
+      "title": "Team Showcase",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["team", "cards", "flip", "3d", "grid", "hover", "dark", "gsap"],
+      "filePath": "designs/section-team-showcase.html",
+      "description": "3x2 team member grid with GSAP 3D rotateY card flip on hover, stagger scaleIn with ScrollTrigger, social icon reveals, and avatar glow pulse.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scaleIn", "scrollReveal", "3dFlip", "staggerSequence", "hoverScale"],
+      "animation_count": 7,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "section-faq-accordion",
+      "title": "FAQ Accordion",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["faq", "accordion", "search", "filter", "tabs", "flip", "dark", "gsap"],
+      "filePath": "designs/section-faq-accordion.html",
+      "description": "FAQ section with searchable accordion, category tab filtering via GSAP Flip, height-animated open/close, and CTA card with ambient border glow.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["flipLayout", "scrollReveal", "staggerSequence", "heightAnimation", "fadeIn"],
+      "animation_count": 10,
+      "plugins_used": ["ScrollTrigger", "Flip"]
+    },
+    {
+      "id": "form-file-upload",
+      "title": "File Upload Dropzone",
+      "category": "Forms",
+      "type": "component",
+      "tags": ["form", "upload", "dropzone", "drag-drop", "progress", "files", "dark", "gsap"],
+      "filePath": "designs/form-file-upload.html",
+      "description": "Drag-and-drop file upload card with dashed dropzone, simulated multi-file upload with animated progress bars, completion checkmarks, error shake with retry, cancel/remove rows, and upload summary counter.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["timeline", "scaleIn", "slideIn", "staggerSequence", "hoverScale", "shakeError"],
+      "animation_count": 10,
+      "plugins_used": []
+    },
+    {
+      "id": "layout-blog-post",
+      "title": "Blog Post Layout",
+      "category": "Layouts",
+      "type": "full-page",
+      "tags": ["blog", "editorial", "article", "toc", "reading", "progress", "dark", "gsap"],
+      "filePath": "designs/layout-blog-post.html",
+      "description": "Premium editorial blog post with hero section, sticky TOC sidebar, reading progress bar, share sidebar, related articles grid, and GSAP scroll-driven animations.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["scrollReveal", "textRevealByLine", "scrollParallax", "staggerSequence"],
+      "animation_count": 8,
+      "plugins_used": ["ScrollTrigger"]
+    },
+    {
+      "id": "section-gallery-lightbox",
+      "title": "Image Gallery Lightbox",
+      "category": "Sections",
+      "type": "component",
+      "tags": ["gallery", "lightbox", "masonry", "grid", "images", "overlay", "keyboard", "dark", "gsap"],
+      "filePath": "designs/section-gallery-lightbox.html",
+      "description": "Masonry image gallery with gradient placeholders, hover overlay with zoom icon, fullscreen lightbox with GSAP scale entrance, slide transitions between images, keyboard navigation (arrows + escape), and image counter.",
+      "dateAdded": "2026-02-23",
+      "gsap_features": ["fadeIn", "scrollReveal", "scaleIn", "slideTransition", "hoverScale", "timeline"],
+      "animation_count": 9,
       "plugins_used": ["ScrollTrigger"]
     }
   ]

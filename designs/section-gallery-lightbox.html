@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery Lightbox</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#08090C;
+  --surface:#111318;
+  --surface-raised:#181B22;
+  --accent:#A78BFA;
+  --accent-dim:rgba(167,139,250,0.12);
+  --accent-glow:rgba(167,139,250,0.3);
+  --text:#E8E9ED;
+  --text-secondary:#8D93A5;
+  --border:rgba(255,255,255,0.07);
+  --radius:14px;
+  --radius-sm:10px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Dot grid background ---- */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(167,139,250,0.04) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Section ---- */
+.gallery-section{
+  position:relative;
+  z-index:1;
+  max-width:1060px;
+  margin:0 auto;
+  padding:80px 24px;
+}
+
+.section-header{
+  text-align:center;
+  margin-bottom:56px;
+}
+.section-header h1{
+  font-size:clamp(1.75rem,4vw + 0.5rem,2.75rem);
+  font-weight:800;
+  letter-spacing:-0.025em;
+  line-height:1.15;
+  color:var(--text);
+}
+.section-header p{
+  margin-top:12px;
+  font-size:clamp(0.875rem,1.2vw,1.0625rem);
+  color:var(--text-secondary);
+  line-height:1.6;
+  max-width:50ch;
+  margin-inline:auto;
+}
+
+/* ---- Masonry Grid ---- */
+.gallery-grid{
+  columns:3;
+  column-gap:16px;
+}
+@media(max-width:768px){
+  .gallery-grid{ columns:2; }
+}
+@media(max-width:480px){
+  .gallery-grid{ columns:1; }
+}
+
+.gallery-item{
+  break-inside:avoid;
+  margin-bottom:16px;
+  position:relative;
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  cursor:pointer;
+  display:block;
+}
+
+.gallery-thumb{
+  display:block;
+  width:100%;
+  border-radius:var(--radius-sm);
+}
+
+/* Hover overlay */
+.gallery-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:rgba(0,0,0,0.55);
+  border-radius:var(--radius-sm);
+  opacity:0;
+  pointer-events:none;
+}
+.gallery-overlay svg{
+  width:28px;
+  height:28px;
+  color:rgba(255,255,255,0.9);
+}
+.gallery-overlay span{
+  font-size:0.8125rem;
+  font-weight:600;
+  color:rgba(255,255,255,0.9);
+  letter-spacing:0.01em;
+}
+
+/* ---- Lightbox ---- */
+.lightbox{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+}
+.lightbox.open{
+  pointer-events:auto;
+}
+
+.lightbox-bg{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.88);
+  cursor:pointer;
+}
+
+.lightbox-content{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  max-width:min(90vw, 780px);
+  width:100%;
+}
+
+.lightbox-image-wrap{
+  position:relative;
+  width:100%;
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.lightbox-image{
+  display:block;
+  width:100%;
+  border-radius:var(--radius);
+}
+
+.lightbox-caption{
+  text-align:center;
+  max-width:500px;
+}
+.lightbox-caption h3{
+  font-size:1.125rem;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.3;
+}
+.lightbox-caption p{
+  margin-top:6px;
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+}
+
+.lightbox-counter{
+  font-size:0.75rem;
+  font-weight:500;
+  color:var(--text-secondary);
+  letter-spacing:0.05em;
+  opacity:0;
+}
+
+/* Navigation buttons */
+.lightbox-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(0,0,0,0.5);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:2;
+}
+.lightbox-nav.prev{ left:-60px; }
+.lightbox-nav.next{ right:-60px; }
+@media(max-width:900px){
+  .lightbox-nav.prev{ left:12px; }
+  .lightbox-nav.next{ right:12px; }
+  .lightbox-nav{ background:rgba(0,0,0,0.7); }
+}
+
+.lightbox-close{
+  position:fixed;
+  top:24px;
+  right:24px;
+  z-index:1001;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(0,0,0,0.5);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  opacity:0;
+}
+</style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+
+<section class="gallery-section">
+  <div class="section-header">
+    <h1>Gallery</h1>
+    <p>A curated collection of visual explorations. Click any image to view in detail.</p>
+  </div>
+
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-bg" id="lightboxBg"></div>
+  <div class="lightbox-content" id="lightboxContent">
+    <div class="lightbox-image-wrap">
+      <div class="lightbox-image" id="lightboxImage"></div>
+      <button class="lightbox-nav prev" id="lbPrev">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="lightbox-nav next" id="lbNext">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="lightbox-caption">
+      <h3 id="lbTitle"></h3>
+      <p id="lbDesc"></p>
+    </div>
+    <div class="lightbox-counter" id="lbCounter"></div>
+  </div>
+  <button class="lightbox-close" id="lightboxClose">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- Gallery Data ---- */
+var galleryItems = [
+  {
+    title: 'Aurora Drift',
+    desc: 'Gradient studies in violet and teal — exploring luminous depth.',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+    aspect: '4/3'
+  },
+  {
+    title: 'Ember Flow',
+    desc: 'Warm amber to deep crimson — inspired by volcanic landscapes.',
+    gradient: 'linear-gradient(160deg, #f12711 0%, #f5af19 100%)',
+    aspect: '3/4'
+  },
+  {
+    title: 'Cyan Pulse',
+    desc: 'Electric cyan meets midnight blue in this digital ocean.',
+    gradient: 'linear-gradient(135deg, #00c6fb 0%, #005bea 100%)',
+    aspect: '4/3'
+  },
+  {
+    title: 'Forest Glow',
+    desc: 'Bioluminescent greens emerging from deep shadow.',
+    gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 50%, #30dd8a 100%)',
+    aspect: '1/1'
+  },
+  {
+    title: 'Cosmic Blush',
+    desc: 'Pink quartz refracted through a prism of twilight.',
+    gradient: 'linear-gradient(160deg, #ee9ca7 0%, #ffdde1 40%, #c471f5 100%)',
+    aspect: '3/4'
+  },
+  {
+    title: 'Solar Wind',
+    desc: 'Golden plasma arcs against interstellar void.',
+    gradient: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)',
+    aspect: '4/3'
+  },
+  {
+    title: 'Deep Amethyst',
+    desc: 'Crystalline purple forms in low-light abstraction.',
+    gradient: 'linear-gradient(135deg, #5f2c82 0%, #49a09d 100%)',
+    aspect: '1/1'
+  },
+  {
+    title: 'Neon Tide',
+    desc: 'Synthetic waves under a magenta sky — retro-futurism.',
+    gradient: 'linear-gradient(160deg, #fc00ff 0%, #00dbde 100%)',
+    aspect: '3/4'
+  },
+  {
+    title: 'Obsidian Glow',
+    desc: 'Dark matter illuminated by distant starlight.',
+    gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #e94560 100%)',
+    aspect: '4/3'
+  }
+];
+
+/* ---- Build Gallery Grid (DOM API) ---- */
+function buildGallery() {
+  var grid = document.getElementById('galleryGrid');
+
+  galleryItems.forEach(function(item, i) {
+    var el = document.createElement('div');
+    el.className = 'gallery-item';
+    el.setAttribute('data-index', i);
+
+    /* Gradient thumbnail */
+    var thumb = document.createElement('div');
+    thumb.className = 'gallery-thumb';
+    thumb.style.background = item.gradient;
+    thumb.style.aspectRatio = item.aspect;
+    el.appendChild(thumb);
+
+    /* Hover overlay */
+    var overlay = document.createElement('div');
+    overlay.className = 'gallery-overlay';
+
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '28');
+    svg.setAttribute('height', '28');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+
+    var circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', '11');
+    circle.setAttribute('cy', '11');
+    circle.setAttribute('r', '8');
+    svg.appendChild(circle);
+
+    var line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', '21');
+    line.setAttribute('y1', '21');
+    line.setAttribute('x2', '16.65');
+    line.setAttribute('y2', '16.65');
+    svg.appendChild(line);
+
+    /* Plus inside magnifying glass */
+    var plus1 = document.createElementNS(svgNS, 'line');
+    plus1.setAttribute('x1', '11');
+    plus1.setAttribute('y1', '8');
+    plus1.setAttribute('x2', '11');
+    plus1.setAttribute('y2', '14');
+    svg.appendChild(plus1);
+
+    var plus2 = document.createElementNS(svgNS, 'line');
+    plus2.setAttribute('x1', '8');
+    plus2.setAttribute('y1', '11');
+    plus2.setAttribute('x2', '14');
+    plus2.setAttribute('y2', '11');
+    svg.appendChild(plus2);
+
+    overlay.appendChild(svg);
+
+    var label = document.createElement('span');
+    label.textContent = item.title;
+    overlay.appendChild(label);
+
+    el.appendChild(overlay);
+    grid.appendChild(el);
+  });
+}
+
+buildGallery();
+
+/* ---- Hover Animation ---- */
+function setupHovers() {
+  var items = document.querySelectorAll('.gallery-item');
+  if (reducedMotion) return;
+
+  items.forEach(function(item) {
+    var overlay = item.querySelector('.gallery-overlay');
+
+    item.addEventListener('mouseenter', function() {
+      gsap.to(overlay, { opacity: 1, duration: 0.25, ease: 'power2.out' });
+      gsap.to(item.querySelector('.gallery-thumb'), { scale: 1.04, duration: 0.4, ease: 'power2.out' });
+    });
+
+    item.addEventListener('mouseleave', function() {
+      gsap.to(overlay, { opacity: 0, duration: 0.2, ease: 'power2.in' });
+      gsap.to(item.querySelector('.gallery-thumb'), { scale: 1, duration: 0.3, ease: 'power2.out' });
+    });
+  });
+}
+
+/* ---- Scroll Reveal ---- */
+function animateEntrance() {
+  if (reducedMotion) return;
+
+  UV.fadeIn('.section-header h1', { y: -20, duration: 0.6 });
+  UV.fadeIn('.section-header p', { y: -12, duration: 0.45, delay: 0.15 });
+
+  UV.scrollReveal('.gallery-item', {
+    trigger: '#galleryGrid',
+    start: 'top 85%',
+    stagger: 0.06,
+    y: 50,
+    duration: 0.6
+  });
+}
+
+/* ---- Lightbox State ---- */
+var currentIndex = 0;
+var isLightboxOpen = false;
+
+function openLightbox(index) {
+  currentIndex = index;
+  isLightboxOpen = true;
+  document.body.style.overflow = 'hidden';
+
+  updateLightboxContent(index);
+
+  var lightbox = document.getElementById('lightbox');
+  lightbox.classList.add('open');
+
+  if (reducedMotion) {
+    gsap.set(lightbox, { opacity: 1 });
+    gsap.set('#lightboxClose', { opacity: 1 });
+    gsap.set('#lbCounter', { opacity: 1 });
+    return;
+  }
+
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.to(lightbox, { opacity: 1, duration: 0.35 })
+    .from('#lightboxContent', { scale: 0.88, opacity: 0, duration: 0.45, ease: 'back.out(1.3)' }, '-=0.15')
+    .to('#lightboxClose', { opacity: 1, duration: 0.3 }, '-=0.2')
+    .to('#lbCounter', { opacity: 1, duration: 0.25 }, '-=0.15');
+}
+
+function closeLightbox() {
+  isLightboxOpen = false;
+
+  var lightbox = document.getElementById('lightbox');
+
+  if (reducedMotion) {
+    gsap.set(lightbox, { opacity: 0 });
+    gsap.set('#lightboxClose', { opacity: 0 });
+    gsap.set('#lbCounter', { opacity: 0 });
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    return;
+  }
+
+  var tl = gsap.timeline({
+    defaults: { ease: 'power2.in' },
+    onComplete: function() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  tl.to('#lightboxContent', { scale: 0.92, opacity: 0, duration: 0.3 })
+    .to('#lightboxClose', { opacity: 0, duration: 0.2 }, '<')
+    .to('#lbCounter', { opacity: 0, duration: 0.15 }, '<')
+    .to(lightbox, { opacity: 0, duration: 0.25 }, '-=0.1');
+}
+
+function updateLightboxContent(index) {
+  var item = galleryItems[index];
+  var img = document.getElementById('lightboxImage');
+  img.style.background = item.gradient;
+  img.style.aspectRatio = '16/10';
+  img.style.minHeight = '300px';
+
+  document.getElementById('lbTitle').textContent = item.title;
+  document.getElementById('lbDesc').textContent = item.desc;
+  document.getElementById('lbCounter').textContent = (index + 1) + ' / ' + galleryItems.length;
+}
+
+function navigateLightbox(direction) {
+  var newIndex = currentIndex + direction;
+  if (newIndex < 0) newIndex = galleryItems.length - 1;
+  if (newIndex >= galleryItems.length) newIndex = 0;
+
+  var imageWrap = document.querySelector('.lightbox-image-wrap');
+
+  if (reducedMotion) {
+    currentIndex = newIndex;
+    updateLightboxContent(newIndex);
+    return;
+  }
+
+  var slideOut = direction > 0 ? -60 : 60;
+  var slideIn = direction > 0 ? 60 : -60;
+
+  var tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } });
+
+  tl.to(imageWrap, { x: slideOut, opacity: 0, duration: 0.25 })
+    .add(function() {
+      currentIndex = newIndex;
+      updateLightboxContent(newIndex);
+    })
+    .set(imageWrap, { x: slideIn })
+    .to(imageWrap, { x: 0, opacity: 1, duration: 0.3, ease: 'power3.out' });
+
+  /* Counter fade */
+  tl.to('#lbCounter', { opacity: 0, duration: 0.1 }, 0)
+    .to('#lbCounter', { opacity: 1, duration: 0.2 }, 0.35);
+}
+
+/* ---- Event Listeners ---- */
+
+/* Click gallery item */
+document.getElementById('galleryGrid').addEventListener('click', function(e) {
+  var item = e.target.closest('.gallery-item');
+  if (!item) return;
+  var idx = parseInt(item.getAttribute('data-index'), 10);
+  openLightbox(idx);
+});
+
+/* Close */
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightboxBg').addEventListener('click', closeLightbox);
+
+/* Navigation */
+document.getElementById('lbPrev').addEventListener('click', function(e) {
+  e.stopPropagation();
+  navigateLightbox(-1);
+});
+document.getElementById('lbNext').addEventListener('click', function(e) {
+  e.stopPropagation();
+  navigateLightbox(1);
+});
+
+/* Nav button hovers */
+if (!reducedMotion) {
+  ['#lbPrev', '#lbNext', '#lightboxClose'].forEach(function(sel) {
+    var el = document.querySelector(sel);
+    el.addEventListener('mouseenter', function() {
+      gsap.to(el, { scale: 1.1, duration: 0.2, ease: 'power2.out' });
+    });
+    el.addEventListener('mouseleave', function() {
+      gsap.to(el, { scale: 1, duration: 0.2, ease: 'power2.out' });
+    });
+  });
+}
+
+/* Keyboard navigation */
+document.addEventListener('keydown', function(e) {
+  if (!isLightboxOpen) return;
+
+  if (e.key === 'Escape') {
+    closeLightbox();
+  } else if (e.key === 'ArrowLeft') {
+    navigateLightbox(-1);
+  } else if (e.key === 'ArrowRight') {
+    navigateLightbox(1);
+  }
+});
+
+/* ---- Init ---- */
+setupHovers();
+animateEntrance();
+
+UV.addControlPanel();
+</script>
+</body>
+</html>
