@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tab Bar Navigation</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: oklch(0.13 0.015 260);
+  --surface: oklch(0.17 0.02 260);
+  --surface-2: oklch(0.21 0.025 260);
+  --accent: oklch(0.65 0.19 250);
+  --accent-dim: oklch(0.65 0.19 250 / 0.08);
+  --text: oklch(0.95 0.005 260);
+  --text-secondary: oklch(0.60 0.02 260);
+  --border: oklch(0.30 0.015 260);
+  --danger: oklch(0.60 0.20 25);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --font: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100dvh;
+  display:flex;flex-direction:column;
+}
+
+/* ── Skip Link ── */
+.skip-link{
+  position:absolute;top:-100%;left:50%;transform:translateX(-50%);
+  padding:8px 20px;background:var(--accent);color:var(--bg);
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+  font-weight:600;font-size:14px;z-index:9999;text-decoration:none;
+}
+.skip-link:focus-visible{top:0;outline:none}
+
+/* ── Page Layout ── */
+.page{
+  max-width:900px;width:100%;margin:0 auto;
+  padding:60px 24px 40px;flex:1;
+}
+.page-header{margin-bottom:40px}
+.page-header h1{
+  font-size:clamp(1.75rem,3vw+0.5rem,2.5rem);
+  font-weight:700;letter-spacing:-0.025em;
+  line-height:1.15;margin-bottom:8px;
+}
+.page-header p{font-size:15px;color:var(--text-secondary);line-height:1.5;max-width:50ch}
+
+/* ── Tab Bar ── */
+.tab-bar-wrapper{
+  position:relative;
+  border-bottom:1px solid var(--border);
+  margin-bottom:32px;
+}
+.tab-bar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-bar-scroll::-webkit-scrollbar{display:none}
+
+.tab-bar{
+  display:flex;gap:0;min-width:max-content;
+  position:relative;
+}
+.tab-bar[role="tablist"]{padding:0}
+
+.tab{
+  position:relative;
+  display:flex;align-items:center;gap:8px;
+  padding:14px 20px;
+  min-width:80px;
+  background:none;border:none;
+  font-family:var(--font);font-size:14px;font-weight:400;
+  color:var(--text-secondary);
+  cursor:pointer;
+  white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  min-height:48px;
+}
+.tab:focus-visible{outline:3px solid var(--accent);outline-offset:-3px;border-radius:var(--radius-sm)}
+.tab[aria-selected="true"]{color:var(--text);font-weight:600}
+.tab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* Tab indicator */
+.tab-indicator{
+  position:absolute;bottom:-1px;left:0;
+  height:2px;
+  background:var(--accent);
+  border-radius:1px 1px 0 0;
+  pointer-events:none;
+  z-index:2;
+}
+
+/* Tab badge */
+.tab-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  border-radius:9px;
+  font-size:10px;font-weight:700;line-height:1;
+}
+.tab-badge.count{background:var(--danger);color:#fff}
+.tab-badge.label{background:var(--accent);color:var(--bg);font-size:9px;letter-spacing:0.03em;text-transform:uppercase}
+
+/* Scroll arrows (mobile) */
+.tab-arrow{
+  display:none;position:absolute;top:0;bottom:1px;
+  width:36px;z-index:3;
+  background:none;border:none;cursor:pointer;
+  align-items:center;justify-content:center;
+  opacity:0.45;
+}
+.tab-arrow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tab-arrow svg{width:16px;height:16px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab-arrow-left{left:0;background:linear-gradient(90deg,var(--bg) 60%,transparent)}
+.tab-arrow-right{right:0;background:linear-gradient(-90deg,var(--bg) 60%,transparent)}
+
+@media(max-width:480px){
+  .tab-arrow{display:flex}
+  .tab-bar-wrapper{padding:0 16px}
+  .tab{padding:12px 16px;font-size:13px}
+}
+
+/* ── Tab Content ── */
+.tab-panel{display:none;min-height:300px}
+.tab-panel.active{display:block}
+
+/* ── Dashboard Panel ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  padding:20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+}
+.stat-label{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-0.02em;line-height:1}
+.stat-change{font-size:12px;font-weight:600;margin-top:6px}
+.stat-change.up{color:oklch(0.65 0.15 145)}
+.stat-change.down{color:var(--danger)}
+
+.quick-list{display:flex;flex-direction:column;gap:8px}
+.quick-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:14px;
+}
+.quick-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.quick-dot.green{background:oklch(0.65 0.15 145)}
+.quick-dot.amber{background:oklch(0.70 0.15 80)}
+.quick-dot.red{background:var(--danger)}
+.quick-meta{margin-left:auto;font-size:12px;color:var(--text-secondary)}
+
+/* ── Analytics Panel ── */
+.chart-placeholder{
+  height:200px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-secondary);font-size:14px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.bar-group{display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 24px}
+.bar{width:32px;border-radius:4px 4px 0 0;background:var(--accent)}
+.bar-label{
+  text-align:center;font-size:10px;color:var(--text-secondary);
+  margin-top:6px;font-weight:500;
+}
+
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:12px}
+.metric{
+  padding:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+}
+.metric-title{font-size:12px;color:var(--text-secondary);margin-bottom:4px}
+.metric-val{font-size:20px;font-weight:700}
+
+/* ── Settings Panel ── */
+.settings-group{margin-bottom:28px}
+.settings-group h3{font-size:14px;font-weight:600;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;
+}
+.setting-row+.setting-row{border-top:1px solid oklch(0.30 0.015 260 / 0.5)}
+.setting-info{display:flex;flex-direction:column;gap:2px}
+.setting-name{font-size:14px;font-weight:500}
+.setting-desc{font-size:12px;color:var(--text-secondary)}
+.toggle{
+  position:relative;width:44px;height:24px;
+  border-radius:12px;background:var(--surface-2);
+  border:none;cursor:pointer;flex-shrink:0;
+  padding:2px;
+}
+.toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle-knob{
+  display:block;width:20px;height:20px;
+  border-radius:50%;background:var(--text-secondary);
+}
+.toggle[aria-checked="true"]{background:var(--accent)}
+.toggle[aria-checked="true"] .toggle-knob{background:#fff}
+
+/* ── Users Panel ── */
+.user-list{display:flex;flex-direction:column;gap:8px}
+.user-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;
+}
+.user-info{display:flex;flex-direction:column;gap:1px;min-width:0}
+.user-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:12px;color:var(--text-secondary)}
+.user-status{
+  margin-left:auto;font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:999px;flex-shrink:0;
+}
+.user-status.active{background:oklch(0.65 0.15 145 / 0.12);color:oklch(0.65 0.15 145)}
+.user-status.away{background:oklch(0.70 0.15 80 / 0.12);color:oklch(0.70 0.15 80)}
+.user-status.offline{background:oklch(0.40 0 0 / 0.15);color:var(--text-secondary)}
+
+/* ── Billing Panel ── */
+.plan-card{
+  padding:24px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:20px;
+}
+.plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.plan-name{font-size:18px;font-weight:700}
+.plan-price{font-size:14px;color:var(--text-secondary)}
+.plan-price strong{font-size:24px;font-weight:700;color:var(--text)}
+.plan-bar-track{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.plan-bar-fill{height:100%;background:var(--accent);border-radius:4px;width:0}
+.plan-bar-label{font-size:12px;color:var(--text-secondary)}
+
+.invoices{display:flex;flex-direction:column;gap:6px}
+.invoices h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.invoice-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:13px;
+}
+.invoice-date{color:var(--text-secondary)}
+.invoice-amount{font-weight:600}
+.invoice-status{
+  font-size:11px;font-weight:600;
+  padding:3px 8px;border-radius:999px;
+  background:oklch(0.65 0.15 145 / 0.12);color:oklch(0.65 0.15 145);
+}
+
+/* ── Panel content initial state ── */
+.panel-reveal{opacity:0;transform:translateY(12px)}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<div class="page" id="main-content">
+  <header class="page-header">
+    <h1>Command Center</h1>
+    <p>Manage your workspace, track analytics, and control billing from a single dashboard.</p>
+  </header>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar-wrapper">
+    <button class="tab-arrow tab-arrow-left" aria-label="Scroll tabs left" id="arrow-left">
+      <svg viewBox="0 0 16 16"><polyline points="10 3 5 8 10 13"/></svg>
+    </button>
+    <div class="tab-bar-scroll" id="tab-scroll">
+      <div class="tab-bar" role="tablist" aria-label="Dashboard sections" id="tab-bar">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="panel-dashboard" id="tab-dashboard">
+          <svg viewBox="0 0 18 18"><rect x="2" y="2" width="5.5" height="5.5" rx="1"/><rect x="10.5" y="2" width="5.5" height="5.5" rx="1"/><rect x="2" y="10.5" width="5.5" height="5.5" rx="1"/><rect x="10.5" y="10.5" width="5.5" height="5.5" rx="1"/></svg>
+          Dashboard
+        </button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-analytics" id="tab-analytics">
+          <svg viewBox="0 0 18 18"><polyline points="2 14 6 8 10 11 16 4"/><line x1="2" y1="16" x2="16" y2="16"/></svg>
+          Analytics
+        </button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-settings" id="tab-settings">
+          <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="2.5"/><path d="M14.8 11.2a1.2 1.2 0 00.24 1.32l.04.04a1.44 1.44 0 11-2.04 2.04l-.04-.04a1.2 1.2 0 00-1.32-.24 1.2 1.2 0 00-.72 1.08v.12a1.44 1.44 0 11-2.88 0v-.06A1.2 1.2 0 007.2 14.4a1.2 1.2 0 00-1.32.24l-.04.04a1.44 1.44 0 11-2.04-2.04l.04-.04A1.2 1.2 0 004.08 11.28 1.2 1.2 0 003 10.56h-.12a1.44 1.44 0 010-2.88H3a1.2 1.2 0 001.08-.88 1.2 1.2 0 00-.24-1.32l-.04-.04a1.44 1.44 0 112.04-2.04l.04.04A1.2 1.2 0 007.2 3.6h.06V3.48a1.44 1.44 0 012.88 0v.06a1.2 1.2 0 00.72 1.08 1.2 1.2 0 001.32-.24l.04-.04a1.44 1.44 0 112.04 2.04l-.04.04a1.2 1.2 0 00-.24 1.32v.12a1.2 1.2 0 001.08.72h.12a1.44 1.44 0 010 2.88h-.06a1.2 1.2 0 00-1.08.72z"/></svg>
+          Settings
+        </button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-users" id="tab-users">
+          <svg viewBox="0 0 18 18"><circle cx="7" cy="6" r="3"/><path d="M1 16v-1a4 4 0 014-4h4a4 4 0 014 4v1"/><circle cx="14" cy="6" r="2"/><path d="M14 11a3 3 0 013 3v2"/></svg>
+          Users
+          <span class="tab-badge count" aria-label="3 notifications">3</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-billing" id="tab-billing">
+          <svg viewBox="0 0 18 18"><rect x="1" y="4" width="16" height="11" rx="2"/><line x1="1" y1="8" x2="17" y2="8"/></svg>
+          Billing
+          <span class="tab-badge label">New</span>
+        </button>
+        <div class="tab-indicator" id="tab-indicator" aria-hidden="true"></div>
+      </div>
+    </div>
+    <button class="tab-arrow tab-arrow-right" aria-label="Scroll tabs right" id="arrow-right">
+      <svg viewBox="0 0 16 16"><polyline points="6 3 11 8 6 13"/></svg>
+    </button>
+  </div>
+
+  <!-- Tab Panels -->
+  <div id="panel-dashboard" class="tab-panel active" role="tabpanel" aria-labelledby="tab-dashboard">
+    <div class="stat-grid panel-reveal">
+      <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value">$48.2K</div><div class="stat-change up">+12.5%</div></div>
+      <div class="stat-card"><div class="stat-label">Users</div><div class="stat-value">2,847</div><div class="stat-change up">+8.3%</div></div>
+      <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value">18.4K</div><div class="stat-change up">+24.1%</div></div>
+      <div class="stat-card"><div class="stat-label">Churn</div><div class="stat-value">1.2%</div><div class="stat-change down">+0.3%</div></div>
+    </div>
+    <h3 class="panel-reveal" style="font-size:15px;font-weight:600;margin-bottom:12px">Recent Activity</h3>
+    <div class="quick-list panel-reveal">
+      <div class="quick-item"><span class="quick-dot green"></span>Deployment v2.4.1 succeeded<span class="quick-meta">2m ago</span></div>
+      <div class="quick-item"><span class="quick-dot amber"></span>Database migration running<span class="quick-meta">8m ago</span></div>
+      <div class="quick-item"><span class="quick-dot green"></span>SSL certificate renewed<span class="quick-meta">1h ago</span></div>
+      <div class="quick-item"><span class="quick-dot red"></span>API rate limit warning<span class="quick-meta">3h ago</span></div>
+    </div>
+  </div>
+
+  <div id="panel-analytics" class="tab-panel" role="tabpanel" aria-labelledby="tab-analytics">
+    <h3 class="panel-reveal" style="font-size:15px;font-weight:600;margin-bottom:16px">Weekly Traffic</h3>
+    <div class="chart-placeholder panel-reveal">
+      <div class="bar-group">
+        <div style="text-align:center"><div class="bar" data-height="60" style="height:0"></div><div class="bar-label">Mon</div></div>
+        <div style="text-align:center"><div class="bar" data-height="85" style="height:0"></div><div class="bar-label">Tue</div></div>
+        <div style="text-align:center"><div class="bar" data-height="72" style="height:0"></div><div class="bar-label">Wed</div></div>
+        <div style="text-align:center"><div class="bar" data-height="95" style="height:0"></div><div class="bar-label">Thu</div></div>
+        <div style="text-align:center"><div class="bar" data-height="110" style="height:0"></div><div class="bar-label">Fri</div></div>
+        <div style="text-align:center"><div class="bar" data-height="55" style="height:0"></div><div class="bar-label">Sat</div></div>
+        <div style="text-align:center"><div class="bar" data-height="40" style="height:0"></div><div class="bar-label">Sun</div></div>
+      </div>
+    </div>
+    <div class="metrics-row panel-reveal">
+      <div class="metric"><div class="metric-title">Avg. Session</div><div class="metric-val">4m 32s</div></div>
+      <div class="metric"><div class="metric-title">Bounce Rate</div><div class="metric-val">34.2%</div></div>
+      <div class="metric"><div class="metric-title">Page Views</div><div class="metric-val">82.1K</div></div>
+      <div class="metric"><div class="metric-title">Conversions</div><div class="metric-val">1,247</div></div>
+    </div>
+  </div>
+
+  <div id="panel-settings" class="tab-panel" role="tabpanel" aria-labelledby="tab-settings">
+    <div class="settings-group panel-reveal">
+      <h3>Notifications</h3>
+      <div class="setting-row"><div class="setting-info"><div class="setting-name">Email alerts</div><div class="setting-desc">Receive daily digest emails</div></div><button class="toggle" role="switch" aria-checked="true" aria-label="Email alerts"><span class="toggle-knob"></span></button></div>
+      <div class="setting-row"><div class="setting-info"><div class="setting-name">Push notifications</div><div class="setting-desc">Browser push for critical events</div></div><button class="toggle" role="switch" aria-checked="false" aria-label="Push notifications"><span class="toggle-knob"></span></button></div>
+      <div class="setting-row"><div class="setting-info"><div class="setting-name">Slack integration</div><div class="setting-desc">Post updates to #general</div></div><button class="toggle" role="switch" aria-checked="true" aria-label="Slack integration"><span class="toggle-knob"></span></button></div>
+    </div>
+    <div class="settings-group panel-reveal">
+      <h3>Appearance</h3>
+      <div class="setting-row"><div class="setting-info"><div class="setting-name">Dark mode</div><div class="setting-desc">Use dark color scheme</div></div><button class="toggle" role="switch" aria-checked="true" aria-label="Dark mode"><span class="toggle-knob"></span></button></div>
+      <div class="setting-row"><div class="setting-info"><div class="setting-name">Compact view</div><div class="setting-desc">Reduce spacing in lists and tables</div></div><button class="toggle" role="switch" aria-checked="false" aria-label="Compact view"><span class="toggle-knob"></span></button></div>
+    </div>
+  </div>
+
+  <div id="panel-users" class="tab-panel" role="tabpanel" aria-labelledby="tab-users">
+    <div class="user-list panel-reveal">
+      <div class="user-row"><div class="user-avatar" style="background:linear-gradient(135deg,oklch(0.55 0.18 250),oklch(0.65 0.18 280))">AK</div><div class="user-info"><div class="user-name">Akira Kurosawa</div><div class="user-role">Admin</div></div><span class="user-status active">Active</span></div>
+      <div class="user-row"><div class="user-avatar" style="background:linear-gradient(135deg,oklch(0.55 0.18 145),oklch(0.65 0.16 170))">SL</div><div class="user-info"><div class="user-name">Sarah Lin</div><div class="user-role">Developer</div></div><span class="user-status active">Active</span></div>
+      <div class="user-row"><div class="user-avatar" style="background:linear-gradient(135deg,oklch(0.60 0.18 30),oklch(0.65 0.15 50))">MR</div><div class="user-info"><div class="user-name">Marcus Rivera</div><div class="user-role">Designer</div></div><span class="user-status away">Away</span></div>
+      <div class="user-row"><div class="user-avatar" style="background:linear-gradient(135deg,oklch(0.55 0.15 80),oklch(0.60 0.15 100))">EP</div><div class="user-info"><div class="user-name">Elena Petrova</div><div class="user-role">Developer</div></div><span class="user-status offline">Offline</span></div>
+      <div class="user-row"><div class="user-avatar" style="background:linear-gradient(135deg,oklch(0.50 0.18 320),oklch(0.60 0.18 340))">JW</div><div class="user-info"><div class="user-name">James Wu</div><div class="user-role">Product Manager</div></div><span class="user-status active">Active</span></div>
+    </div>
+  </div>
+
+  <div id="panel-billing" class="tab-panel" role="tabpanel" aria-labelledby="tab-billing">
+    <div class="plan-card panel-reveal">
+      <div class="plan-header"><div class="plan-name">Pro Plan</div><div class="plan-price"><strong>$29</strong>/month</div></div>
+      <div class="plan-bar-track"><div class="plan-bar-fill" id="plan-bar" data-width="72"></div></div>
+      <div class="plan-bar-label">72% of storage used (72 GB / 100 GB)</div>
+    </div>
+    <div class="invoices panel-reveal">
+      <h3>Recent Invoices</h3>
+      <div class="invoice-row"><span class="invoice-date">Feb 1, 2026</span><span class="invoice-amount">$29.00</span><span class="invoice-status">Paid</span></div>
+      <div class="invoice-row"><span class="invoice-date">Jan 1, 2026</span><span class="invoice-amount">$29.00</span><span class="invoice-status">Paid</span></div>
+      <div class="invoice-row"><span class="invoice-date">Dec 1, 2025</span><span class="invoice-amount">$29.00</span><span class="invoice-status">Paid</span></div>
+      <div class="invoice-row"><span class="invoice-date">Nov 1, 2025</span><span class="invoice-amount">$29.00</span><span class="invoice-status">Paid</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var tabBar = document.getElementById('tab-bar');
+  var tabs = Array.from(tabBar.querySelectorAll('.tab'));
+  var indicator = document.getElementById('tab-indicator');
+  var panels = Array.from(document.querySelectorAll('.tab-panel'));
+  var tabScroll = document.getElementById('tab-scroll');
+  var arrowLeft = document.getElementById('arrow-left');
+  var arrowRight = document.getElementById('arrow-right');
+
+  /* ── Indicator positioning ── */
+  function snapIndicator(tab) {
+    var barRect = tabBar.getBoundingClientRect();
+    var tabRect = tab.getBoundingClientRect();
+    gsap.set(indicator, {
+      x: tabRect.left - barRect.left,
+      width: tabRect.width,
+      height: 3,
+      opacity: 1,
+    });
+  }
+
+  function slideIndicator(tab) {
+    if (reduced) { snapIndicator(tab); return; }
+    var state = Flip.getState(indicator);
+    var barRect = tabBar.getBoundingClientRect();
+    var tabRect = tab.getBoundingClientRect();
+    gsap.set(indicator, {
+      x: tabRect.left - barRect.left,
+      width: tabRect.width,
+      height: 3,
+    });
+    Flip.from(state, {
+      duration: 0.35,
+      ease: 'back.out(1.4)',
+      absolute: true,
+    });
+  }
+
+  /* ── Tab switching ── */
+  var currentPanel = null;
+
+  function switchTab(tab) {
+    var targetId = tab.getAttribute('aria-controls');
+
+    /* Update ARIA */
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', 'false'); });
+    tab.setAttribute('aria-selected', 'true');
+
+    /* Update text weight via GSAP */
+    if (!reduced) {
+      tabs.forEach(function (t) {
+        gsap.to(t, {
+          color: t === tab
+            ? getComputedStyle(document.documentElement).getPropertyValue('--text').trim()
+            : getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim(),
+          fontWeight: t === tab ? 600 : 400,
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      });
+    }
+
+    /* Move indicator */
+    slideIndicator(tab);
+
+    /* Switch panels */
+    var oldPanel = document.querySelector('.tab-panel.active');
+    var newPanel = document.getElementById(targetId);
+    if (oldPanel === newPanel) return;
+
+    if (!reduced && oldPanel) {
+      gsap.to(oldPanel, {
+        opacity: 0, y: -10, duration: 0.2, ease: 'power2.in',
+        onComplete: function () {
+          oldPanel.classList.remove('active');
+          gsap.set(oldPanel, { opacity: 1, y: 0 });
+          newPanel.classList.add('active');
+          revealPanelContent(newPanel);
+          gsap.from(newPanel, { opacity: 0, y: 10, duration: 0.3, ease: 'power2.out' });
+        },
+      });
+    } else {
+      if (oldPanel) oldPanel.classList.remove('active');
+      newPanel.classList.add('active');
+      revealPanelContent(newPanel);
+    }
+
+    /* Scroll tab into view on mobile */
+    tab.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  function revealPanelContent(panel) {
+    var items = panel.querySelectorAll('.panel-reveal');
+    if (!items.length) return;
+    if (!reduced) {
+      gsap.fromTo(items,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.1 }
+      );
+    } else {
+      gsap.set(items, { opacity: 1, y: 0 });
+    }
+
+    /* Animate bars in analytics panel */
+    var bars = panel.querySelectorAll('.bar');
+    if (bars.length && !reduced) {
+      bars.forEach(function (bar) {
+        var h = parseInt(bar.dataset.height, 10);
+        gsap.fromTo(bar, { height: 0 }, { height: h, duration: 0.5, ease: 'power2.out', delay: 0.3 });
+      });
+    } else if (bars.length) {
+      bars.forEach(function (bar) { bar.style.height = bar.dataset.height + 'px'; });
+    }
+
+    /* Animate plan bar in billing panel */
+    var planBar = panel.querySelector('#plan-bar');
+    if (planBar) {
+      var w = parseInt(planBar.dataset.width, 10);
+      if (!reduced) {
+        gsap.fromTo(planBar, { width: '0%' }, { width: w + '%', duration: 0.8, ease: 'power2.out', delay: 0.3 });
+      } else {
+        planBar.style.width = w + '%';
+      }
+    }
+  }
+
+  /* ── Click handlers ── */
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () { switchTab(tab); });
+  });
+
+  /* ── Keyboard navigation ── */
+  tabBar.addEventListener('keydown', function (e) {
+    var idx = tabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    var next = -1;
+    if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+    if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = tabs.length - 1;
+    if (next >= 0) {
+      e.preventDefault();
+      tabs[next].focus();
+      switchTab(tabs[next]);
+    }
+  });
+
+  /* ── Scroll arrows ── */
+  arrowLeft.addEventListener('click', function () {
+    tabScroll.scrollBy({ left: -120, behavior: reduced ? 'auto' : 'smooth' });
+  });
+  arrowRight.addEventListener('click', function () {
+    tabScroll.scrollBy({ left: 120, behavior: reduced ? 'auto' : 'smooth' });
+  });
+
+  if (!reduced) {
+    [arrowLeft, arrowRight].forEach(function (arrow) {
+      arrow.addEventListener('mouseenter', function () {
+        gsap.to(arrow, { opacity: 0.9, duration: 0.15, ease: 'power2.out' });
+      });
+      arrow.addEventListener('mouseleave', function () {
+        gsap.to(arrow, { opacity: 0.45, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+
+  /* ── Toggle switches ── */
+  document.querySelectorAll('.toggle').forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      var checked = toggle.getAttribute('aria-checked') === 'true';
+      toggle.setAttribute('aria-checked', String(!checked));
+      var knob = toggle.querySelector('.toggle-knob');
+      if (!reduced) {
+        gsap.to(knob, { x: !checked ? 20 : 0, duration: 0.2, ease: 'back.out(1.4)' });
+        gsap.to(toggle, {
+          backgroundColor: !checked
+            ? getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+            : getComputedStyle(document.documentElement).getPropertyValue('--surface-2').trim(),
+          duration: 0.15, ease: 'power2.out',
+        });
+        gsap.to(knob, {
+          backgroundColor: !checked ? '#fff' : getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim(),
+          duration: 0.15, ease: 'power2.out',
+        });
+      } else {
+        gsap.set(knob, { x: !checked ? 20 : 0 });
+      }
+    });
+  });
+
+  /* Init toggle knob positions */
+  document.querySelectorAll('.toggle[aria-checked="true"]').forEach(function (toggle) {
+    gsap.set(toggle.querySelector('.toggle-knob'), { x: 20, backgroundColor: '#fff' });
+  });
+
+  /* ── Hover effects ── */
+  if (!reduced) {
+    /* Tab hover */
+    tabs.forEach(function (tab) {
+      tab.addEventListener('mouseenter', function () {
+        if (tab.getAttribute('aria-selected') !== 'true') {
+          gsap.to(tab, { color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim(), duration: 0.12, ease: 'power2.out' });
+        }
+      });
+      tab.addEventListener('mouseleave', function () {
+        if (tab.getAttribute('aria-selected') !== 'true') {
+          gsap.to(tab, { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim(), duration: 0.12, ease: 'power2.out' });
+        }
+      });
+    });
+
+    /* Card hovers */
+    UV.hoverLift('.stat-card', { y: -3, shadow: '0 8px 24px oklch(0 0 0 / 0.2)', restShadow: 'none' });
+    UV.hoverLift('.user-row', { y: -2, shadow: '0 6px 20px oklch(0 0 0 / 0.15)', restShadow: 'none' });
+    UV.hoverLift('.invoice-row', { y: -1, shadow: '0 4px 12px oklch(0 0 0 / 0.12)', restShadow: 'none' });
+
+    /* Toggle hover */
+    document.querySelectorAll('.toggle').forEach(function (toggle) {
+      toggle.addEventListener('mouseenter', function () {
+        gsap.to(toggle, { scale: 1.05, duration: 0.15, ease: 'power2.out' });
+      });
+      toggle.addEventListener('mouseleave', function () {
+        gsap.to(toggle, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+
+  /* ── Initial setup ── */
+  var activeTab = document.querySelector('.tab[aria-selected="true"]');
+  if (activeTab) snapIndicator(activeTab);
+
+  /* Reveal initial panel content */
+  var initialPanel = document.querySelector('.tab-panel.active');
+  if (initialPanel) {
+    if (!reduced) {
+      gsap.set(initialPanel.querySelectorAll('.panel-reveal'), { opacity: 0, y: 12 });
+      revealPanelContent(initialPanel);
+    } else {
+      gsap.set(initialPanel.querySelectorAll('.panel-reveal'), { opacity: 1, y: 0 });
+    }
+  }
+
+  /* Page header entrance */
+  if (!reduced) {
+    UV.fadeIn('.page-header h1', { y: 20, duration: 0.5 });
+    UV.fadeIn('.page-header p', { y: 15, duration: 0.4, delay: 0.1 });
+    gsap.from('.tab-bar-wrapper', { opacity: 0, y: 10, duration: 0.4, delay: 0.2, ease: 'power2.out' });
+  }
+
+  /* Resize handler */
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var active = document.querySelector('.tab[aria-selected="true"]');
+      if (active) snapIndicator(active);
+    }, 100);
+  });
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

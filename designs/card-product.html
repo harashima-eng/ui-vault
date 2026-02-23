@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Card Grid — UI Vault</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Dark commerce palette. Amber accent on obsidian.
+   ============================================================ */
+:root {
+  --bg: #09090b;
+  --surface: #131316;
+  --surface-raised: #1a1a1f;
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.12);
+  --text: #e8e6e3;
+  --text-secondary: #8a8680;
+  --text-dim: #5a5650;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3), 0 24px 48px rgba(0, 0, 0, 0.25);
+
+  /* Badge colors */
+  --badge-new: #22c55e;
+  --badge-sale: #ef4444;
+  --badge-popular: var(--accent);
+
+  /* Product gradients */
+  --grad-1: linear-gradient(145deg, #4c1d95 0%, #6d28d9 50%, #3b82f6 100%);
+  --grad-2: linear-gradient(145deg, #0d4f4f 0%, #0d9488 50%, #22d3ee 100%);
+  --grad-3: linear-gradient(145deg, #7c2d12 0%, #ea580c 50%, #fbbf24 100%);
+  --grad-4: linear-gradient(145deg, #312e81 0%, #4f46e5 50%, #8b5cf6 100%);
+  --grad-5: linear-gradient(145deg, #064e3b 0%, #059669 50%, #34d399 100%);
+  --grad-6: linear-gradient(145deg, #881337 0%, #e11d48 50%, #fb7185 100%);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   PAGE STRUCTURE
+   ============================================================ */
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 56px 24px 100px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.page-eyebrow::before {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-wrap: balance;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  max-width: 55ch;
+  margin-inline: auto;
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-btn[data-active="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* ============================================================
+   PRODUCT GRID
+   ============================================================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============================================================
+   PRODUCT CARD
+   ============================================================ */
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.product-card[data-hidden="true"] {
+  display: none;
+}
+
+/* ── Image Area ── */
+.card-image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 0, 0, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.product-card:nth-child(1) .card-image { background: var(--grad-1); }
+.product-card:nth-child(2) .card-image { background: var(--grad-2); }
+.product-card:nth-child(3) .card-image { background: var(--grad-3); }
+.product-card:nth-child(4) .card-image { background: var(--grad-4); }
+.product-card:nth-child(5) .card-image { background: var(--grad-5); }
+.product-card:nth-child(6) .card-image { background: var(--grad-6); }
+
+/* Product icon placeholder */
+.card-image-icon {
+  width: 64px;
+  height: 64px;
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: 1.2;
+  fill: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Badge ── */
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 4px 12px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 100px;
+  color: #fff;
+}
+
+.card-badge[data-type="new"] { background: var(--badge-new); }
+.card-badge[data-type="sale"] { background: var(--badge-sale); }
+.card-badge[data-type="popular"] { background: var(--badge-popular); color: #000; }
+
+/* ── Wishlist Heart ── */
+.card-wishlist {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.card-wishlist:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card-wishlist svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  stroke-width: 2;
+  fill: none;
+}
+
+.card-wishlist[data-liked="true"] svg {
+  fill: #ef4444;
+  stroke: #ef4444;
+}
+
+/* ── Add to Cart Overlay ── */
+.card-cart-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  will-change: transform, opacity;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 11px 20px;
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.add-to-cart-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.add-to-cart-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ── Card Body ── */
+.card-body {
+  padding: 16px 18px 20px;
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 8px;
+  text-wrap: balance;
+}
+
+/* ── Star Rating ── */
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.stars {
+  display: flex;
+  gap: 1px;
+}
+
+.stars svg {
+  width: 14px;
+  height: 14px;
+}
+
+.star-full { fill: #fbbf24; stroke: none; }
+.star-half { fill: url(#halfStarGrad); stroke: none; }
+.star-empty { fill: #3a3a3a; stroke: none; }
+
+.rating-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ── Price ── */
+.card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.price-current {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.price-original {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  text-decoration: line-through;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 580px) {
+  .page { padding: 40px 16px 80px; }
+  .product-grid { grid-template-columns: 1fr; }
+  .filter-bar { gap: 6px; }
+  .filter-btn { padding: 7px 14px; font-size: 0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hidden SVG defs for star gradients -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+  <defs>
+    <linearGradient id="halfStarGrad">
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#3a3a3a"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <header class="page-header">
+    <div class="page-eyebrow">E-Commerce</div>
+    <h1 class="page-title">Featured Products</h1>
+    <p class="page-subtitle">High-conversion product cards with wishlist, quick-add, Flip filtering, and micro-interaction feedback.</p>
+  </header>
+
+  <!-- ── FILTER BAR ── -->
+  <div class="filter-bar">
+    <button class="filter-btn" data-filter="all" data-active="true">All</button>
+    <button class="filter-btn" data-filter="new">New Arrivals</button>
+    <button class="filter-btn" data-filter="sale">On Sale</button>
+    <button class="filter-btn" data-filter="top">Top Rated</button>
+  </div>
+
+  <!-- ── PRODUCT GRID ── -->
+  <div class="product-grid" id="productGrid">
+
+    <!-- Card 1: Wireless Headphones -->
+    <article class="product-card" data-category="sale" data-rating="4.5" data-flip-id="prod-1">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><path d="M16 34v-6a16 16 0 0 1 32 0v6"/><rect x="8" y="34" width="10" height="14" rx="3"/><rect x="46" y="34" width="10" height="14" rx="3"/></svg>
+        <span class="card-badge" data-type="sale">Sale</span>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="Wireless Headphones">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Wireless Headphones</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.5 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-half" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.5 (128)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$79.99</span>
+          <span class="price-original">$99.99</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2: Smart Watch Pro -->
+    <article class="product-card" data-category="new" data-rating="4.8" data-flip-id="prod-2">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><rect x="18" y="8" width="28" height="48" rx="6"/><circle cx="32" cy="32" r="10"/><line x1="32" y1="27" x2="32" y2="32"/><line x1="32" y1="32" x2="37" y2="32"/></svg>
+        <span class="card-badge" data-type="new">New</span>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="Smart Watch Pro">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Smart Watch Pro</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.8 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.8 (256)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$249.99</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3: Laptop Stand -->
+    <article class="product-card" data-category="sale" data-rating="4.2" data-flip-id="prod-3">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><path d="M12 40h40l4 10H8l4-10z"/><rect x="16" y="14" width="32" height="24" rx="3"/></svg>
+        <span class="card-badge" data-type="sale">Sale</span>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="Laptop Stand">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Laptop Stand</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.2 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-empty" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.2 (89)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$49.99</span>
+          <span class="price-original">$69.99</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4: USB-C Hub -->
+    <article class="product-card" data-category="top" data-rating="4.6" data-flip-id="prod-4">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><rect x="10" y="24" width="44" height="16" rx="4"/><line x1="22" y1="28" x2="22" y2="36"/><line x1="32" y1="28" x2="32" y2="36"/><line x1="42" y1="28" x2="42" y2="36"/></svg>
+        <span class="card-badge" data-type="popular">Popular</span>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="USB-C Hub">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">USB-C Hub</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.6 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-half" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.6 (312)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$34.99</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 5: Mechanical Keyboard -->
+    <article class="product-card" data-category="new" data-rating="4.9" data-flip-id="prod-5">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><rect x="6" y="22" width="52" height="22" rx="4"/><rect x="12" y="28" width="6" height="5" rx="1"/><rect x="21" y="28" width="6" height="5" rx="1"/><rect x="30" y="28" width="6" height="5" rx="1"/><rect x="39" y="28" width="6" height="5" rx="1"/><rect x="48" y="28" width="6" height="5" rx="1"/><rect x="15" y="35" width="34" height="4" rx="1"/></svg>
+        <span class="card-badge" data-type="new">New</span>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="Mechanical Keyboard">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Mechanical Keyboard</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.9 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.9 (445)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$129.99</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 6: Monitor Light Bar -->
+    <article class="product-card" data-category="top" data-rating="4.3" data-flip-id="prod-6">
+      <div class="card-image">
+        <svg class="card-image-icon" viewBox="0 0 64 64"><rect x="8" y="30" width="48" height="6" rx="3"/><path d="M20 30v-8M32 30v-12M44 30v-8" stroke-linecap="round" opacity="0.5"/><line x1="32" y1="36" x2="32" y2="46"/><line x1="24" y1="46" x2="40" y2="46"/></svg>
+        <button class="card-wishlist" data-liked="false" aria-label="Add to wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="card-cart-overlay">
+          <button class="add-to-cart-btn" data-product="Monitor Light Bar">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Monitor Light Bar</h3>
+        <div class="card-rating">
+          <div class="stars" aria-label="4.3 out of 5 stars">
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-full" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+            <svg viewBox="0 0 20 20"><path class="star-empty" d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 13.77 5.06 16.7 6 11.21l-4-3.9 5.53-.8z"/></svg>
+          </div>
+          <span class="rating-text">4.3 (67)</span>
+        </div>
+        <div class="card-price">
+          <span class="price-current">$59.99</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  /* ── Reduced motion guard ── */
+  if (UV.prefersReducedMotion) { UV.addControlPanel(); return; }
+
+  /* ── References ── */
+  var grid = document.getElementById('productGrid');
+  var cards = grid.querySelectorAll('.product-card');
+  var filterBtns = document.querySelectorAll('.filter-btn');
+  var currentFilter = 'all';
+
+  /* ── 1. Cart overlays: set initial hidden state ── */
+  var overlays = grid.querySelectorAll('.card-cart-overlay');
+  gsap.set(overlays, { y: '100%', opacity: 0 });
+
+  /* ── 2. Page entrance timeline ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.from('.page-eyebrow', { opacity: 0, y: -16, duration: 0.45 });
+  tl.from('.page-title', { opacity: 0, y: -24, duration: 0.55 }, '-=0.25');
+  tl.from('.page-subtitle', { opacity: 0, y: -14, duration: 0.4 }, '-=0.25');
+  tl.from('.filter-btn', { opacity: 0, y: 12, duration: 0.35, stagger: 0.05 }, '-=0.15');
+  tl.from(cards, {
+    opacity: 0, y: 30, scale: 0.95,
+    duration: 0.55, stagger: 0.08, ease: 'power3.out'
+  }, '-=0.1');
+
+  /* ── 3. Card hover: image scale + cart overlay reveal ── */
+  cards.forEach(function (card) {
+    var imageArea = card.querySelector('.card-image');
+    var overlay = card.querySelector('.card-cart-overlay');
+
+    card.addEventListener('mouseenter', function () {
+      gsap.to(card, {
+        y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.4)',
+        borderColor: 'rgba(255,255,255,0.14)',
+        duration: 0.25, ease: 'power2.out'
+      });
+      gsap.to(imageArea, { scale: 1.05, duration: 0.35, ease: 'power2.out' });
+      gsap.to(overlay, { y: '0%', opacity: 1, duration: 0.3, ease: 'power2.out' });
+    });
+
+    card.addEventListener('mouseleave', function () {
+      gsap.to(card, {
+        y: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2)',
+        borderColor: 'rgba(255,255,255,0.07)',
+        duration: 0.25, ease: 'power2.out'
+      });
+      gsap.to(imageArea, { scale: 1, duration: 0.3, ease: 'power2.out' });
+      gsap.to(overlay, { y: '100%', opacity: 0, duration: 0.25, ease: 'power2.in' });
+    });
+  });
+
+  /* ── 4. Wishlist heart toggle ── */
+  document.querySelectorAll('.card-wishlist').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isLiked = btn.getAttribute('data-liked') === 'true';
+      btn.setAttribute('data-liked', isLiked ? 'false' : 'true');
+
+      gsap.timeline()
+        .to(btn, { scale: 1.3, duration: 0.15, ease: 'power2.out' })
+        .to(btn, { scale: 1, duration: 0.3, ease: 'back.out(3)' });
+    });
+  });
+
+  /* ── 5. Add to Cart micro-interaction ── */
+  document.querySelectorAll('.add-to-cart-btn').forEach(function (btn) {
+    var textSpan = btn.querySelector('span');
+    var cartIcon = btn.querySelector('svg');
+    var originalText = textSpan.textContent;
+    var isAnimating = false;
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (isAnimating) return;
+      isAnimating = true;
+
+      var atcTl = gsap.timeline({
+        onComplete: function () { isAnimating = false; }
+      });
+
+      atcTl.to(btn, {
+        scale: 1.05, duration: 0.1, ease: 'power2.out'
+      });
+      atcTl.to(btn, {
+        scale: 1, backgroundColor: '#22c55e', duration: 0.15, ease: 'power2.out'
+      });
+      atcTl.add(function () {
+        textSpan.textContent = 'Added! \u2713';
+      });
+      atcTl.to(cartIcon, { rotation: 10, duration: 0.1, ease: 'power2.out' }, '<');
+      atcTl.to(cartIcon, { rotation: 0, duration: 0.2, ease: 'elastic.out(1, 0.5)' });
+      atcTl.to(btn, {
+        backgroundColor: '#f59e0b', duration: 0.3, ease: 'power2.inOut', delay: 1.5
+      });
+      atcTl.add(function () {
+        textSpan.textContent = originalText;
+      });
+    });
+  });
+
+  /* ── 6. Filter with GSAP Flip ── */
+  function matchesFilter(card, filter) {
+    if (filter === 'all') return true;
+    var cat = card.getAttribute('data-category');
+    if (filter === 'top') {
+      var r = parseFloat(card.getAttribute('data-rating'));
+      return r >= 4.5 || cat === 'top';
+    }
+    return cat === filter;
+  }
+
+  function setFilter(newFilter) {
+    if (newFilter === currentFilter) return;
+    currentFilter = newFilter;
+
+    /* Update active button state */
+    filterBtns.forEach(function (btn) {
+      btn.setAttribute('data-active', btn.getAttribute('data-filter') === newFilter ? 'true' : 'false');
+    });
+
+    /* Capture Flip state */
+    var state = Flip.getState(cards);
+
+    /* Show/hide cards */
+    cards.forEach(function (card) {
+      card.setAttribute('data-hidden', matchesFilter(card, newFilter) ? 'false' : 'true');
+    });
+
+    /* Animate with Flip */
+    Flip.from(state, {
+      duration: 0.55,
+      ease: 'power2.inOut',
+      stagger: 0.04,
+      absolute: true,
+      onEnter: function (els) {
+        return gsap.fromTo(els,
+          { opacity: 0, scale: 0.85 },
+          { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.4)' }
+        );
+      },
+      onLeave: function (els) {
+        return gsap.to(els,
+          { opacity: 0, scale: 0.85, duration: 0.3, ease: 'power2.in' }
+        );
+      }
+    });
+  }
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setFilter(btn.getAttribute('data-filter'));
+    });
+  });
+
+  /* ── 7. Filter button hover ── */
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () {
+      if (btn.getAttribute('data-active') === 'true') return;
+      gsap.to(btn, { backgroundColor: 'rgba(255,255,255,0.08)', duration: 0.2, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', function () {
+      if (btn.getAttribute('data-active') === 'true') return;
+      gsap.to(btn, { backgroundColor: '#131316', duration: 0.2, ease: 'power2.out' });
+    });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings Page</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Dark settings UI. SetProduct/Mobbin-inspired.
+   ============================================================ */
+:root {
+  --bg: #0C0D10;
+  --surface: #151618;
+  --surface-raised: #1C1D21;
+  --accent: #6366F1;
+  --accent-dim: rgba(99, 102, 241, 0.15);
+  --text: #E8E6E3;
+  --text-secondary: #9B9A97;
+  --text-tertiary: #5F5E5B;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-focus: rgba(99, 102, 241, 0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --success: #22C55E;
+  --success-dim: rgba(34, 197, 94, 0.12);
+  --danger: #EF4444;
+  --danger-dim: rgba(239, 68, 68, 0.12);
+  --warning: #F59E0B;
+  --sidebar-w: 260px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100dvh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 32px;
+}
+
+.sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #818CF8);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-info { overflow: hidden; }
+.sidebar-name { font-size: 0.9375rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-email { font-size: 0.75rem; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font);
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.nav-item svg { flex-shrink: 0; width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item.active { background: var(--accent-dim); color: #fff; font-weight: 600; border-left-color: var(--accent); }
+
+/* ============================================================
+   MOBILE HAMBURGER
+   ============================================================ */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.hamburger svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 760px;
+}
+
+.main-title {
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.main-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+}
+
+/* ============================================================
+   SECTION PANELS
+   ============================================================ */
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.section-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+.form-group { margin-bottom: 20px; }
+.form-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  outline: none;
+}
+.form-input:focus-visible, .form-textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-tertiary); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.form-input.invalid { border-color: var(--danger); }
+
+/* ============================================================
+   AVATAR UPLOAD
+   ============================================================ */
+.avatar-upload {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #818CF8);
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-outline { background: transparent; color: var(--text-secondary); border: 1.5px solid var(--border); }
+.btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.25); }
+.btn-sm { padding: 6px 14px; font-size: 0.8125rem; min-height: 36px; }
+
+/* ============================================================
+   TOGGLE SWITCH
+   ============================================================ */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+
+.toggle-info { flex: 1; min-width: 0; padding-right: 16px; }
+.toggle-label { font-size: 0.875rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.toggle-desc { font-size: 0.75rem; color: var(--text-tertiary); }
+
+.toggle-switch {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  min-width: 48px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 3px;
+}
+
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.toggle-switch.on { background: var(--success-dim); border-color: rgba(34, 197, 94, 0.3); }
+.toggle-switch.on .toggle-knob { background: var(--success); }
+
+/* ============================================================
+   PASSWORD STRENGTH
+   ============================================================ */
+.strength-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-raised);
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0;
+  background: var(--danger);
+}
+
+.strength-text { font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 4px; }
+
+/* ============================================================
+   SESSION LIST
+   ============================================================ */
+.session-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+
+.session-details { font-size: 0.8125rem; color: var(--text); font-weight: 500; }
+.session-time { font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 2px; }
+.session-badge { font-size: 0.625rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: var(--success-dim); color: var(--success); margin-left: 8px; }
+
+/* ============================================================
+   PLAN & BILLING
+   ============================================================ */
+.plan-card {
+  padding: 20px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.plan-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+.plan-price { font-size: 0.875rem; color: var(--text-secondary); margin-top: 2px; }
+
+.usage-bar-wrap { margin-bottom: 24px; }
+.usage-label { font-size: 0.8125rem; font-weight: 600; color: var(--text); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.usage-bar { width: 100%; height: 8px; border-radius: 4px; background: var(--surface-raised); overflow: hidden; }
+.usage-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), #818CF8); width: 0; }
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.payment-info { font-size: 0.875rem; color: var(--text); font-weight: 500; }
+.payment-expiry { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 2px; }
+
+.billing-table { width: 100%; font-size: 0.8125rem; border-collapse: collapse; }
+.billing-table th { text-align: left; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); padding: 10px 0; border-bottom: 1px solid var(--border); }
+.billing-table td { padding: 12px 0; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+.billing-table .amount { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.billing-badge { font-size: 0.6875rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.billing-badge.paid { background: var(--success-dim); color: var(--success); }
+.billing-badge.pending { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+
+/* ============================================================
+   API SECTION
+   ============================================================ */
+.api-key-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.api-key-value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.api-key-row .btn-sm { margin-left: auto; flex-shrink: 0; }
+
+.api-stat { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.api-stat:last-child { border-bottom: none; }
+.api-stat-label { font-size: 0.8125rem; color: var(--text-secondary); }
+.api-stat-value { font-size: 0.875rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.api-progress { margin-top: 20px; margin-bottom: 20px; }
+
+.confirm-inline { display: none; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--text-secondary); margin-top: 12px; }
+.confirm-inline.visible { display: flex; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); width: 280px; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .hamburger { display: flex; }
+  .main { margin-left: 0; padding: 60px 20px 40px; max-width: 100%; }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- MOBILE HAMBURGER -->
+<button class="hamburger" id="hamburger" aria-label="Open menu">
+  <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-profile">
+    <div class="sidebar-avatar">JD</div>
+    <div class="sidebar-info">
+      <div class="sidebar-name">John Doe</div>
+      <div class="sidebar-email">john@example.com</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-section="profile">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/></svg>
+      Profile
+    </button>
+    <button class="nav-item" data-section="security">
+      <svg viewBox="0 0 24 24"><path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z"/></svg>
+      Security
+    </button>
+    <button class="nav-item" data-section="notifications">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Notifications
+    </button>
+    <button class="nav-item" data-section="billing">
+      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+      Billing
+    </button>
+    <button class="nav-item" data-section="api">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      API
+    </button>
+  </nav>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main">
+  <h1 class="main-title">Settings</h1>
+  <p class="main-desc">Manage your account preferences and configuration.</p>
+
+  <!-- PROFILE SECTION -->
+  <div class="settings-panel active" id="panel-profile">
+    <h2 class="section-title">Profile</h2>
+    <p class="section-desc">Your personal information and public profile details.</p>
+
+    <div class="avatar-upload" id="avatarUpload">
+      JD
+      <div class="avatar-upload-overlay" id="avatarOverlay">Upload Photo</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="fullName">Full Name</label>
+      <input class="form-input" id="fullName" type="text" value="John Doe" placeholder="Enter your name">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input class="form-input" id="email" type="email" value="john@example.com" placeholder="Enter your email">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="bio">Bio</label>
+      <textarea class="form-textarea" id="bio" rows="3" placeholder="Tell us about yourself...">Product designer focused on building tools that help teams work smarter.</textarea>
+    </div>
+
+    <button class="btn btn-primary" id="saveProfile">Save Changes</button>
+  </div>
+
+  <!-- SECURITY SECTION -->
+  <div class="settings-panel" id="panel-security">
+    <h2 class="section-title">Security</h2>
+    <p class="section-desc">Manage your password and authentication settings.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="currentPw">Current Password</label>
+      <input class="form-input" id="currentPw" type="password" placeholder="Enter current password">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="newPw">New Password</label>
+      <input class="form-input" id="newPw" type="password" placeholder="Enter new password">
+      <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+      <div class="strength-text" id="strengthText">Enter a new password</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="confirmPw">Confirm New Password</label>
+      <input class="form-input" id="confirmPw" type="password" placeholder="Confirm new password">
+    </div>
+
+    <button class="btn btn-primary" id="savePassword" style="margin-bottom: 28px;">Update Password</button>
+
+    <hr class="section-divider">
+
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Two-Factor Authentication</h3>
+    <div class="toggle-row" style="border-bottom: none; padding-top: 0;">
+      <div class="toggle-info">
+        <div class="toggle-label">Enable 2FA</div>
+        <div class="toggle-desc">Add an extra layer of security to your account</div>
+      </div>
+      <div class="toggle-switch" data-state="off" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Active Sessions</h3>
+    <div id="sessionList">
+      <div class="session-item" data-session="1">
+        <div>
+          <div class="session-details">Chrome &middot; San Francisco <span class="session-badge">Current</span></div>
+          <div class="session-time">Active now</div>
+        </div>
+        <button class="btn btn-outline btn-sm" disabled>Revoke</button>
+      </div>
+      <div class="session-item" data-session="2">
+        <div>
+          <div class="session-details">Safari &middot; London</div>
+          <div class="session-time">2 hours ago</div>
+        </div>
+        <button class="btn btn-outline btn-sm session-revoke">Revoke</button>
+      </div>
+      <div class="session-item" data-session="3">
+        <div>
+          <div class="session-details">Firefox &middot; Tokyo</div>
+          <div class="session-time">1 day ago</div>
+        </div>
+        <button class="btn btn-outline btn-sm session-revoke">Revoke</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS SECTION -->
+  <div class="settings-panel" id="panel-notifications">
+    <h2 class="section-title">Notifications</h2>
+    <p class="section-desc">Choose what notifications you want to receive.</p>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Email Notifications</div>
+        <div class="toggle-desc">Receive updates via email</div>
+      </div>
+      <div class="toggle-switch on" data-state="on" role="switch" aria-checked="true" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Push Notifications</div>
+        <div class="toggle-desc">Browser push notifications</div>
+      </div>
+      <div class="toggle-switch on" data-state="on" role="switch" aria-checked="true" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Weekly Digest</div>
+        <div class="toggle-desc">Summary of weekly activity</div>
+      </div>
+      <div class="toggle-switch" data-state="off" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Marketing Emails</div>
+        <div class="toggle-desc">Product updates and offers</div>
+      </div>
+      <div class="toggle-switch" data-state="off" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Security Alerts</div>
+        <div class="toggle-desc">Login and security notifications</div>
+      </div>
+      <div class="toggle-switch on" data-state="on" role="switch" aria-checked="true" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILLING SECTION -->
+  <div class="settings-panel" id="panel-billing">
+    <h2 class="section-title">Billing</h2>
+    <p class="section-desc">Manage your subscription, payment method, and invoices.</p>
+
+    <div class="plan-card">
+      <div>
+        <div class="plan-name">Pro Plan</div>
+        <div class="plan-price">$29 / month</div>
+      </div>
+      <button class="btn btn-outline btn-sm">Upgrade</button>
+    </div>
+
+    <div class="usage-bar-wrap">
+      <div class="usage-label">
+        <span>Storage</span>
+        <span style="color: var(--text-tertiary);">7.2 GB / 10 GB</span>
+      </div>
+      <div class="usage-bar"><div class="usage-fill" id="usageFill"></div></div>
+    </div>
+
+    <div class="payment-card">
+      <div>
+        <div class="payment-info">Visa ending in 4242</div>
+        <div class="payment-expiry">Expires 12/27</div>
+      </div>
+      <button class="btn btn-outline btn-sm">Update</button>
+    </div>
+
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Billing History</h3>
+    <table class="billing-table">
+      <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Feb 1, 2026</td><td>Pro Plan</td><td class="amount">$29.00</td><td><span class="billing-badge paid">Paid</span></td></tr>
+        <tr><td>Jan 1, 2026</td><td>Pro Plan</td><td class="amount">$29.00</td><td><span class="billing-badge paid">Paid</span></td></tr>
+        <tr><td>Dec 1, 2025</td><td>Pro Plan</td><td class="amount">$29.00</td><td><span class="billing-badge pending">Pending</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- API SECTION -->
+  <div class="settings-panel" id="panel-api">
+    <h2 class="section-title">API</h2>
+    <p class="section-desc">Manage your API keys and monitor usage.</p>
+
+    <label class="form-label">API Key</label>
+    <div class="api-key-row">
+      <span class="api-key-value" id="apiKeyDisplay">sk-••••••••••••3f7d</span>
+      <button class="btn btn-outline btn-sm" id="toggleKeyBtn">Show</button>
+      <button class="btn btn-outline btn-sm" id="copyKeyBtn">Copy</button>
+    </div>
+
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Usage</h3>
+    <div class="api-stat">
+      <span class="api-stat-label">Requests Today</span>
+      <span class="api-stat-value" id="reqToday">1,247 / 10,000</span>
+    </div>
+    <div class="api-progress">
+      <div class="usage-bar"><div class="usage-fill" id="apiTodayFill"></div></div>
+    </div>
+    <div class="api-stat">
+      <span class="api-stat-label">This Month</span>
+      <span class="api-stat-value" id="reqMonth">28,493 / 100,000</span>
+    </div>
+    <div class="api-progress">
+      <div class="usage-bar"><div class="usage-fill" id="apiMonthFill"></div></div>
+    </div>
+    <div class="api-stat" style="margin-bottom: 24px;">
+      <span class="api-stat-label">Rate Limit</span>
+      <span class="api-stat-value">100 req/min</span>
+    </div>
+
+    <button class="btn btn-danger" id="regenKeyBtn">Regenerate Key</button>
+    <div class="confirm-inline" id="regenConfirm">
+      <span>Are you sure? This cannot be undone.</span>
+      <button class="btn btn-danger btn-sm" id="confirmRegen">Yes, regenerate</button>
+      <button class="btn btn-outline btn-sm" id="cancelRegen">Cancel</button>
+    </div>
+  </div>
+</main>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  var reducedMotion = UV.prefersReducedMotion;
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var hamburger = document.getElementById('hamburger');
+  var navItems = document.querySelectorAll('.nav-item');
+  var panels = document.querySelectorAll('.settings-panel');
+
+  /* ── Mobile menu ── */
+  hamburger.addEventListener('click', function () {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+    if (!reducedMotion) {
+      gsap.fromTo(sidebar, { x: -280 }, { x: 0, duration: 0.35, ease: 'power3.out' });
+    }
+  });
+  overlay.addEventListener('click', function () {
+    if (!reducedMotion) {
+      gsap.to(sidebar, { x: -280, duration: 0.25, ease: 'power2.in', onComplete: function () {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      }});
+    } else {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+  });
+
+  /* ── Section switching with cross-fade ── */
+  function switchSection(targetId) {
+    var currentPanel = document.querySelector('.settings-panel.active');
+    var nextPanel = document.getElementById('panel-' + targetId);
+    if (!nextPanel || currentPanel === nextPanel) return;
+
+    navItems.forEach(function (n) { n.classList.remove('active'); });
+    document.querySelector('[data-section="' + targetId + '"]').classList.add('active');
+
+    if (reducedMotion) {
+      currentPanel.classList.remove('active');
+      nextPanel.classList.add('active');
+      return;
+    }
+
+    /* Cross-fade: out slides left + fades, in slides right + fades */
+    gsap.to(currentPanel, {
+      opacity: 0, x: -30, duration: 0.2, ease: 'power2.in',
+      onComplete: function () {
+        currentPanel.classList.remove('active');
+        gsap.set(currentPanel, { opacity: 1, x: 0 });
+        nextPanel.classList.add('active');
+        gsap.fromTo(nextPanel, { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.2, ease: 'power2.out' });
+      }
+    });
+  }
+
+  navItems.forEach(function (item) {
+    item.addEventListener('click', function () {
+      switchSection(item.getAttribute('data-section'));
+      /* Close mobile sidebar */
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+    });
+  });
+
+  /* ── Nav hover ── */
+  if (!reducedMotion) {
+    navItems.forEach(function (item) {
+      item.addEventListener('mouseenter', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, { x: 2, backgroundColor: 'rgba(255,255,255,0.04)', color: '#E8E6E3', duration: 0.2, ease: 'power2.out' });
+        }
+      });
+      item.addEventListener('mouseleave', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, { x: 0, backgroundColor: 'transparent', color: '#9B9A97', duration: 0.2, ease: 'power2.out' });
+        }
+      });
+    });
+  }
+
+  /* ── Toggle switches (GSAP animated knob) ── */
+  document.querySelectorAll('.toggle-switch').forEach(function (sw) {
+    sw.addEventListener('click', function () {
+      var knob = sw.querySelector('.toggle-knob');
+      var isOn = sw.getAttribute('data-state') === 'on';
+
+      if (isOn) {
+        sw.setAttribute('data-state', 'off');
+        sw.setAttribute('aria-checked', 'false');
+        sw.classList.remove('on');
+        if (!reducedMotion) {
+          gsap.to(knob, { x: 0, backgroundColor: '#9B9A97', duration: 0.2, ease: 'power2.out' });
+          gsap.to(sw, { backgroundColor: '#1C1D21', borderColor: 'rgba(255,255,255,0.07)', duration: 0.2 });
+        }
+      } else {
+        sw.setAttribute('data-state', 'on');
+        sw.setAttribute('aria-checked', 'true');
+        sw.classList.add('on');
+        if (!reducedMotion) {
+          gsap.to(knob, { x: 22, backgroundColor: '#22C55E', duration: 0.2, ease: 'back.out(1.5)' });
+          gsap.to(sw, { backgroundColor: 'rgba(34,197,94,0.12)', borderColor: 'rgba(34,197,94,0.3)', duration: 0.2 });
+        }
+      }
+    });
+
+    /* Initialize knob position */
+    if (sw.getAttribute('data-state') === 'on') {
+      gsap.set(sw.querySelector('.toggle-knob'), { x: 22 });
+    }
+  });
+
+  /* ── Avatar upload hover ── */
+  var avatarUpload = document.getElementById('avatarUpload');
+  var avatarOverlay = document.getElementById('avatarOverlay');
+  if (!reducedMotion) {
+    avatarUpload.addEventListener('mouseenter', function () {
+      gsap.to(avatarOverlay, { opacity: 1, duration: 0.2, ease: 'power2.out' });
+    });
+    avatarUpload.addEventListener('mouseleave', function () {
+      gsap.to(avatarOverlay, { opacity: 0, duration: 0.2, ease: 'power2.out' });
+    });
+  }
+
+  /* ── Form input focus glow (GSAP boxShadow) ── */
+  if (!reducedMotion) {
+    document.querySelectorAll('.form-input, .form-textarea').forEach(function (input) {
+      input.addEventListener('focus', function () {
+        gsap.to(input, { boxShadow: '0 0 0 3px rgba(99,102,241,0.2)', borderColor: 'rgba(99,102,241,0.5)', duration: 0.2, ease: 'power2.out' });
+      });
+      input.addEventListener('blur', function () {
+        gsap.to(input, { boxShadow: '0 0 0 0px transparent', borderColor: 'rgba(255,255,255,0.07)', duration: 0.2, ease: 'power2.out' });
+        if (input.classList.contains('invalid')) {
+          gsap.to(input, { borderColor: '#EF4444', duration: 0.15 });
+        }
+      });
+    });
+  }
+
+  /* ── Shake validation ── */
+  function shakeField(el) {
+    if (reducedMotion) return;
+    el.classList.add('invalid');
+    gsap.to(el, { x: -10, duration: 0.05, ease: 'power2.inOut', onComplete: function () {
+      gsap.to(el, { x: 10, duration: 0.05, ease: 'power2.inOut', onComplete: function () {
+        gsap.to(el, { x: -5, duration: 0.05, ease: 'power2.inOut', onComplete: function () {
+          gsap.to(el, { x: 5, duration: 0.05, ease: 'power2.inOut', onComplete: function () {
+            gsap.to(el, { x: 0, duration: 0.05, ease: 'power2.inOut' });
+          }});
+        }});
+      }});
+    }});
+    gsap.to(el, { borderColor: '#EF4444', boxShadow: '0 0 0 3px rgba(239,68,68,0.15)', duration: 0.2 });
+  }
+
+  /* ── Save button pulse + text swap ── */
+  function saveButtonEffect(btn) {
+    if (reducedMotion) { btn.textContent = 'Saved!'; setTimeout(function () { btn.textContent = 'Save Changes'; }, 1500); return; }
+    var originalText = btn.textContent;
+    gsap.to(btn, { scale: 1.05, duration: 0.15, ease: 'power2.out', onComplete: function () {
+      gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+    }});
+    btn.textContent = 'Saved!';
+    gsap.to(btn, { backgroundColor: '#22C55E', duration: 0.2 });
+    setTimeout(function () {
+      btn.textContent = originalText;
+      if (!reducedMotion) gsap.to(btn, { backgroundColor: '#6366F1', duration: 0.3 });
+    }, 1500);
+  }
+
+  document.getElementById('saveProfile').addEventListener('click', function () {
+    var name = document.getElementById('fullName');
+    var email = document.getElementById('email');
+    var valid = true;
+    if (!name.value.trim()) { shakeField(name); valid = false; }
+    if (!email.value.trim() || email.value.indexOf('@') === -1) { shakeField(email); valid = false; }
+    if (valid) saveButtonEffect(this);
+  });
+
+  document.getElementById('savePassword').addEventListener('click', function () {
+    var curr = document.getElementById('currentPw');
+    var np = document.getElementById('newPw');
+    var cp = document.getElementById('confirmPw');
+    var valid = true;
+    if (!curr.value) { shakeField(curr); valid = false; }
+    if (!np.value || np.value.length < 4) { shakeField(np); valid = false; }
+    if (np.value !== cp.value) { shakeField(cp); valid = false; }
+    if (valid) {
+      var originalText = this.textContent;
+      if (!reducedMotion) {
+        gsap.to(this, { scale: 1.05, duration: 0.15, ease: 'power2.out', onComplete: function () { gsap.to(this, { scale: 1, duration: 0.15 }); }.bind(this) });
+        gsap.to(this, { backgroundColor: '#22C55E', duration: 0.2 });
+      }
+      this.textContent = 'Updated!';
+      var btn = this;
+      setTimeout(function () { btn.textContent = originalText; if (!reducedMotion) gsap.to(btn, { backgroundColor: '#6366F1', duration: 0.3 }); }, 1500);
+    }
+  });
+
+  /* ── Password strength bar ── */
+  document.getElementById('newPw').addEventListener('input', function () {
+    var val = this.value;
+    var strength = 0;
+    if (val.length >= 4) strength = 25;
+    if (val.length >= 8) strength = 50;
+    if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength = 75;
+    if (val.length >= 12 && /[^a-zA-Z0-9]/.test(val)) strength = 100;
+
+    var colors = { 25: '#EF4444', 50: '#F59E0B', 75: '#6366F1', 100: '#22C55E' };
+    var labels = { 0: 'Enter a new password', 25: 'Weak', 50: 'Fair', 75: 'Good', 100: 'Strong' };
+    var fill = document.getElementById('strengthFill');
+    var text = document.getElementById('strengthText');
+    text.textContent = labels[strength] || labels[0];
+
+    if (!reducedMotion) {
+      gsap.to(fill, { scaleX: strength / 100, transformOrigin: 'left center', backgroundColor: colors[strength] || '#EF4444', duration: 0.3, ease: 'power2.out' });
+      gsap.set(fill, { width: '100%' });
+    } else {
+      fill.style.width = strength + '%';
+      fill.style.background = colors[strength] || '#EF4444';
+    }
+  });
+
+  /* ── Session revoke ── */
+  document.querySelectorAll('.session-revoke').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.session-item');
+      if (!reducedMotion) {
+        gsap.to(item, { x: 300, opacity: 0, height: 0, marginBottom: 0, padding: 0, duration: 0.4, ease: 'power2.in', onComplete: function () { item.remove(); } });
+      } else {
+        item.remove();
+      }
+    });
+  });
+
+  /* ── Billing usage bar fill on section enter ── */
+  var usageFilled = false;
+  var observer = new MutationObserver(function () {
+    if (document.getElementById('panel-billing').classList.contains('active') && !usageFilled) {
+      usageFilled = true;
+      if (!reducedMotion) {
+        gsap.to('#usageFill', { scaleX: 0.72, transformOrigin: 'left center', duration: 0.8, ease: 'power2.out', delay: 0.25 });
+        gsap.set('#usageFill', { width: '100%' });
+      } else {
+        document.getElementById('usageFill').style.width = '72%';
+      }
+    }
+  });
+  observer.observe(document.getElementById('panel-billing'), { attributes: true, attributeFilter: ['class'] });
+
+  /* ── API section fills ── */
+  var apiFilled = false;
+  var apiObserver = new MutationObserver(function () {
+    if (document.getElementById('panel-api').classList.contains('active') && !apiFilled) {
+      apiFilled = true;
+      if (!reducedMotion) {
+        gsap.set('#apiTodayFill', { width: '100%' });
+        gsap.to('#apiTodayFill', { scaleX: 0.1247, transformOrigin: 'left center', duration: 0.6, ease: 'power2.out', delay: 0.2 });
+        gsap.set('#apiMonthFill', { width: '100%' });
+        gsap.to('#apiMonthFill', { scaleX: 0.285, transformOrigin: 'left center', duration: 0.8, ease: 'power2.out', delay: 0.35 });
+      } else {
+        document.getElementById('apiTodayFill').style.width = '12.47%';
+        document.getElementById('apiMonthFill').style.width = '28.5%';
+      }
+    }
+  });
+  apiObserver.observe(document.getElementById('panel-api'), { attributes: true, attributeFilter: ['class'] });
+
+  /* ── API key show/hide ── */
+  var keyHidden = true;
+  var realKey = 'sk-a1b2c3d4e5f6g7h83f7d';
+  var maskedKey = 'sk-\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u20223f7d';
+  document.getElementById('toggleKeyBtn').addEventListener('click', function () {
+    keyHidden = !keyHidden;
+    document.getElementById('apiKeyDisplay').textContent = keyHidden ? maskedKey : realKey;
+    this.textContent = keyHidden ? 'Show' : 'Hide';
+  });
+
+  /* ── API key copy ── */
+  document.getElementById('copyKeyBtn').addEventListener('click', function () {
+    var btn = this;
+    var original = btn.textContent;
+    btn.textContent = 'Copied!';
+    if (!reducedMotion) {
+      gsap.to(btn, { scale: 1.08, duration: 0.12, ease: 'power2.out', onComplete: function () { gsap.to(btn, { scale: 1, duration: 0.12 }); } });
+    }
+    setTimeout(function () { btn.textContent = original; }, 1500);
+  });
+
+  /* ── Regenerate key confirm ── */
+  var regenConfirm = document.getElementById('regenConfirm');
+  document.getElementById('regenKeyBtn').addEventListener('click', function () {
+    regenConfirm.classList.add('visible');
+    if (!reducedMotion) gsap.fromTo(regenConfirm, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+  });
+  document.getElementById('cancelRegen').addEventListener('click', function () {
+    if (!reducedMotion) {
+      gsap.to(regenConfirm, { opacity: 0, y: -8, duration: 0.2, ease: 'power2.in', onComplete: function () { regenConfirm.classList.remove('visible'); } });
+    } else {
+      regenConfirm.classList.remove('visible');
+    }
+  });
+  document.getElementById('confirmRegen').addEventListener('click', function () {
+    regenConfirm.classList.remove('visible');
+    document.getElementById('apiKeyDisplay').textContent = 'sk-\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022x9k2';
+    keyHidden = true;
+    document.getElementById('toggleKeyBtn').textContent = 'Show';
+  });
+
+  /* ── Button hover effects ── */
+  if (!reducedMotion) {
+    document.querySelectorAll('.btn').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () { gsap.to(btn, { scale: 1.03, duration: 0.15, ease: 'power2.out' }); });
+      btn.addEventListener('mouseleave', function () { gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' }); });
+    });
+  }
+
+  /* ── Page entrance ── */
+  if (!reducedMotion) {
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from('.sidebar', { x: -40, opacity: 0, duration: 0.5 });
+    tl.from('.sidebar-profile', { opacity: 0, x: -20, duration: 0.3 }, '-=0.2');
+    tl.from('.nav-item', { opacity: 0, x: -15, duration: 0.3, stagger: 0.05 }, '-=0.15');
+    tl.from('.main-title', { opacity: 0, y: -15, duration: 0.4 }, '-=0.3');
+    tl.from('.main-desc', { opacity: 0, y: -10, duration: 0.3 }, '-=0.2');
+    tl.from('.settings-panel.active', { opacity: 0, y: 20, duration: 0.4 }, '-=0.15');
+  }
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

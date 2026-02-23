@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimal Footer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: oklch(0.12 0.015 260);
+  --surface: oklch(0.15 0.018 260);
+  --surface-raised: oklch(0.18 0.02 260);
+  --accent: oklch(0.68 0.17 265);
+  --accent-dim: oklch(0.68 0.17 265 / 0.20);
+  --accent-glow: oklch(0.68 0.17 265 / 0.12);
+  --text: oklch(0.94 0.005 260);
+  --text-secondary: oklch(0.56 0.02 260);
+  --text-muted: oklch(0.40 0.015 260);
+  --border: oklch(0.24 0.015 260);
+  --border-dim: oklch(0.20 0.012 260);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* ---------- backdrop ---------- */
+.backdrop{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(circle at 20% 30%, oklch(0.18 0.04 280 / 0.3) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, oklch(0.16 0.04 240 / 0.2) 0%, transparent 45%),
+    radial-gradient(circle, oklch(0.22 0.012 260) 1px, transparent 1px);
+  background-size:100% 100%, 100% 100%, 24px 24px;
+}
+
+/* ---------- page container ---------- */
+.page-content{
+  position:relative;z-index:1;
+  flex:1;
+  max-width:1120px;margin:0 auto;width:100%;
+  padding:48px 32px;
+}
+
+.page-title{
+  font-size:clamp(1.75rem,4vw,2.5rem);
+  font-weight:800;letter-spacing:-0.03em;
+  margin-bottom:8px;
+}
+.page-sub{font-size:0.9375rem;color:var(--text-secondary);margin-bottom:48px}
+.page-sub .accent{color:var(--accent)}
+
+.section-label{
+  font-size:0.6875rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.14em;
+  color:var(--accent);margin-bottom:28px;padding-left:2px;
+}
+.section-divider{height:1px;background:var(--border-dim);margin:56px 0}
+
+/* ---------- shared footer styles ---------- */
+.footer-wrap{
+  position:relative;z-index:1;
+}
+
+/* link underline element */
+.ft-link{
+  position:relative;
+  display:inline-block;
+  color:var(--text-secondary);
+  text-decoration:none;
+  font-size:0.875rem;
+  line-height:2.2;
+}
+.ft-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.ft-link-bar{
+  position:absolute;bottom:2px;left:0;
+  width:100%;height:1px;
+  background:var(--accent);
+  transform-origin:left;
+  transform:scaleX(0);
+}
+
+.ft-heading{
+  font-size:0.6875rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--text);margin-bottom:16px;
+}
+
+/* social icons */
+.social-row{display:flex;gap:16px;list-style:none}
+.social-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:var(--radius-sm);
+  color:var(--text-secondary);
+  background:transparent;
+  text-decoration:none;
+}
+.social-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.social-link svg{width:18px;height:18px;fill:currentColor}
+
+/* copyright */
+.copyright{font-size:0.8125rem;color:var(--text-muted)}
+
+/* newsletter shared */
+.nl-heading{font-size:0.9375rem;font-weight:700;color:var(--text);margin-bottom:10px}
+.nl-form{display:flex;gap:8px}
+.nl-input{
+  flex:1;min-width:0;padding:10px 14px;
+  font-family:var(--font);font-size:0.875rem;
+  color:var(--text);background:var(--bg);
+  border:1px solid var(--border-dim);
+  border-radius:var(--radius-sm);
+}
+.nl-input::placeholder{color:var(--text-muted)}
+.nl-input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.nl-btn{
+  padding:10px 20px;
+  font-family:var(--font);font-size:0.8125rem;font-weight:600;
+  color:oklch(0.98 0 0);background:var(--accent);
+  border:none;border-radius:var(--radius-sm);
+  cursor:pointer;white-space:nowrap;
+}
+.nl-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ========== VARIANT 1: Centered ========== */
+.fc{
+  background:var(--surface);
+  border-top:1px solid var(--border-dim);
+  padding:56px 32px 32px;text-align:center;
+}
+.fc-brand{font-size:1.375rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:32px}
+.fc-columns{
+  display:flex;justify-content:center;gap:64px;
+  margin-bottom:36px;text-align:left;
+}
+.fc-col{min-width:120px}
+.fc-col .ft-heading{text-align:left}
+.fc-col ul{list-style:none}
+.fc-social{justify-content:center;margin-bottom:32px}
+.fc-divider{height:1px;background:var(--border-dim);margin-bottom:24px}
+
+/* ========== VARIANT 2: Split ========== */
+.fs-footer{
+  background:var(--surface);
+  border-top:1px solid var(--border-dim);
+}
+.fs-main{
+  max-width:1120px;margin:0 auto;
+  padding:48px 32px;
+  display:grid;
+  grid-template-columns:1.3fr 2fr 1.2fr;
+  gap:48px;
+  align-items:start;
+}
+.fs-brand-name{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:10px}
+.fs-tagline{font-size:0.875rem;color:var(--text-secondary);line-height:1.5}
+.fs-links{
+  display:grid;grid-template-columns:repeat(3, 1fr);
+  gap:32px;
+}
+.fs-links ul{list-style:none}
+.fs-nl{max-width:300px}
+
+.fs-bottom{
+  border-top:1px solid var(--border-dim);
+  padding:20px 32px;
+}
+.fs-bottom-inner{
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  .fc-columns{gap:40px;flex-wrap:wrap}
+  .fs-main{grid-template-columns:1fr;gap:36px}
+  .fs-links{grid-template-columns:repeat(3, 1fr);gap:24px}
+  .fs-nl{max-width:100%}
+}
+@media(max-width:600px){
+  .page-content{padding:32px 20px}
+  .fc{padding:40px 20px 28px}
+  .fc-columns{flex-direction:column;gap:28px;align-items:center;text-align:center}
+  .fc-col .ft-heading{text-align:center}
+  .fs-main{padding:36px 20px}
+  .fs-links{grid-template-columns:1fr 1fr;gap:24px 20px}
+  .fs-bottom{padding:16px 20px}
+  .fs-bottom-inner{flex-direction:column;gap:12px;text-align:center}
+  .nl-form{flex-direction:column}
+  .social-row{justify-content:center}
+}
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+
+<div class="page-content">
+  <h1 class="page-title">Minimal Footer</h1>
+  <p class="page-sub">Two variants: <span class="accent">centered</span> and split layout.</p>
+</div>
+
+<!-- ====== VARIANT 1: Centered Footer ====== -->
+<div class="footer-wrap">
+  <div class="page-content" style="padding-bottom:0">
+    <div class="section-label">Variant 1 / Centered</div>
+  </div>
+
+  <footer class="fc" id="footer-centered" role="contentinfo" aria-label="Centered footer">
+    <div class="fc-brand">Acme Inc</div>
+
+    <div class="fc-columns">
+      <nav class="fc-col" aria-label="Product links">
+        <div class="ft-heading">Product</div>
+        <ul>
+          <li><a class="ft-link" href="#">Features<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Pricing<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Integrations<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Changelog<span class="ft-link-bar"></span></a></li>
+        </ul>
+      </nav>
+
+      <nav class="fc-col" aria-label="Company links">
+        <div class="ft-heading">Company</div>
+        <ul>
+          <li><a class="ft-link" href="#">About<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Blog<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Careers<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Press<span class="ft-link-bar"></span></a></li>
+        </ul>
+      </nav>
+
+      <nav class="fc-col" aria-label="Legal links">
+        <div class="ft-heading">Legal</div>
+        <ul>
+          <li><a class="ft-link" href="#">Privacy<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Terms<span class="ft-link-bar"></span></a></li>
+          <li><a class="ft-link" href="#">Cookies<span class="ft-link-bar"></span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <ul class="social-row fc-social" aria-label="Social media" id="social-centered">
+      <!-- LinkedIn first (B2B convention) -->
+      <li><a class="social-link" href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zM8.34 18.34V9.76H5.66v8.58h2.68zm-1.34-9.75a1.55 1.55 0 100-3.1 1.55 1.55 0 000 3.1zm10.66 9.75v-4.7c0-2.52-.54-4.46-3.49-4.46-1.42 0-2.37.78-2.76 1.52h-.04V9.76H8.76v8.58h2.68v-4.24c0-1.22.23-2.4 1.74-2.4s1.51 1.4 1.51 2.48v4.16h2.67z"/></svg></a></li>
+      <li><a class="social-link" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24H16.17l-5.21-6.82L4.99 21.75H1.68l7.73-8.84L1.25 2.25H8.08l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></a></li>
+      <li><a class="social-link" href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-3.16 19.5c.5.08.68-.22.68-.48v-1.7C6.73 19.91 6.14 18 6.14 18a2.69 2.69 0 00-1.12-1.46c-.91-.62.07-.61.07-.61a2.13 2.13 0 011.53 1.03 2.16 2.16 0 002.91.83c.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94a3.89 3.89 0 011.03-2.68c-.1-.26-.45-1.28.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 015.02 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.65a3.86 3.86 0 011.02 2.68c0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0012 2z"/></svg></a></li>
+      <li><a class="social-link" href="#" aria-label="Discord"><svg viewBox="0 0 24 24"><path d="M19.54 5.33a18.3 18.3 0 00-4.51-1.4c-.19.35-.42.82-.57 1.19a16.9 16.9 0 00-5.08 0c-.15-.37-.38-.84-.58-1.19a18.3 18.3 0 00-4.51 1.4A19.15 19.15 0 00.89 17.96a18.4 18.4 0 005.55 2.8c.45-.61.84-1.25 1.19-1.93a12 12 0 01-1.87-.9l.45-.36c3.57 1.65 7.47 1.65 11.01 0l.46.36c-.6.35-1.22.65-1.88.9.35.68.75 1.32 1.19 1.93a18.35 18.35 0 005.55-2.8 19.1 19.1 0 00-3.42-12.63zM8.35 15.19c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.88 2.23-1.98 2.23zm7.3 0c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.87 2.23-1.98 2.23z"/></svg></a></li>
+      <li><a class="social-link" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.19a3 3 0 00-2.11-2.12C19.53 3.5 12 3.5 12 3.5s-7.53 0-9.39.57A3 3 0 00.5 6.19C0 8.06 0 12 0 12s0 3.94.5 5.81a3 3 0 002.11 2.12c1.86.57 9.39.57 9.39.57s7.53 0 9.39-.57a3 3 0 002.11-2.12C24 15.94 24 12 24 12s0-3.94-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg></a></li>
+    </ul>
+
+    <div class="fc-divider" aria-hidden="true"></div>
+    <p class="copyright" id="copyright-centered"></p>
+  </footer>
+</div>
+
+<!-- Spacer between variants -->
+<div class="page-content" style="padding-top:0;padding-bottom:0">
+  <div class="section-divider" aria-hidden="true"></div>
+</div>
+
+<!-- ====== VARIANT 2: Split Footer ====== -->
+<div class="footer-wrap">
+  <div class="page-content" style="padding-bottom:0">
+    <div class="section-label">Variant 2 / Split</div>
+  </div>
+
+  <footer class="fs-footer" id="footer-split" role="contentinfo" aria-label="Split footer">
+    <div class="fs-main">
+
+      <!-- Left: Brand -->
+      <div>
+        <div class="fs-brand-name">Acme Inc</div>
+        <p class="fs-tagline">Build faster. Ship smarter.</p>
+      </div>
+
+      <!-- Center: Links -->
+      <div class="fs-links">
+        <nav aria-label="Product links">
+          <div class="ft-heading">Product</div>
+          <ul style="list-style:none">
+            <li><a class="ft-link" href="#">Features<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Pricing<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Integrations<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Changelog<span class="ft-link-bar"></span></a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="Company links">
+          <div class="ft-heading">Company</div>
+          <ul style="list-style:none">
+            <li><a class="ft-link" href="#">About<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Blog<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Careers<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Press<span class="ft-link-bar"></span></a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="Legal links">
+          <div class="ft-heading">Legal</div>
+          <ul style="list-style:none">
+            <li><a class="ft-link" href="#">Privacy<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Terms<span class="ft-link-bar"></span></a></li>
+            <li><a class="ft-link" href="#">Cookies<span class="ft-link-bar"></span></a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Right: Newsletter -->
+      <div class="fs-nl">
+        <div class="nl-heading">Stay Updated</div>
+        <p style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.5">Join our newsletter for product updates and industry insights.</p>
+        <form class="nl-form" id="nl-form-split" onsubmit="return false">
+          <input class="nl-input" id="nl-input-split" type="email" placeholder="you@company.com" aria-label="Email address" required>
+          <button class="nl-btn" id="nl-btn-split" type="submit">Subscribe</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="fs-bottom">
+      <div class="fs-bottom-inner">
+        <p class="copyright" id="copyright-split"></p>
+        <ul class="social-row" aria-label="Social media" id="social-split">
+          <li><a class="social-link" href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zM8.34 18.34V9.76H5.66v8.58h2.68zm-1.34-9.75a1.55 1.55 0 100-3.1 1.55 1.55 0 000 3.1zm10.66 9.75v-4.7c0-2.52-.54-4.46-3.49-4.46-1.42 0-2.37.78-2.76 1.52h-.04V9.76H8.76v8.58h2.68v-4.24c0-1.22.23-2.4 1.74-2.4s1.51 1.4 1.51 2.48v4.16h2.67z"/></svg></a></li>
+          <li><a class="social-link" href="#" aria-label="X / Twitter"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24H16.17l-5.21-6.82L4.99 21.75H1.68l7.73-8.84L1.25 2.25H8.08l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></a></li>
+          <li><a class="social-link" href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-3.16 19.5c.5.08.68-.22.68-.48v-1.7C6.73 19.91 6.14 18 6.14 18a2.69 2.69 0 00-1.12-1.46c-.91-.62.07-.61.07-.61a2.13 2.13 0 011.53 1.03 2.16 2.16 0 002.91.83c.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94a3.89 3.89 0 011.03-2.68c-.1-.26-.45-1.28.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 015.02 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.65a3.86 3.86 0 011.02 2.68c0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0012 2z"/></svg></a></li>
+          <li><a class="social-link" href="#" aria-label="Discord"><svg viewBox="0 0 24 24"><path d="M19.54 5.33a18.3 18.3 0 00-4.51-1.4c-.19.35-.42.82-.57 1.19a16.9 16.9 0 00-5.08 0c-.15-.37-.38-.84-.58-1.19a18.3 18.3 0 00-4.51 1.4A19.15 19.15 0 00.89 17.96a18.4 18.4 0 005.55 2.8c.45-.61.84-1.25 1.19-1.93a12 12 0 01-1.87-.9l.45-.36c3.57 1.65 7.47 1.65 11.01 0l.46.36c-.6.35-1.22.65-1.88.9.35.68.75 1.32 1.19 1.93a18.35 18.35 0 005.55-2.8 19.1 19.1 0 00-3.42-12.63zM8.35 15.19c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.88 2.23-1.98 2.23zm7.3 0c-1.09 0-1.98-1-1.98-2.23s.87-2.24 1.98-2.24 2 1.01 1.98 2.24c0 1.23-.87 2.23-1.98 2.23z"/></svg></a></li>
+          <li><a class="social-link" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.19a3 3 0 00-2.11-2.12C19.53 3.5 12 3.5 12 3.5s-7.53 0-9.39.57A3 3 0 00.5 6.19C0 8.06 0 12 0 12s0 3.94.5 5.81a3 3 0 002.11 2.12c1.86.57 9.39.57 9.39.57s7.53 0 9.39-.57a3 3 0 002.11-2.12C24 15.94 24 12 24 12s0-3.94-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg></a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reducedMotion = UV.prefersReducedMotion;
+  var year = new Date().getFullYear();
+
+  // ─── Auto-year copyright ───────────────────────
+  var copyCentered = document.getElementById('copyright-centered');
+  var copySplit = document.getElementById('copyright-split');
+  copyCentered.textContent = '\u00A9 ' + year + ' Acme Inc. All rights reserved.';
+  copySplit.textContent = '\u00A9 ' + year + ' Acme Inc. All rights reserved.';
+
+  // ─── Link hover: underline animates from left ──
+  if (!reducedMotion) {
+    document.querySelectorAll('.ft-link').forEach(function (link) {
+      var bar = link.querySelector('.ft-link-bar');
+      if (!bar) return;
+
+      link.addEventListener('mouseenter', function () {
+        gsap.to(bar, { scaleX: 1, duration: 0.25, ease: 'power2.out' });
+        gsap.to(link, { color: 'var(--text)', duration: 0.2, ease: 'power2.out' });
+      });
+      link.addEventListener('mouseleave', function () {
+        gsap.to(bar, { scaleX: 0, duration: 0.2, ease: 'power2.in' });
+        gsap.to(link, { color: 'var(--text-secondary)', duration: 0.2, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ─── Social icon hover: scale + color shift ────
+  if (!reducedMotion) {
+    document.querySelectorAll('.social-link').forEach(function (icon) {
+      icon.addEventListener('mouseenter', function () {
+        gsap.to(icon, { scale: 1.15, color: 'var(--accent)', duration: 0.25, ease: 'power2.out' });
+      });
+      icon.addEventListener('mouseleave', function () {
+        gsap.to(icon, { scale: 1, color: 'var(--text-secondary)', duration: 0.25, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ─── Newsletter input focus glow ───────────────
+  if (!reducedMotion) {
+    document.querySelectorAll('.nl-input').forEach(function (input) {
+      input.addEventListener('focus', function () {
+        gsap.to(input, {
+          boxShadow: '0 0 0 3px ' + 'oklch(0.68 0.17 265 / 0.25)',
+          duration: 0.25,
+          ease: 'power2.out',
+        });
+      });
+      input.addEventListener('blur', function () {
+        gsap.to(input, {
+          boxShadow: '0 0 0 0px transparent',
+          duration: 0.2,
+          ease: 'power2.in',
+        });
+      });
+    });
+  }
+
+  // ─── Subscribe button hover ────────────────────
+  if (!reducedMotion) {
+    document.querySelectorAll('.nl-btn').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { scale: 1.04, y: -1, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { scale: 1, y: 0, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ─── Page entrance ─────────────────────────────
+  UV.initPage({
+    title: '.page-title',
+    subtitle: '.page-sub',
+  });
+
+  // ─── Scroll reveal for each footer ─────────────
+  // Variant 1: centered
+  UV.scrollReveal('.fc-brand', { trigger: '#footer-centered', y: 25 });
+  UV.scrollReveal('.fc-col', {
+    trigger: '#footer-centered',
+    stagger: 0.08,
+    y: 20,
+  });
+  UV.scrollReveal('#social-centered', { trigger: '#footer-centered', y: 15 });
+
+  // Variant 2: split
+  UV.scrollReveal('.fs-brand-name', { trigger: '#footer-split', y: 25 });
+  UV.scrollReveal('.fs-tagline', { trigger: '#footer-split', y: 20 });
+  UV.scrollReveal('.fs-links nav', {
+    trigger: '#footer-split',
+    stagger: 0.08,
+    y: 20,
+  });
+  UV.scrollReveal('.fs-nl', { trigger: '#footer-split', y: 25 });
+  UV.scrollReveal('.fs-bottom-inner', { trigger: '.fs-bottom', y: 10 });
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

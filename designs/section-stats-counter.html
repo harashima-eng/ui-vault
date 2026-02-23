@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stats Counter</title>
+<style>
+/* ============================================================
+   STATS COUNTER — KPI Card Anatomy
+   Animated countup numbers, sparklines, trend indicators.
+   Dark luxury palette, GSAP-only animation.
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0A0C10;
+  --surface:#12151C;
+  --surface-raised:#181C26;
+  --accent:#3B82F6;
+  --accent-glow:rgba(59,130,246,0.2);
+  --accent-soft:rgba(59,130,246,0.08);
+  --text:#E8E9ED;
+  --text-secondary:#8A8D9B;
+  --text-dim:#555768;
+  --border:rgba(255,255,255,0.06);
+  --border-accent:rgba(59,130,246,0.25);
+  --green:#22C55E;
+  --green-soft:rgba(34,197,94,0.1);
+  --green-border:rgba(34,197,94,0.2);
+  --red:#EF4444;
+  --red-soft:rgba(239,68,68,0.1);
+  --radius:16px;
+  --radius-sm:10px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Background Pattern ---- */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(59,130,246,0.03) 1px, transparent 0);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Section ---- */
+.stats-section{
+  position:relative;
+  z-index:1;
+  max-width:1200px;
+  margin:0 auto;
+  padding:80px 24px;
+}
+
+/* ---- Ambient Glow ---- */
+.stats-section::before{
+  content:'';
+  position:absolute;
+  top:-120px;
+  left:50%;
+  transform:translateX(-50%);
+  width:700px;
+  height:500px;
+  background:radial-gradient(ellipse,rgba(59,130,246,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* ---- Section Header ---- */
+.section-header{
+  text-align:center;
+  margin-bottom:64px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--border-accent);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:var(--accent-soft);
+}
+
+.section-title{
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:800;
+  letter-spacing:-0.03em;
+  line-height:1.15;
+  color:#fff;
+  text-wrap:balance;
+  margin-bottom:16px;
+}
+
+.section-title span{
+  background:linear-gradient(135deg,var(--accent),#60A5FA);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.section-desc{
+  font-size:1.05rem;
+  color:var(--text-secondary);
+  max-width:50ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Stats Grid ---- */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+  margin-bottom:48px;
+}
+
+/* ---- KPI Card ---- */
+.kpi-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px 24px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Subtle top accent line */
+.kpi-card::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0.4;
+}
+
+.kpi-icon{
+  width:40px;
+  height:40px;
+  border-radius:var(--radius-sm);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:20px;
+  background:var(--accent-soft);
+  border:1px solid var(--border-accent);
+}
+
+.kpi-icon svg{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.kpi-period{
+  font-size:0.68rem;
+  font-weight:500;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin-bottom:8px;
+}
+
+.kpi-value{
+  font-size:2.5rem;
+  font-weight:800;
+  letter-spacing:-0.03em;
+  line-height:1.1;
+  color:#fff;
+  margin-bottom:6px;
+  font-variant-numeric:tabular-nums;
+}
+
+.kpi-name{
+  font-size:0.88rem;
+  font-weight:500;
+  color:var(--text-secondary);
+  margin-bottom:16px;
+}
+
+/* ---- Trend Row ---- */
+.kpi-trend{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:18px;
+}
+
+.trend-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:0.75rem;
+  font-weight:600;
+  padding:3px 10px;
+  border-radius:100px;
+  letter-spacing:0.01em;
+}
+
+.trend-badge.positive{
+  color:var(--green);
+  background:var(--green-soft);
+  border:1px solid var(--green-border);
+}
+
+.trend-badge.negative{
+  color:var(--red);
+  background:var(--red-soft);
+  border:1px solid rgba(239,68,68,0.2);
+}
+
+.trend-context{
+  font-size:0.72rem;
+  color:var(--text-dim);
+}
+
+/* ---- Sparkline ---- */
+.kpi-sparkline{
+  width:100%;
+  height:40px;
+}
+
+.kpi-sparkline svg{
+  width:100%;
+  height:100%;
+  overflow:visible;
+}
+
+.sparkline-path{
+  fill:none;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.sparkline-area{
+  opacity:0.12;
+}
+
+/* ---- Progress Bar ---- */
+.kpi-progress{
+  width:100%;
+  height:3px;
+  background:rgba(255,255,255,0.04);
+  border-radius:2px;
+  margin-top:16px;
+  overflow:hidden;
+}
+
+.kpi-progress-fill{
+  height:100%;
+  border-radius:2px;
+  background:var(--accent);
+  transform-origin:left;
+  transform:scaleX(0);
+}
+
+/* ---- Secondary Stats ---- */
+.secondary-stats{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:24px 0 0;
+  border-top:1px solid var(--border);
+}
+
+.secondary-stat{
+  font-size:0.88rem;
+  color:var(--text-secondary);
+  font-weight:500;
+}
+
+.secondary-stat strong{
+  color:#fff;
+  font-weight:700;
+}
+
+.stat-separator{
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--text-dim);
+  flex-shrink:0;
+}
+
+/* ---- Focus States ---- */
+.kpi-card:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ---- Responsive: Tablet ---- */
+@media(max-width:1024px){
+  .stats-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+  }
+}
+
+/* ---- Responsive: Mobile ---- */
+@media(max-width:600px){
+  .stats-section{padding:48px 16px}
+  .section-header{margin-bottom:40px}
+  .stats-grid{
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .kpi-card{padding:20px 16px 18px}
+  .kpi-value{font-size:1.8rem}
+  .kpi-icon{width:34px;height:34px;margin-bottom:14px}
+  .kpi-icon svg{width:17px;height:17px}
+  .secondary-stats{gap:6px}
+  .secondary-stat{font-size:0.8rem}
+}
+</style>
+</head>
+<body>
+
+<section class="stats-section" aria-label="Key performance metrics">
+  <header class="section-header">
+    <div class="section-label">Metrics</div>
+    <h2 class="section-title">By the <span>Numbers</span></h2>
+    <p class="section-desc">Real-time metrics that matter. Performance at a glance, updated continuously.</p>
+  </header>
+
+  <div class="stats-grid">
+
+    <!-- KPI 1: Active Users -->
+    <div class="kpi-card">
+      <div class="kpi-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="kpi-period">This Month</div>
+      <div class="kpi-value" data-target="12500" data-prefix="" data-suffix="+">0</div>
+      <div class="kpi-name">Active Users</div>
+      <div class="kpi-trend">
+        <span class="trend-badge positive">&#9650; +8.2%</span>
+        <span class="trend-context">vs last month</span>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,35 L25,30 L50,32 L75,25 L100,20 L125,22 L150,15 L175,10 L200,5 L200,40 L0,40 Z" fill="var(--accent)"/>
+          <path class="sparkline-path" d="M0,35 L25,30 L50,32 L75,25 L100,20 L125,22 L150,15 L175,10 L200,5" stroke="var(--accent)" style="clip-path:inset(0 100% 0 0)"/>
+        </svg>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-fill" data-fill="0.82"></div></div>
+    </div>
+
+    <!-- KPI 2: Revenue -->
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2)">
+        <svg viewBox="0 0 24 24" style="stroke:var(--green)"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="kpi-period">This Month</div>
+      <div class="kpi-value" data-target="2400000" data-prefix="$" data-suffix="" data-format="currency">0</div>
+      <div class="kpi-name">Revenue</div>
+      <div class="kpi-trend">
+        <span class="trend-badge positive">&#9650; +12.5%</span>
+        <span class="trend-context">vs last month</span>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,38 L25,35 L50,30 L75,28 L100,22 L125,18 L150,20 L175,12 L200,5 L200,40 L0,40 Z" fill="var(--green)"/>
+          <path class="sparkline-path" d="M0,38 L25,35 L50,30 L75,28 L100,22 L125,18 L150,20 L175,12 L200,5" stroke="var(--green)" style="clip-path:inset(0 100% 0 0)"/>
+        </svg>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-fill" style="background:var(--green)" data-fill="0.92"></div></div>
+    </div>
+
+    <!-- KPI 3: Uptime -->
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(168,85,247,0.08);border-color:rgba(168,85,247,0.2)">
+        <svg viewBox="0 0 24 24" style="stroke:#A855F7"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="kpi-period">This Quarter</div>
+      <div class="kpi-value" data-target="99.9" data-prefix="" data-suffix="%" data-decimals="1">0</div>
+      <div class="kpi-name">Uptime</div>
+      <div class="kpi-trend">
+        <span class="trend-badge positive">&#9650; +0.1%</span>
+        <span class="trend-context">vs last quarter</span>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,8 L25,6 L50,10 L75,5 L100,7 L125,4 L150,6 L175,5 L200,3 L200,40 L0,40 Z" fill="#A855F7"/>
+          <path class="sparkline-path" d="M0,8 L25,6 L50,10 L75,5 L100,7 L125,4 L150,6 L175,5 L200,3" stroke="#A855F7" style="clip-path:inset(0 100% 0 0)"/>
+        </svg>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-fill" style="background:#A855F7" data-fill="0.999"></div></div>
+    </div>
+
+    <!-- KPI 4: Countries -->
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.2)">
+        <svg viewBox="0 0 24 24" style="stroke:#FB923C"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </div>
+      <div class="kpi-period">This Month</div>
+      <div class="kpi-value" data-target="150" data-prefix="" data-suffix="+">0</div>
+      <div class="kpi-name">Countries</div>
+      <div class="kpi-trend">
+        <span class="trend-badge positive">&#9650; +15 new</span>
+        <span class="trend-context">this quarter</span>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <path class="sparkline-area" d="M0,36 L25,32 L50,28 L75,30 L100,24 L125,20 L150,16 L175,10 L200,8 L200,40 L0,40 Z" fill="#FB923C"/>
+          <path class="sparkline-path" d="M0,36 L25,32 L50,28 L75,30 L100,24 L125,20 L150,16 L175,10 L200,8" stroke="#FB923C" style="clip-path:inset(0 100% 0 0)"/>
+        </svg>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-fill" style="background:#FB923C" data-fill="0.75"></div></div>
+    </div>
+
+  </div>
+
+  <!-- Secondary Stats Row -->
+  <div class="secondary-stats">
+    <span class="secondary-stat"><strong>2M+</strong> Downloads</span>
+    <span class="stat-separator" aria-hidden="true"></span>
+    <span class="secondary-stat"><strong>50K+</strong> Stars</span>
+    <span class="stat-separator" aria-hidden="true"></span>
+    <span class="secondary-stat"><strong>100+</strong> Contributors</span>
+  </div>
+</section>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  var reducedMotion = UV.prefersReducedMotion;
+
+  // ─── Number formatting helper ──────────────────────
+  function formatNumber(val, el) {
+    var format = el.getAttribute('data-format');
+    var decimals = parseInt(el.getAttribute('data-decimals')) || 0;
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+
+    if (format === 'currency') {
+      // Format as $X.XM
+      if (val >= 1000000) {
+        return prefix + (val / 1000000).toFixed(1) + 'M';
+      } else if (val >= 1000) {
+        return prefix + (val / 1000).toFixed(0) + 'K';
+      }
+      return prefix + val.toFixed(0);
+    }
+
+    if (decimals > 0) {
+      return prefix + val.toFixed(decimals) + suffix;
+    }
+
+    return prefix + Math.round(val).toLocaleString('en-US') + suffix;
+  }
+
+  if (!reducedMotion) {
+
+    // ─── 1. Header Entrance ───────────────────────────
+    var headerTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    headerTl.from('.section-label', { opacity: 0, y: -15, duration: 0.5 });
+    headerTl.from('.section-title', { opacity: 0, y: 20, duration: 0.6 }, '-=0.3');
+    headerTl.from('.section-desc', { opacity: 0, y: 15, duration: 0.5 }, '-=0.3');
+
+    // ─── 2. Cards Stagger Entrance ────────────────────
+    gsap.from('.kpi-card', {
+      scrollTrigger: {
+        trigger: '.stats-grid',
+        start: 'top 85%',
+        toggleActions: 'play none none reverse',
+      },
+      opacity: 0,
+      y: 40,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.1,
+      onComplete: function () {
+        // Trigger countup after cards are visible
+        startCountup();
+      },
+    });
+
+    // ─── 3. Number Countup ────────────────────────────
+    function startCountup() {
+      var values = document.querySelectorAll('.kpi-value');
+      values.forEach(function (el) {
+        var target = parseFloat(el.getAttribute('data-target'));
+        var obj = { val: 0 };
+
+        gsap.to(obj, {
+          val: target,
+          duration: 2,
+          ease: 'power2.out',
+          snap: el.getAttribute('data-decimals') ? false : { val: 1 },
+          onUpdate: function () {
+            el.textContent = formatNumber(obj.val, el);
+          },
+        });
+      });
+    }
+
+    // ─── 4. Sparkline Draw Effect ─────────────────────
+    gsap.to('.sparkline-path', {
+      scrollTrigger: {
+        trigger: '.stats-grid',
+        start: 'top 80%',
+        toggleActions: 'play none none reverse',
+      },
+      clipPath: 'inset(0 0% 0 0)',
+      duration: 1.5,
+      ease: 'power2.out',
+      stagger: 0.15,
+      delay: 0.6,
+    });
+
+    // ─── 5. Progress Bar Fill ─────────────────────────
+    document.querySelectorAll('.kpi-progress-fill').forEach(function (bar) {
+      var fillAmount = parseFloat(bar.getAttribute('data-fill')) || 0;
+      gsap.to(bar, {
+        scrollTrigger: {
+          trigger: bar.closest('.kpi-card'),
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        },
+        scaleX: fillAmount,
+        duration: 1.2,
+        ease: 'power2.out',
+        delay: 1,
+      });
+    });
+
+    // ─── 6. Card Hover Lift ───────────────────────────
+    document.querySelectorAll('.kpi-card').forEach(function (card) {
+      card.addEventListener('mouseenter', function () {
+        gsap.to(card, {
+          y: -4,
+          boxShadow: '0 16px 48px rgba(0,0,0,0.25), 0 0 0 1px rgba(59,130,246,0.15)',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+      card.addEventListener('mouseleave', function () {
+        gsap.to(card, {
+          y: 0,
+          boxShadow: 'none',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+    });
+
+    // ─── 7. Secondary Stats Entrance ──────────────────
+    gsap.from('.secondary-stats', {
+      scrollTrigger: {
+        trigger: '.secondary-stats',
+        start: 'top 90%',
+        toggleActions: 'play none none reverse',
+      },
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: 'power3.out',
+      delay: 0.3,
+    });
+
+    // ─── 8. Trend Badge Subtle Pulse ──────────────────
+    document.querySelectorAll('.trend-badge.positive').forEach(function (badge) {
+      gsap.to(badge, {
+        boxShadow: '0 0 12px rgba(34,197,94,0.2)',
+        duration: 1.5,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+        delay: 2 + Math.random(),
+      });
+    });
+
+  } else {
+    // Reduced motion: show final values instantly
+    document.querySelectorAll('.kpi-value').forEach(function (el) {
+      var target = parseFloat(el.getAttribute('data-target'));
+      el.textContent = formatNumber(target, el);
+    });
+    // Show sparklines
+    gsap.set('.sparkline-path', { clipPath: 'inset(0 0% 0 0)' });
+    // Fill progress bars
+    document.querySelectorAll('.kpi-progress-fill').forEach(function (bar) {
+      var fillAmount = parseFloat(bar.getAttribute('data-fill')) || 0;
+      gsap.set(bar, { scaleX: fillAmount });
+    });
+  }
+
+  // ─── Control Panel ──────────────────────────────────
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

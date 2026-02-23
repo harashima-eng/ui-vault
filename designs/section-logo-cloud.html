@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logo Cloud</title>
+<style>
+/* ============================================================
+   LOGO CLOUD — Dual-Row Infinite Marquee
+   Grayscale-to-color on hover, GSAP infinite scroll,
+   Featured partners section below. Dark luxury palette.
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0A0C10;
+  --surface:#12151C;
+  --surface-raised:#181C26;
+  --accent:#10B981;
+  --accent-glow:rgba(16,185,129,0.2);
+  --accent-soft:rgba(16,185,129,0.08);
+  --text:#E8E9ED;
+  --text-secondary:#8A8D9B;
+  --text-dim:#555768;
+  --border:rgba(255,255,255,0.06);
+  --border-accent:rgba(16,185,129,0.25);
+  --radius:16px;
+  --radius-sm:10px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Background ---- */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(16,185,129,0.03) 1px, transparent 0);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Section ---- */
+.logo-section{
+  position:relative;
+  z-index:1;
+  max-width:1200px;
+  margin:0 auto;
+  padding:80px 24px 100px;
+}
+
+/* ---- Ambient Glow ---- */
+.logo-section::before{
+  content:'';
+  position:absolute;
+  top:-80px;
+  left:50%;
+  transform:translateX(-50%);
+  width:700px;
+  height:400px;
+  background:radial-gradient(ellipse,rgba(16,185,129,0.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* ---- Header ---- */
+.section-header{
+  text-align:center;
+  margin-bottom:56px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--border-accent);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:var(--accent-soft);
+}
+
+.section-title{
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:800;
+  letter-spacing:-0.03em;
+  line-height:1.15;
+  color:#fff;
+  text-wrap:balance;
+  margin-bottom:16px;
+}
+
+.section-title span{
+  background:linear-gradient(135deg,var(--accent),#34D399);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.section-desc{
+  font-size:1.05rem;
+  color:var(--text-secondary);
+  max-width:50ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Marquee ---- */
+.marquee-container{
+  margin-bottom:24px;
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+}
+
+.marquee-track{
+  display:flex;
+  gap:20px;
+  width:max-content;
+}
+
+/* ---- Logo Card ---- */
+.logo-card{
+  flex-shrink:0;
+  width:180px;
+  height:100px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Grayscale overlay — sits on top, fades out on hover via GSAP */
+.logo-card .logo-overlay{
+  position:absolute;
+  inset:0;
+  background:var(--surface);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  z-index:2;
+}
+
+/* Colored layer underneath */
+.logo-card .logo-color{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  z-index:1;
+}
+
+.logo-icon{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.logo-icon svg{
+  width:100%;
+  height:100%;
+}
+
+/* Grayscale versions */
+.logo-overlay .logo-icon svg{
+  fill:var(--text-dim);
+  opacity:0.5;
+}
+
+.logo-overlay .logo-name{
+  color:var(--text-dim);
+}
+
+/* Color versions */
+.logo-color .logo-name{
+  font-weight:600;
+}
+
+.logo-name{
+  font-size:0.72rem;
+  font-weight:500;
+  letter-spacing:0.04em;
+}
+
+/* ---- Static Grid for Reduced Motion ---- */
+.marquee-static{
+  display:none;
+  grid-template-columns:repeat(6,1fr);
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.marquee-static .logo-card{
+  width:auto;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .marquee-container{display:none !important}
+  .marquee-static{display:grid !important}
+}
+
+/* ---- Featured Partners ---- */
+.featured-header{
+  text-align:center;
+  margin:64px 0 32px;
+}
+
+.featured-label{
+  font-size:0.72rem;
+  font-weight:600;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+}
+
+.featured-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+
+.featured-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:32px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:16px;
+}
+
+.featured-card-top{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.featured-icon{
+  width:48px;
+  height:48px;
+  border-radius:var(--radius-sm);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--accent-soft);
+  border:1px solid var(--border-accent);
+  flex-shrink:0;
+}
+
+.featured-icon svg{
+  width:26px;
+  height:26px;
+}
+
+.featured-name{
+  font-size:1.1rem;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.01em;
+}
+
+.featured-type{
+  font-size:0.68rem;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+
+.featured-desc{
+  font-size:0.88rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+}
+
+/* ---- Focus ---- */
+.featured-card:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ---- Responsive ---- */
+@media(max-width:768px){
+  .logo-section{padding:48px 16px 60px}
+  .section-header{margin-bottom:40px}
+  .logo-card{width:150px;height:85px}
+  .featured-grid{grid-template-columns:1fr;gap:16px}
+  .featured-card{padding:24px 20px}
+  .marquee-static{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(max-width:480px){
+  .marquee-static{grid-template-columns:repeat(2,1fr)}
+  .logo-card{width:130px;height:78px}
+}
+</style>
+</head>
+<body>
+
+<section class="logo-section" aria-label="Trusted by industry leaders">
+  <header class="section-header">
+    <div class="section-label">Partners</div>
+    <h2 class="section-title">Trusted by <span>Industry Leaders</span></h2>
+    <p class="section-desc">Powering teams at the world's best companies. From startups to enterprises.</p>
+  </header>
+
+  <!-- Row 1: Scrolls Left -->
+  <div class="marquee-container" data-direction="left" aria-hidden="true">
+    <div class="marquee-track">
+      <!-- Set A -->
+      <div class="logo-card" data-color="#3B82F6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="#3B82F6"/></svg></div>
+          <span class="logo-name" style="color:#3B82F6">Acme Corp</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="currentColor"/></svg></div>
+          <span class="logo-name">Acme Corp</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#8B5CF6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="#8B5CF6"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#0A0C10"/></svg></div>
+          <span class="logo-name" style="color:#8B5CF6">TechFlow</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="currentColor"/><rect x="10" y="10" width="16" height="16" rx="3" fill="var(--surface)"/></svg></div>
+          <span class="logo-name">TechFlow</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#EC4899">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="#EC4899"/></svg></div>
+          <span class="logo-name" style="color:#EC4899">DataSync</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="currentColor"/></svg></div>
+          <span class="logo-name">DataSync</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#F59E0B">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L22 14 L34 14 L24 22 L28 34 L18 26 L8 34 L12 22 L2 14 L14 14 Z" fill="#F59E0B"/></svg></div>
+          <span class="logo-name" style="color:#F59E0B">CloudBase</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L22 14 L34 14 L24 22 L28 34 L18 26 L8 34 L12 22 L2 14 L14 14 Z" fill="currentColor"/></svg></div>
+          <span class="logo-name">CloudBase</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#10B981">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,3 33,28 3,28" fill="#10B981"/></svg></div>
+          <span class="logo-name" style="color:#10B981">NexGen</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,3 33,28 3,28" fill="currentColor"/></svg></div>
+          <span class="logo-name">NexGen</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#06B6D4">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="12" cy="18" r="8" fill="#06B6D4" opacity="0.7"/><circle cx="24" cy="18" r="8" fill="#06B6D4" opacity="0.7"/></svg></div>
+          <span class="logo-name" style="color:#06B6D4">Quantum</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="12" cy="18" r="8" fill="currentColor" opacity="0.5"/><circle cx="24" cy="18" r="8" fill="currentColor" opacity="0.5"/></svg></div>
+          <span class="logo-name">Quantum</span>
+        </div>
+      </div>
+
+      <!-- Set B (duplicates for seamless loop) -->
+      <div class="logo-card" data-color="#3B82F6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="#3B82F6"/></svg></div>
+          <span class="logo-name" style="color:#3B82F6">Acme Corp</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="currentColor"/></svg></div>
+          <span class="logo-name">Acme Corp</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#8B5CF6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="#8B5CF6"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#0A0C10"/></svg></div>
+          <span class="logo-name" style="color:#8B5CF6">TechFlow</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="currentColor"/><rect x="10" y="10" width="16" height="16" rx="3" fill="var(--surface)"/></svg></div>
+          <span class="logo-name">TechFlow</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#EC4899">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="#EC4899"/></svg></div>
+          <span class="logo-name" style="color:#EC4899">DataSync</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="currentColor"/></svg></div>
+          <span class="logo-name">DataSync</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#F59E0B">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L22 14 L34 14 L24 22 L28 34 L18 26 L8 34 L12 22 L2 14 L14 14 Z" fill="#F59E0B"/></svg></div>
+          <span class="logo-name" style="color:#F59E0B">CloudBase</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L22 14 L34 14 L24 22 L28 34 L18 26 L8 34 L12 22 L2 14 L14 14 Z" fill="currentColor"/></svg></div>
+          <span class="logo-name">CloudBase</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#10B981">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,3 33,28 3,28" fill="#10B981"/></svg></div>
+          <span class="logo-name" style="color:#10B981">NexGen</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,3 33,28 3,28" fill="currentColor"/></svg></div>
+          <span class="logo-name">NexGen</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#06B6D4">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="12" cy="18" r="8" fill="#06B6D4" opacity="0.7"/><circle cx="24" cy="18" r="8" fill="#06B6D4" opacity="0.7"/></svg></div>
+          <span class="logo-name" style="color:#06B6D4">Quantum</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="12" cy="18" r="8" fill="currentColor" opacity="0.5"/><circle cx="24" cy="18" r="8" fill="currentColor" opacity="0.5"/></svg></div>
+          <span class="logo-name">Quantum</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Scrolls Right -->
+  <div class="marquee-container" data-direction="right" aria-hidden="true">
+    <div class="marquee-track">
+      <!-- Set A -->
+      <div class="logo-card" data-color="#EF4444">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L34 18 L18 34 L2 18 Z" fill="#EF4444"/></svg></div>
+          <span class="logo-name" style="color:#EF4444">Apex</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L34 18 L18 34 L2 18 Z" fill="currentColor"/></svg></div>
+          <span class="logo-name">Apex</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#A855F7">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#A855F7" stroke-width="2"/><line x1="18" y1="3" x2="18" y2="33" stroke="#A855F7" stroke-width="2"/><line x1="3" y1="18" x2="33" y2="18" stroke="#A855F7" stroke-width="2"/></svg></div>
+          <span class="logo-name" style="color:#A855F7">Stellar</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="2"/><line x1="18" y1="3" x2="18" y2="33" stroke="currentColor" stroke-width="2"/><line x1="3" y1="18" x2="33" y2="18" stroke="currentColor" stroke-width="2"/></svg></div>
+          <span class="logo-name">Stellar</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#F97316">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="14" r="10" fill="#F97316" opacity="0.8"/><circle cx="12" cy="24" r="8" fill="#F97316" opacity="0.6"/><circle cx="26" cy="22" r="7" fill="#F97316" opacity="0.5"/></svg></div>
+          <span class="logo-name" style="color:#F97316">Fusion</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="14" r="10" fill="currentColor" opacity="0.5"/><circle cx="12" cy="24" r="8" fill="currentColor" opacity="0.35"/><circle cx="26" cy="22" r="7" fill="currentColor" opacity="0.25"/></svg></div>
+          <span class="logo-name">Fusion</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#14B8A6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" fill="none" stroke="#14B8A6" stroke-width="2.5" transform="rotate(45 18 18)"/></svg></div>
+          <span class="logo-name" style="color:#14B8A6">Vertex</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" transform="rotate(45 18 18)"/></svg></div>
+          <span class="logo-name">Vertex</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#6366F1">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="12" fill="#6366F1"/><circle cx="18" cy="18" r="5" fill="#0A0C10"/></svg></div>
+          <span class="logo-name" style="color:#6366F1">Nova</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="12" fill="currentColor"/><circle cx="18" cy="18" r="5" fill="var(--surface)"/></svg></div>
+          <span class="logo-name">Nova</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#D946EF">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2" transform="rotate(60 18 18)"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2" transform="rotate(120 18 18)"/></svg></div>
+          <span class="logo-name" style="color:#D946EF">Orbit</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(60 18 18)"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(120 18 18)"/></svg></div>
+          <span class="logo-name">Orbit</span>
+        </div>
+      </div>
+
+      <!-- Set B (duplicates) -->
+      <div class="logo-card" data-color="#EF4444">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L34 18 L18 34 L2 18 Z" fill="#EF4444"/></svg></div>
+          <span class="logo-name" style="color:#EF4444">Apex</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L34 18 L18 34 L2 18 Z" fill="currentColor"/></svg></div>
+          <span class="logo-name">Apex</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#A855F7">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#A855F7" stroke-width="2"/><line x1="18" y1="3" x2="18" y2="33" stroke="#A855F7" stroke-width="2"/><line x1="3" y1="18" x2="33" y2="18" stroke="#A855F7" stroke-width="2"/></svg></div>
+          <span class="logo-name" style="color:#A855F7">Stellar</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="2"/><line x1="18" y1="3" x2="18" y2="33" stroke="currentColor" stroke-width="2"/><line x1="3" y1="18" x2="33" y2="18" stroke="currentColor" stroke-width="2"/></svg></div>
+          <span class="logo-name">Stellar</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#F97316">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="14" r="10" fill="#F97316" opacity="0.8"/><circle cx="12" cy="24" r="8" fill="#F97316" opacity="0.6"/><circle cx="26" cy="22" r="7" fill="#F97316" opacity="0.5"/></svg></div>
+          <span class="logo-name" style="color:#F97316">Fusion</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="14" r="10" fill="currentColor" opacity="0.5"/><circle cx="12" cy="24" r="8" fill="currentColor" opacity="0.35"/><circle cx="26" cy="22" r="7" fill="currentColor" opacity="0.25"/></svg></div>
+          <span class="logo-name">Fusion</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#14B8A6">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" fill="none" stroke="#14B8A6" stroke-width="2.5" transform="rotate(45 18 18)"/></svg></div>
+          <span class="logo-name" style="color:#14B8A6">Vertex</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" transform="rotate(45 18 18)"/></svg></div>
+          <span class="logo-name">Vertex</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#6366F1">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="12" fill="#6366F1"/><circle cx="18" cy="18" r="5" fill="#0A0C10"/></svg></div>
+          <span class="logo-name" style="color:#6366F1">Nova</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="12" fill="currentColor"/><circle cx="18" cy="18" r="5" fill="var(--surface)"/></svg></div>
+          <span class="logo-name">Nova</span>
+        </div>
+      </div>
+
+      <div class="logo-card" data-color="#D946EF">
+        <div class="logo-color">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2" transform="rotate(60 18 18)"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="#D946EF" stroke-width="2" transform="rotate(120 18 18)"/></svg></div>
+          <span class="logo-name" style="color:#D946EF">Orbit</span>
+        </div>
+        <div class="logo-overlay">
+          <div class="logo-icon"><svg viewBox="0 0 36 36"><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(60 18 18)"/><ellipse cx="18" cy="18" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(120 18 18)"/></svg></div>
+          <span class="logo-name">Orbit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Static grid fallback for reduced motion -->
+  <div class="marquee-static" aria-label="Partner companies">
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="#3B82F6"/></svg></div><span class="logo-name" style="color:#3B82F6">Acme Corp</span></div></div>
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="#8B5CF6"/></svg></div><span class="logo-name" style="color:#8B5CF6">TechFlow</span></div></div>
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="#EC4899"/></svg></div><span class="logo-name" style="color:#EC4899">DataSync</span></div></div>
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><path d="M18 2 L22 14 L34 14 L24 22 L28 34 L18 26 L8 34 L12 22 L2 14 L14 14 Z" fill="#F59E0B"/></svg></div><span class="logo-name" style="color:#F59E0B">CloudBase</span></div></div>
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><polygon points="18,3 33,28 3,28" fill="#10B981"/></svg></div><span class="logo-name" style="color:#10B981">NexGen</span></div></div>
+    <div class="logo-card"><div class="logo-color" style="position:relative"><div class="logo-icon"><svg viewBox="0 0 36 36"><circle cx="12" cy="18" r="8" fill="#06B6D4" opacity="0.7"/><circle cx="24" cy="18" r="8" fill="#06B6D4" opacity="0.7"/></svg></div><span class="logo-name" style="color:#06B6D4">Quantum</span></div></div>
+  </div>
+
+  <!-- Featured Partners -->
+  <div class="featured-header">
+    <span class="featured-label">Featured Partners</span>
+  </div>
+
+  <div class="featured-grid">
+    <div class="featured-card">
+      <div class="featured-card-top">
+        <div class="featured-icon">
+          <svg viewBox="0 0 36 36"><polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="#3B82F6"/></svg>
+        </div>
+        <div>
+          <div class="featured-name">Acme Corp</div>
+          <div class="featured-type">Strategic Technology Partner</div>
+        </div>
+      </div>
+      <p class="featured-desc">Joint development of enterprise-grade infrastructure. Acme's distributed compute layer powers our real-time processing pipeline.</p>
+    </div>
+
+    <div class="featured-card">
+      <div class="featured-card-top">
+        <div class="featured-icon" style="background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.25)">
+          <svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="6" fill="#8B5CF6"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#0A0C10"/></svg>
+        </div>
+        <div>
+          <div class="featured-name">TechFlow</div>
+          <div class="featured-type">Enterprise Partner</div>
+        </div>
+      </div>
+      <p class="featured-desc">Deep integration with TechFlow's CI/CD pipeline. Over 500 enterprise teams use our combined toolchain daily.</p>
+    </div>
+
+    <div class="featured-card">
+      <div class="featured-card-top">
+        <div class="featured-icon" style="background:rgba(236,72,153,0.08);border-color:rgba(236,72,153,0.25)">
+          <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" stroke-width="3"/><circle cx="18" cy="18" r="6" fill="#EC4899"/></svg>
+        </div>
+        <div>
+          <div class="featured-name">DataSync</div>
+          <div class="featured-type">Integration Partner</div>
+        </div>
+      </div>
+      <p class="featured-desc">Bidirectional data synchronization in real-time. DataSync's protocol handles 50M+ events per day across our platform.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);</script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+(function () {
+  var reducedMotion = UV.prefersReducedMotion;
+
+  if (!reducedMotion) {
+
+    // ─── 1. Header Entrance ───────────────────────────
+    var headerTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    headerTl.from('.section-label', { opacity: 0, y: -15, duration: 0.5 });
+    headerTl.from('.section-title', { opacity: 0, y: 20, duration: 0.6 }, '-=0.3');
+    headerTl.from('.section-desc', { opacity: 0, y: 15, duration: 0.5 }, '-=0.3');
+
+    // ─── 2. Dual Marquee Infinite Scroll ──────────────
+    var marqueeTimelines = [];
+
+    document.querySelectorAll('.marquee-container').forEach(function (container) {
+      var track = container.querySelector('.marquee-track');
+      var direction = container.getAttribute('data-direction');
+      var isRight = direction === 'right';
+
+      // Measure half width (content is duplicated)
+      var totalWidth = track.scrollWidth / 2;
+
+      // Set initial position for right-moving
+      if (isRight) {
+        gsap.set(track, { x: -totalWidth });
+      }
+
+      var tl = gsap.timeline({ repeat: -1 });
+
+      if (isRight) {
+        tl.fromTo(track,
+          { x: -totalWidth },
+          { x: 0, duration: 35, ease: 'none' }
+        );
+      } else {
+        tl.fromTo(track,
+          { x: 0 },
+          { x: -totalWidth, duration: 30, ease: 'none' }
+        );
+      }
+
+      marqueeTimelines.push({ container: container, tl: tl });
+
+      // Pause on hover (smooth ease to stop)
+      container.addEventListener('mouseenter', function () {
+        gsap.to(tl, { timeScale: 0, duration: 0.5, ease: 'power2.out' });
+      });
+      container.addEventListener('mouseleave', function () {
+        gsap.to(tl, { timeScale: 1, duration: 0.5, ease: 'power2.out' });
+      });
+    });
+
+    // ─── 3. Grayscale-to-Color on Hover ───────────────
+    document.querySelectorAll('.logo-card').forEach(function (card) {
+      var overlay = card.querySelector('.logo-overlay');
+      if (!overlay) return;
+
+      card.addEventListener('mouseenter', function () {
+        gsap.to(overlay, {
+          opacity: 0,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+        gsap.to(card, {
+          y: -3,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          borderColor: 'rgba(255,255,255,0.12)',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+
+      card.addEventListener('mouseleave', function () {
+        gsap.to(overlay, {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+        gsap.to(card, {
+          y: 0,
+          boxShadow: 'none',
+          borderColor: 'rgba(255,255,255,0.06)',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+    });
+
+    // ─── 4. Marquee Row Entrance ──────────────────────
+    gsap.from('.marquee-container', {
+      opacity: 0,
+      y: 20,
+      duration: 0.7,
+      ease: 'power2.out',
+      stagger: 0.15,
+      delay: 0.5,
+    });
+
+    // ─── 5. Featured Partners Section ─────────────────
+    gsap.from('.featured-header', {
+      scrollTrigger: {
+        trigger: '.featured-header',
+        start: 'top 88%',
+        toggleActions: 'play none none reverse',
+      },
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      ease: 'power3.out',
+    });
+
+    gsap.from('.featured-card', {
+      scrollTrigger: {
+        trigger: '.featured-grid',
+        start: 'top 85%',
+        toggleActions: 'play none none reverse',
+      },
+      opacity: 0,
+      y: 30,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.15,
+    });
+
+    // ─── 6. Featured Card Hover ───────────────────────
+    document.querySelectorAll('.featured-card').forEach(function (card) {
+      card.addEventListener('mouseenter', function () {
+        gsap.to(card, {
+          y: -4,
+          boxShadow: '0 16px 48px rgba(0,0,0,0.25), 0 0 0 1px rgba(16,185,129,0.15)',
+          borderColor: 'rgba(16,185,129,0.2)',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+      card.addEventListener('mouseleave', function () {
+        gsap.to(card, {
+          y: 0,
+          boxShadow: 'none',
+          borderColor: 'rgba(255,255,255,0.06)',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+    });
+
+  } else {
+    // Reduced motion: static grid is already shown via CSS
+    // Hide marquee overlays so colors show
+    gsap.set('.marquee-static .logo-overlay', { opacity: 0 });
+  }
+
+  // ─── Control Panel ──────────────────────────────────
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

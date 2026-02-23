@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Hero</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: oklch(0.10 0.02 270);
+  --surface: oklch(0.16 0.02 265);
+  --surface-raised: oklch(0.19 0.02 265);
+  --accent: oklch(0.70 0.18 180);
+  --accent-dim: oklch(0.70 0.18 180 / 0.20);
+  --accent-glow: oklch(0.70 0.18 180 / 0.10);
+  --text: oklch(0.96 0.005 260);
+  --text-secondary: oklch(0.60 0.02 265);
+  --text-muted: oklch(0.42 0.015 265);
+  --border: oklch(0.26 0.015 265);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  height:100dvh;min-height:600px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  overflow:hidden;
+}
+
+/* animated gradient background */
+.hero-gradient{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at var(--gx1, 30%) var(--gy1, 25%),
+      oklch(0.35 0.15 var(--hue1, 280)) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at var(--gx2, 70%) var(--gy2, 65%),
+      oklch(0.30 0.18 var(--hue2, 200)) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at var(--gx3, 50%) var(--gy3, 80%),
+      oklch(0.25 0.12 var(--hue3, 330)) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at var(--gx4, 20%) var(--gy4, 60%),
+      oklch(0.20 0.14 var(--hue4, 150)) 0%, transparent 45%),
+    var(--bg);
+}
+
+/* floating particles */
+.particle{
+  position:absolute;z-index:1;
+  opacity:0.12;
+  pointer-events:none;
+}
+.particle svg{
+  width:100%;height:100%;
+  fill:var(--accent);stroke:none;
+}
+.particle--outline svg{
+  fill:none;stroke:var(--accent);stroke-width:1.5;
+}
+
+/* hero content */
+.hero-content{
+  position:relative;z-index:5;
+  max-width:800px;
+  padding:0 24px;
+}
+
+.hero-headline{
+  font-size:clamp(2.5rem, 7vw + 0.5rem, 5rem);
+  font-weight:800;
+  letter-spacing:-0.04em;
+  line-height:1.05;
+  margin-bottom:20px;
+}
+.hero-headline .word{
+  display:inline-block;
+  margin-right:0.25em;
+}
+
+.hero-subtitle{
+  font-size:clamp(1rem, 2vw, 1.25rem);
+  color:var(--text-secondary);
+  line-height:1.5;
+  min-height:1.5em;
+  margin-bottom:36px;
+}
+
+/* play button */
+.play-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  margin-bottom:40px;
+}
+.play-btn{
+  position:relative;z-index:2;
+  width:80px;height:80px;
+  border-radius:50%;
+  background:var(--accent);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 40px var(--accent-dim), 0 4px 20px oklch(0 0 0 / 0.3);
+}
+.play-btn:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.play-btn svg{
+  width:28px;height:28px;
+  fill:oklch(0.12 0 0);
+  margin-left:4px;
+}
+.play-ring{
+  position:absolute;
+  width:80px;height:80px;
+  border-radius:50%;
+  border:2px solid var(--accent);
+  opacity:0;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:none;
+}
+
+/* CTAs */
+.hero-ctas{
+  display:flex;gap:14px;
+  justify-content:center;flex-wrap:wrap;
+}
+.btn-primary{
+  padding:14px 32px;
+  font-family:var(--font);font-size:0.9375rem;font-weight:700;
+  color:oklch(0.12 0 0);background:var(--accent);
+  border:none;border-radius:999px;cursor:pointer;
+  letter-spacing:-0.01em;
+}
+.btn-primary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.btn-outline{
+  padding:14px 32px;
+  font-family:var(--font);font-size:0.9375rem;font-weight:600;
+  color:var(--text);background:transparent;
+  border:1.5px solid var(--border);border-radius:999px;cursor:pointer;
+  letter-spacing:-0.01em;
+}
+.btn-outline:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* scroll indicator */
+.scroll-indicator{
+  position:absolute;bottom:32px;left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+  display:flex;flex-direction:column;
+  align-items:center;gap:6px;
+}
+.scroll-indicator span{
+  font-size:0.6875rem;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--text-muted);
+}
+.scroll-chevron{
+  width:20px;height:20px;
+  stroke:var(--text-muted);stroke-width:2;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* ---------- features section ---------- */
+.features{
+  padding:100px 24px;
+  background:var(--bg);
+}
+.features-inner{
+  max-width:1080px;margin:0 auto;
+}
+.features-label{
+  font-size:0.6875rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.14em;
+  color:var(--accent);text-align:center;
+  margin-bottom:12px;
+}
+.features-title{
+  font-size:clamp(1.5rem, 3vw, 2.25rem);
+  font-weight:800;letter-spacing:-0.03em;
+  text-align:center;margin-bottom:56px;
+}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:32px;
+}
+.feature-card{
+  padding:32px 28px;
+  background:var(--surface);
+  border:1px solid oklch(0.28 0.015 265 / 0.5);
+  border-radius:var(--radius);
+}
+.feature-icon{
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--accent-glow);
+  border-radius:var(--radius-sm);
+  margin-bottom:20px;
+}
+.feature-icon svg{
+  width:22px;height:22px;
+  stroke:var(--accent);stroke-width:1.8;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+.feature-heading{
+  font-size:1.125rem;font-weight:700;
+  margin-bottom:10px;letter-spacing:-0.01em;
+}
+.feature-desc{
+  font-size:0.875rem;color:var(--text-secondary);line-height:1.6;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:768px){
+  .features-grid{grid-template-columns:1fr;gap:20px}
+  .hero-ctas{flex-direction:column;align-items:center}
+  .btn-primary,.btn-outline{width:100%;max-width:280px;text-align:center}
+}
+@media(max-width:480px){
+  .play-btn{width:64px;height:64px}
+  .play-btn svg{width:22px;height:22px}
+  .play-ring{width:64px;height:64px}
+  .feature-card{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="hero-gradient" id="hero-gradient" aria-hidden="true"></div>
+
+  <!-- floating particles injected by JS -->
+  <div id="particles" aria-hidden="true"></div>
+
+  <div class="hero-content">
+    <h1 class="hero-headline" id="hero-headline"></h1>
+
+    <p class="hero-subtitle" id="hero-subtitle"></p>
+
+    <div class="play-wrap" id="play-wrap">
+      <button class="play-btn" id="play-btn" aria-label="Play demo video">
+        <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+      </button>
+      <div class="play-ring" id="ring1"></div>
+      <div class="play-ring" id="ring2"></div>
+      <div class="play-ring" id="ring3"></div>
+    </div>
+
+    <div class="hero-ctas">
+      <button class="btn-primary" id="btn-watch">Watch Demo</button>
+      <button class="btn-outline" id="btn-learn">Learn More</button>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" id="scroll-indicator">
+    <span>Scroll</span>
+    <svg class="scroll-chevron" viewBox="0 0 20 20" id="scroll-chevron">
+      <polyline points="4,7 10,13 16,7"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ====== FEATURES ====== -->
+<section class="features">
+  <div class="features-inner">
+    <div class="features-label">Why Choose Us</div>
+    <h2 class="features-title">Built for speed, scale, and simplicity</h2>
+    <div class="features-grid" id="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3 class="feature-heading">Lightning Fast</h3>
+        <p class="feature-desc">Sub-100ms response times powered by edge computing and intelligent caching at every layer of the stack.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3 class="feature-heading">Modular Design</h3>
+        <p class="feature-desc">Compose your perfect workflow from self-contained modules. Add what you need, skip what you don't.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="feature-heading">Enterprise Security</h3>
+        <p class="feature-desc">SOC 2 Type II certified with end-to-end encryption, SSO, and granular role-based access controls.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reducedMotion = UV.prefersReducedMotion;
+
+  // ─── Headline: word-by-word reveal ─────────────
+  var headlineEl = document.getElementById('hero-headline');
+  var words = ['Experience', 'the', 'Future'];
+  words.forEach(function (w) {
+    var span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = w;
+    headlineEl.appendChild(span);
+  });
+
+  var wordSpans = headlineEl.querySelectorAll('.word');
+  if (!reducedMotion) {
+    gsap.from(wordSpans, {
+      opacity: 0,
+      y: 50,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.08,
+    });
+  }
+
+  // ─── Subtitle: typewriter ──────────────────────
+  var subtitleEl = document.getElementById('hero-subtitle');
+  if (!reducedMotion) {
+    gsap.set(subtitleEl, { opacity: 1 });
+    UV.typewriter(subtitleEl, 'Building tomorrow\'s technology, today.', {
+      duration: 1.8,
+      delay: 0.7,
+    });
+  } else {
+    subtitleEl.textContent = 'Building tomorrow\'s technology, today.';
+  }
+
+  // ─── Living gradient animation ─────────────────
+  var gradientEl = document.getElementById('hero-gradient');
+  if (!reducedMotion) {
+    var gradProps = {
+      hue1: 280, hue2: 200, hue3: 330, hue4: 150,
+      gx1: 30, gy1: 25, gx2: 70, gy2: 65,
+      gx3: 50, gy3: 80, gx4: 20, gy4: 60,
+    };
+
+    function applyGrad() {
+      gradientEl.style.setProperty('--hue1', gradProps.hue1);
+      gradientEl.style.setProperty('--hue2', gradProps.hue2);
+      gradientEl.style.setProperty('--hue3', gradProps.hue3);
+      gradientEl.style.setProperty('--hue4', gradProps.hue4);
+      gradientEl.style.setProperty('--gx1', gradProps.gx1 + '%');
+      gradientEl.style.setProperty('--gy1', gradProps.gy1 + '%');
+      gradientEl.style.setProperty('--gx2', gradProps.gx2 + '%');
+      gradientEl.style.setProperty('--gy2', gradProps.gy2 + '%');
+      gradientEl.style.setProperty('--gx3', gradProps.gx3 + '%');
+      gradientEl.style.setProperty('--gy3', gradProps.gy3 + '%');
+      gradientEl.style.setProperty('--gx4', gradProps.gx4 + '%');
+      gradientEl.style.setProperty('--gy4', gradProps.gy4 + '%');
+    }
+
+    var gradTl = gsap.timeline({ repeat: -1, yoyo: true, onUpdate: applyGrad });
+    gradTl.to(gradProps, {
+      hue1: 200, hue2: 310, hue3: 160, hue4: 270,
+      gx1: 60, gy1: 55, gx2: 35, gy2: 30,
+      gx3: 75, gy3: 40, gx4: 55, gy4: 25,
+      duration: 12, ease: 'sine.inOut',
+    });
+    gradTl.to(gradProps, {
+      hue1: 340, hue2: 150, hue3: 250, hue4: 200,
+      gx1: 45, gy1: 70, gx2: 55, gy2: 50,
+      gx3: 25, gy3: 60, gx4: 70, gy4: 45,
+      duration: 10, ease: 'sine.inOut',
+    });
+  }
+
+  // ─── Floating particles ────────────────────────
+  var particlesContainer = document.getElementById('particles');
+
+  var particleDefs = [
+    { shape: 'circle', size: 24, x: '12%', y: '18%', outline: false },
+    { shape: 'triangle', size: 20, x: '85%', y: '22%', outline: true },
+    { shape: 'square', size: 16, x: '8%', y: '72%', outline: false },
+    { shape: 'circle', size: 14, x: '78%', y: '75%', outline: true },
+    { shape: 'triangle', size: 28, x: '55%', y: '12%', outline: false },
+    { shape: 'square', size: 12, x: '92%', y: '55%', outline: true },
+    { shape: 'circle', size: 18, x: '22%', y: '48%', outline: false },
+    { shape: 'triangle', size: 16, x: '68%', y: '88%', outline: true },
+  ];
+
+  function createSvgShape(shape) {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    var el;
+    if (shape === 'circle') {
+      el = document.createElementNS(svgNS, 'circle');
+      el.setAttribute('cx', '12');
+      el.setAttribute('cy', '12');
+      el.setAttribute('r', '10');
+    } else if (shape === 'triangle') {
+      el = document.createElementNS(svgNS, 'polygon');
+      el.setAttribute('points', '12,2 22,20 2,20');
+    } else {
+      el = document.createElementNS(svgNS, 'rect');
+      el.setAttribute('x', '3');
+      el.setAttribute('y', '3');
+      el.setAttribute('width', '18');
+      el.setAttribute('height', '18');
+      el.setAttribute('rx', '2');
+    }
+    svg.appendChild(el);
+    return svg;
+  }
+
+  particleDefs.forEach(function (def, i) {
+    var el = document.createElement('div');
+    el.className = 'particle' + (def.outline ? ' particle--outline' : '');
+    el.style.width = def.size + 'px';
+    el.style.height = def.size + 'px';
+    el.style.left = def.x;
+    el.style.top = def.y;
+
+    el.appendChild(createSvgShape(def.shape));
+    particlesContainer.appendChild(el);
+
+    if (!reducedMotion) {
+      var dur = 8 + (i * 2.5);
+      var xDrift = (i % 2 === 0 ? 1 : -1) * (15 + i * 5);
+      var yDrift = (i % 3 === 0 ? -1 : 1) * (10 + i * 4);
+
+      gsap.to(el, {
+        x: xDrift,
+        y: yDrift,
+        rotation: (i % 2 === 0 ? 180 : -180),
+        duration: dur,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      });
+    }
+  });
+
+  // ─── Play button pulse rings ───────────────────
+  if (!reducedMotion) {
+    var rings = ['#ring1', '#ring2', '#ring3'];
+    var pulseTl = gsap.timeline({ repeat: -1 });
+
+    rings.forEach(function (sel, i) {
+      pulseTl.fromTo(sel,
+        { scale: 1, opacity: 0.5 },
+        { scale: 2.2, opacity: 0, duration: 1.8, ease: 'power2.out' },
+        i * 0.4
+      );
+    });
+  }
+
+  // ─── Play button + CTA hovers ──────────────────
+  var playBtn = document.getElementById('play-btn');
+  var btnWatch = document.getElementById('btn-watch');
+  var btnLearn = document.getElementById('btn-learn');
+
+  if (!reducedMotion) {
+    playBtn.addEventListener('mouseenter', function () {
+      gsap.to(playBtn, { scale: 1.1, duration: 0.3, ease: 'power2.out' });
+    });
+    playBtn.addEventListener('mouseleave', function () {
+      gsap.to(playBtn, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    });
+
+    btnWatch.addEventListener('mouseenter', function () {
+      gsap.to(btnWatch, { scale: 1.04, y: -2, duration: 0.25, ease: 'power2.out' });
+    });
+    btnWatch.addEventListener('mouseleave', function () {
+      gsap.to(btnWatch, { scale: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+    });
+
+    btnLearn.addEventListener('mouseenter', function () {
+      gsap.to(btnLearn, { scale: 1.04, y: -2, duration: 0.25, ease: 'power2.out' });
+    });
+    btnLearn.addEventListener('mouseleave', function () {
+      gsap.to(btnLearn, { scale: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+    });
+  }
+
+  // ─── Scroll indicator bounce ───────────────────
+  if (!reducedMotion) {
+    gsap.to('#scroll-chevron', {
+      y: 6,
+      duration: 0.8,
+      ease: 'power2.inOut',
+      repeat: -1,
+      yoyo: true,
+    });
+
+    // Fade out on scroll
+    gsap.to('#scroll-indicator', {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: '15% top',
+        scrub: true,
+      },
+    });
+  }
+
+  // ─── Hero entrance timeline ────────────────────
+  if (!reducedMotion) {
+    var heroTl = gsap.timeline({ delay: 0.2 });
+    heroTl.from('#play-wrap', { opacity: 0, scale: 0.8, duration: 0.6, ease: 'back.out(1.5)' }, 0.6);
+    heroTl.from('.hero-ctas', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' }, 0.9);
+    heroTl.from('#scroll-indicator', { opacity: 0, y: -10, duration: 0.4, ease: 'power2.out' }, 1.2);
+  }
+
+  // ─── Features scroll reveal ────────────────────
+  UV.scrollReveal('.features-label', { trigger: '.features', y: 20 });
+  UV.scrollReveal('.features-title', { trigger: '.features', y: 30 });
+
+  var featureCards = document.querySelectorAll('.feature-card');
+  UV.scrollReveal(featureCards, {
+    trigger: '#features-grid',
+    stagger: 0.15,
+    y: 40,
+  });
+
+  // Feature card hover
+  if (!reducedMotion) {
+    featureCards.forEach(function (card) {
+      card.addEventListener('mouseenter', function () {
+        gsap.to(card, { y: -6, boxShadow: '0 16px 48px oklch(0 0 0 / 0.25)', duration: 0.3, ease: 'power2.out' });
+      });
+      card.addEventListener('mouseleave', function () {
+        gsap.to(card, { y: 0, boxShadow: '0 0 0 oklch(0 0 0 / 0)', duration: 0.3, ease: 'power2.out' });
+      });
+    });
+  }
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

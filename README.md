@@ -1,6 +1,6 @@
 # UI Vault
 
-A GSAP-powered design warehouse: 27 production-grade UI components and full-page designs with rich animations, a professional inspector panel, and all self-contained HTML.
+A GSAP-powered design warehouse: 42 production-grade UI components and full-page designs with rich animations, a professional inspector panel, and all self-contained HTML.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -8,7 +8,7 @@ A GSAP-powered design warehouse: 27 production-grade UI components and full-page
 
 ## Features
 
-- **27 designs** across 10 categories with GSAP animations (ScrollTrigger, Flip, TextPlugin)
+- **42 designs** across 10 categories with GSAP animations (ScrollTrigger, Flip, TextPlugin)
 - **Inspector panel** — Figma-style design token editor with 12 color palettes, 6 fonts, shape controls, and 8 named presets (Nord, Dracula, Tokyo Night, etc.)
 - **Animation controls** on every design page (Replay, 0.3x, 1x, 3x speed)
 - **Search** with 150ms debounce across titles, categories, and tags
@@ -53,6 +53,21 @@ A GSAP-powered design warehouse: 27 production-grade UI components and full-page
 | 25 | File Upload Dropzone | Forms | component | Progress animation, checkmark scaleIn, error shake |
 | 26 | Blog Post Layout | Layouts | full-page | Scroll parallax, reading progress scrub, TOC highlight |
 | 27 | Image Gallery Lightbox | Sections | component | Lightbox zoom, slide transitions, scroll reveal |
+| 28 | Sticky Header | Navigation | component | ScrollTrigger shrink, hide/reveal on scroll |
+| 29 | Tab Bar | Navigation | component | Flip-powered sliding underline, spring-physics |
+| 30 | Breadcrumb Navigation | Navigation | component | Ellipsis dropdown, stagger entrance, 3 variants |
+| 31 | Pagination Controls | Navigation | component | Skeleton transition, load more stagger, scale active |
+| 32 | Video Hero | Heroes | full-page | Living gradient bg, word stagger, floating particles |
+| 33 | Minimal Footer | Footers | component | Centered/split variants, newsletter glow, scroll reveal |
+| 34 | Stats Counter | Sections | component | Scroll-triggered countup, sparklines, trend arrows |
+| 35 | Timeline | Sections | component | Alternating cards, self-drawing line, status dots |
+| 36 | Logo Cloud | Sections | component | Dual-row infinite marquee, hover pause, grayscale |
+| 37 | Product Card Grid | Cards | component | Flip filter, star ratings, Add to Cart micro-interaction |
+| 38 | Notification Center | Cards | component | Bell dropdown, swipe dismiss, mark-all-read stagger |
+| 39 | Settings Page | Layouts | full-page | Sidebar nav, toggle switches, cross-fade sections |
+| 40 | 404 Error Page | Layouts | full-page | Glitch chromatic aberration, orbital shapes, easter egg |
+| 41 | Stats Dashboard | Dashboards | full-page | KPI countup, bar chart, activity feed, sparklines |
+| 42 | Loading States | Cards | component | 6 patterns: skeleton, spinner, progress, shimmer |
 
 ## GSAP Stack
 
@@ -74,7 +89,7 @@ ui-vault/
   index.html              # Main warehouse app
   catalog.json            # Design metadata with GSAP info
   animations/gsap-utils.js  # Shared GSAP utility library
-  designs/                # 27 self-contained HTML files
+  designs/                # 42 self-contained HTML files
 ```
 
 ## Adding New Designs

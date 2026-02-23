@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-02-23
+
+### Added
+
+- 15 new design components (42 total), informed by internet-sourced UX research:
+  - Sticky Header (Navigation) — partially persistent pattern per NN/g guidelines, scroll-triggered shrink/reveal
+  - Tab Bar (Navigation) — GSAP Flip-powered sliding underline indicator, spring-physics animation, badges, keyboard nav
+  - Breadcrumb Navigation (Navigation) — 3 style variants, collapsible ellipsis dropdown per Smashing Magazine pattern
+  - Pagination Controls (Navigation) — 3 variants (classic, prev/next, load more), skeleton loading transition
+  - Video Hero (Heroes) — GSAP-driven living gradient bg, word-by-word text reveal, floating particles, pulse rings
+  - Minimal Footer (Footers) — centered and split layout variants, newsletter signup, social icons
+  - Stats Counter (Sections) — 4 KPI cards per Nastengraph anatomy (5 required elements), scroll-triggered countup
+  - Timeline (Sections) — alternating left/right cards, self-drawing center line via ScrollTrigger scrub
+  - Logo Cloud (Sections) — dual-row infinite marquee per Smashing Magazine technique, hover pause
+  - Product Card Grid (Cards) — e-commerce cards with Flip filter, star ratings, Add to Cart micro-interaction
+  - Notification Center (Cards) — bell dropdown per Carbon Design System, read/unread distinction, swipe dismiss
+  - Settings Page (Layouts) — 5-section sidebar navigation, GSAP toggle switches, cross-fade transitions
+  - 404 Error Page (Layouts) — glitch chromatic aberration, floating orbital shapes, click easter egg
+  - Stats Dashboard (Dashboards) — 4 KPI cards with sparklines, bar chart, activity feed, traffic sources
+  - Loading States (Cards) — 6 loading patterns: skeleton, spinner, progress bar, dot loader, shimmer, placeholder
+
+### Changed
+
+- catalog.json version bumped to 4
+- Design count: 27 to 42
+- Category rebalancing: Navigation 2→6, Footers 1→2, Heroes 2→3, Dashboards 2→3, Sections 4→7, Cards 5→8, Layouts 3→5
+
 ## [3.0.0] - 2026-02-23
 
 ### Added
