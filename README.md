@@ -1,6 +1,6 @@
 # UI Vault
 
-A GSAP-powered design warehouse: 42 production-grade UI components and full-page designs with rich animations, a professional inspector panel, and all self-contained HTML.
+A GSAP-powered design warehouse: 57 production-grade UI components and full-page designs with rich animations, a professional inspector panel, and all self-contained HTML.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -8,7 +8,7 @@ A GSAP-powered design warehouse: 42 production-grade UI components and full-page
 
 ## Features
 
-- **42 designs** across 10 categories with GSAP animations (ScrollTrigger, Flip, TextPlugin)
+- **57 designs** across 10 categories with GSAP animations (ScrollTrigger, Flip, TextPlugin)
 - **Inspector panel** — Figma-style design token editor with 12 color palettes, 6 fonts, shape controls, and 8 named presets (Nord, Dracula, Tokyo Night, etc.)
 - **Animation controls** on every design page (Replay, 0.3x, 1x, 3x speed)
 - **Search** with 150ms debounce across titles, categories, and tags
@@ -68,6 +68,21 @@ A GSAP-powered design warehouse: 42 production-grade UI components and full-page
 | 40 | 404 Error Page | Layouts | full-page | Glitch chromatic aberration, orbital shapes, easter egg |
 | 41 | Stats Dashboard | Dashboards | full-page | KPI countup, bar chart, activity feed, sparklines |
 | 42 | Loading States | Cards | component | 6 patterns: skeleton, spinner, progress, shimmer |
+| 43 | Weather Widget | Cards | component | Sunrise Warm vibe, SVG sun rotation, C/F morph, cloud drift |
+| 44 | Music Player | Cards | component | Midnight Rose vibe, equalizer bars, progress bar, playlist |
+| 45 | Social Profile Card | Cards | component | Ocean Deep vibe, 3 variants, turquoise pulse, follow toggle |
+| 46 | Event Calendar | Layouts | full-page | Sage Wellness vibe, month grid, event sidebar, category colors |
+| 47 | Onboarding Welcome | Heroes | full-page | Blush Dream vibe, 3-step flow, confetti burst, checkmark draw |
+| 48 | Cookie Consent Banner | Sections | component | Terra Cotta vibe, 3 variants, GDPR parity, toggle switches |
+| 49 | Modal Dialog Showcase | GSAP | full-page | Liquid Glass vibe, 6 entrance types, purple mesh, focus trap |
+| 50 | Alert Banner Collection | Sections | component | Crisp Daylight vibe, 8 alert types, dismiss, countdown |
+| 51 | Progress Stepper | Navigation | component | Royal Navy vibe, 3 variants, interactive demo, gold accent |
+| 52 | Retro Arcade Dashboard | Dashboards | full-page | Neon Arcade vibe, CRT scanlines, terminal typewriter |
+| 53 | Contact Form | Forms | full-page | Peach Split vibe, split-screen, floating labels, submit morph |
+| 54 | Portfolio Showcase | Layouts | full-page | Olive Editorial vibe, masonry grid, Flip filter, serif type |
+| 55 | Feature Tour Spotlight | GSAP | full-page | Electric Cyan vibe, clip-path spotlight, 6-step tour |
+| 56 | Empty States Collection | Sections | component | Sunny Whimsy vibe, 6 SVG illustrations, idle animations |
+| 57 | Tooltip & Popover Showcase | Sections | component | Forest Midnight vibe, directional tooltips, click popovers |
 
 ## GSAP Stack
 
@@ -89,7 +104,7 @@ ui-vault/
   index.html              # Main warehouse app
   catalog.json            # Design metadata with GSAP info
   animations/gsap-utils.js  # Shared GSAP utility library
-  designs/                # 42 self-contained HTML files
+  designs/                # 57 self-contained HTML files
 ```
 
 ## Adding New Designs

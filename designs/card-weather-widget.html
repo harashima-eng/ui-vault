@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Widget — UI Vault</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Sunrise Warm — golden orange gradient, cream text, glass panels.
+   ============================================================ */
+:root {
+  --bg: linear-gradient(135deg, #FF7B2B 0%, #FFAD00 50%, #FFE000 100%);
+  --surface: rgba(255,255,255,0.15);
+  --surface-hover: rgba(255,255,255,0.22);
+  --accent: #FFFFFF;
+  --text: #FFF8E1;
+  --text-secondary: rgba(255,248,225,0.7);
+  --border: rgba(255,255,255,0.2);
+  --border-hover: rgba(255,255,255,0.35);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow: 0 4px 24px rgba(180, 80, 0, 0.15);
+  --shadow-lg: 0 12px 40px rgba(180, 80, 0, 0.2);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   CLOUD LAYER — Ambient floating shapes
+   ============================================================ */
+.cloud-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  opacity: 0.18;
+  will-change: transform;
+}
+
+/* ============================================================
+   PAGE STRUCTURE
+   ============================================================ */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 20px 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.page-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.page-eyebrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.page-title {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--accent);
+  text-wrap: balance;
+}
+
+.page-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* ============================================================
+   MAIN WEATHER CARD
+   ============================================================ */
+.weather-main {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.weather-location svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+.weather-city {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+/* Sun SVG Icon */
+.sun-icon-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sun-icon-wrap svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sun-rays {
+  transform-origin: center;
+  will-change: transform;
+}
+
+.sun-core {
+  will-change: transform;
+  transform-origin: center;
+}
+
+/* Temperature display */
+.weather-temp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.weather-temp-value {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.weather-temp-unit {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.weather-condition {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* C/F Toggle */
+.cf-toggle {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.cf-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cf-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.cf-btn.active {
+  background: rgba(255,255,255,0.25);
+  color: var(--accent);
+}
+
+/* Stats row */
+.weather-stats {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ============================================================
+   5-DAY FORECAST ROW
+   ============================================================ */
+.forecast-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.forecast-card {
+  flex: 1 1 80px;
+  min-width: 80px;
+  max-width: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+  box-shadow: 0 2px 8px rgba(180, 80, 0, 0.08);
+}
+
+.forecast-day {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.forecast-icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.85;
+}
+
+.forecast-temps {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.forecast-high {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.forecast-low {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+  .page { padding: 32px 16px 100px; }
+  .weather-main { padding: 24px 20px 22px; }
+  .sun-icon-wrap { width: 90px; height: 90px; }
+  .weather-temp-value { font-size: 3rem; }
+  .weather-stats { gap: 14px; }
+  .forecast-row { gap: 6px; }
+  .forecast-card { min-width: 60px; padding: 10px 6px; }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     AMBIENT CLOUD LAYER
+     ============================================================ -->
+<div class="cloud-layer" aria-hidden="true">
+  <svg class="cloud cloud-1" viewBox="0 0 200 80" width="220" style="top:10%; left:-220px;">
+    <path d="M30 60 Q30 40 50 38 Q48 20 70 18 Q92 16 96 34 Q110 28 120 38 Q140 30 150 42 Q170 36 175 50 Q180 64 160 66 L40 66 Q28 66 30 60Z" fill="white"/>
+  </svg>
+  <svg class="cloud cloud-2" viewBox="0 0 180 70" width="180" style="top:35%; left:-180px;">
+    <path d="M25 52 Q24 36 44 34 Q42 18 60 16 Q80 14 84 30 Q96 24 106 34 Q120 28 128 40 Q142 34 148 46 Q154 58 138 60 L34 60 Q22 60 25 52Z" fill="white"/>
+  </svg>
+  <svg class="cloud cloud-3" viewBox="0 0 160 60" width="160" style="top:65%; left:-160px;">
+    <path d="M20 44 Q20 30 36 28 Q34 16 50 14 Q66 12 70 26 Q80 20 88 28 Q100 24 106 34 Q116 28 120 38 Q126 50 112 52 L28 52 Q18 52 20 44Z" fill="white"/>
+  </svg>
+  <svg class="cloud cloud-4" viewBox="0 0 240 90" width="260" style="top:82%; left:-260px;">
+    <path d="M35 68 Q34 48 58 46 Q56 26 80 24 Q104 22 108 40 Q124 32 136 44 Q152 36 162 48 Q180 40 188 56 Q196 72 174 74 L44 74 Q32 74 35 68Z" fill="white"/>
+  </svg>
+</div>
+
+<!-- ============================================================
+     PAGE CONTENT
+     ============================================================ -->
+<div class="page">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="page-eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      Weather Widget
+    </div>
+    <h1 class="page-title">Sunrise Forecast</h1>
+    <p class="page-subtitle">Real-time weather at a glance</p>
+  </header>
+
+  <!-- Main Weather Card -->
+  <div class="weather-main" role="region" aria-label="Current weather">
+    <div class="weather-location">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>California, USA</span>
+    </div>
+    <div class="weather-city">San Francisco</div>
+
+    <!-- Animated Sun SVG -->
+    <div class="sun-icon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none">
+        <!-- Rays -->
+        <g class="sun-rays">
+          <line x1="60" y1="8" x2="60" y2="22" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="60" y1="98" x2="60" y2="112" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="8" y1="60" x2="22" y2="60" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="98" y1="60" x2="112" y2="60" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="23.2" y1="23.2" x2="33.1" y2="33.1" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="86.9" y1="86.9" x2="96.8" y2="96.8" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="23.2" y1="96.8" x2="33.1" y2="86.9" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+          <line x1="86.9" y1="33.1" x2="96.8" y2="23.2" stroke="#FFF8E1" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <!-- Core circle -->
+        <circle class="sun-core" cx="60" cy="60" r="24" fill="#FFF8E1" opacity="0.95"/>
+        <circle cx="60" cy="60" r="18" fill="rgba(255,173,0,0.35)"/>
+      </svg>
+    </div>
+
+    <!-- Temperature -->
+    <div class="weather-temp-row">
+      <span class="weather-temp-value" id="temp-display" aria-live="polite">0</span>
+      <span class="weather-temp-unit" id="temp-unit">&deg;F</span>
+    </div>
+    <div class="weather-condition">Sunny &mdash; Clear Skies</div>
+
+    <!-- C/F Toggle -->
+    <div class="cf-toggle" role="radiogroup" aria-label="Temperature unit">
+      <button class="cf-btn active" data-unit="f" role="radio" aria-checked="true">&#176;F</button>
+      <button class="cf-btn" data-unit="c" role="radio" aria-checked="false">&#176;C</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="weather-stats">
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+        <span class="stat-value" id="stat-humidity">0</span>
+        <span class="stat-label">Humidity</span>
+      </div>
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+        <span class="stat-value" id="stat-wind">0</span>
+        <span class="stat-label">Wind</span>
+      </div>
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span class="stat-value" id="stat-uv">0</span>
+        <span class="stat-label">UV Index</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5-Day Forecast -->
+  <div class="forecast-row" role="region" aria-label="5-day forecast">
+    <div class="forecast-card" data-day="0">
+      <span class="forecast-day">Mon</span>
+      <svg class="forecast-icon" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="10" fill="#FFF8E1" opacity="0.9"/>
+        <g stroke="#FFF8E1" stroke-width="2.5" stroke-linecap="round">
+          <line x1="24" y1="4" x2="24" y2="10"/><line x1="24" y1="38" x2="24" y2="44"/>
+          <line x1="4" y1="24" x2="10" y2="24"/><line x1="38" y1="24" x2="44" y2="24"/>
+          <line x1="9.9" y1="9.9" x2="14.1" y2="14.1"/><line x1="33.9" y1="33.9" x2="38.1" y2="38.1"/>
+          <line x1="9.9" y1="38.1" x2="14.1" y2="33.9"/><line x1="33.9" y1="14.1" x2="38.1" y2="9.9"/>
+        </g>
+      </svg>
+      <div class="forecast-temps">
+        <span class="forecast-high" data-f="75" data-c="24">75&#176;</span>
+        <span class="forecast-low" data-f="58" data-c="14">58&#176;</span>
+      </div>
+    </div>
+    <div class="forecast-card" data-day="1">
+      <span class="forecast-day">Tue</span>
+      <svg class="forecast-icon" viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="20" r="8" fill="#FFF8E1" opacity="0.7"/>
+        <path d="M28 30 Q28 22 34 20 Q32 14 38 14 Q44 14 44 20 Q48 18 48 24 Q48 30 42 30Z" fill="rgba(255,248,225,0.5)"/>
+      </svg>
+      <div class="forecast-temps">
+        <span class="forecast-high" data-f="70" data-c="21">70&#176;</span>
+        <span class="forecast-low" data-f="55" data-c="13">55&#176;</span>
+      </div>
+    </div>
+    <div class="forecast-card" data-day="2">
+      <span class="forecast-day">Wed</span>
+      <svg class="forecast-icon" viewBox="0 0 48 48" fill="none">
+        <path d="M14 34 Q14 24 22 22 Q20 14 28 12 Q36 10 38 18 Q44 14 46 22 Q48 30 40 32 L16 32 Q12 32 14 34Z" fill="rgba(255,248,225,0.55)"/>
+        <line x1="18" y1="36" x2="18" y2="42" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        <line x1="26" y1="36" x2="26" y2="44" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        <line x1="34" y1="36" x2="34" y2="40" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <div class="forecast-temps">
+        <span class="forecast-high" data-f="63" data-c="17">63&#176;</span>
+        <span class="forecast-low" data-f="51" data-c="11">51&#176;</span>
+      </div>
+    </div>
+    <div class="forecast-card" data-day="3">
+      <span class="forecast-day">Thu</span>
+      <svg class="forecast-icon" viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="20" r="8" fill="#FFF8E1" opacity="0.7"/>
+        <path d="M28 30 Q28 22 34 20 Q32 14 38 14 Q44 14 44 20 Q48 18 48 24 Q48 30 42 30Z" fill="rgba(255,248,225,0.5)"/>
+      </svg>
+      <div class="forecast-temps">
+        <span class="forecast-high" data-f="68" data-c="20">68&#176;</span>
+        <span class="forecast-low" data-f="54" data-c="12">54&#176;</span>
+      </div>
+    </div>
+    <div class="forecast-card" data-day="4">
+      <span class="forecast-day">Fri</span>
+      <svg class="forecast-icon" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="10" fill="#FFF8E1" opacity="0.9"/>
+        <g stroke="#FFF8E1" stroke-width="2.5" stroke-linecap="round">
+          <line x1="24" y1="4" x2="24" y2="10"/><line x1="24" y1="38" x2="24" y2="44"/>
+          <line x1="4" y1="24" x2="10" y2="24"/><line x1="38" y1="24" x2="44" y2="24"/>
+          <line x1="9.9" y1="9.9" x2="14.1" y2="14.1"/><line x1="33.9" y1="33.9" x2="38.1" y2="38.1"/>
+          <line x1="9.9" y1="38.1" x2="14.1" y2="33.9"/><line x1="33.9" y1="14.1" x2="38.1" y2="9.9"/>
+        </g>
+      </svg>
+      <div class="forecast-temps">
+        <span class="forecast-high" data-f="74" data-c="23">74&#176;</span>
+        <span class="forecast-low" data-f="57" data-c="14">57&#176;</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+  var isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── State ──
+  var currentUnit = 'f';
+  var tempF = 72;
+  var tempC = 22;
+  var tempObj = { val: 0 };
+
+  // ── DOM refs ──
+  var tempDisplay = document.getElementById('temp-display');
+  var tempUnit = document.getElementById('temp-unit');
+  var cfBtns = document.querySelectorAll('.cf-btn');
+  var sunRays = document.querySelector('.sun-rays');
+  var sunCore = document.querySelector('.sun-core');
+  var forecastCards = document.querySelectorAll('.forecast-card');
+
+  // ── Init page entrance ──
+  UV.initPage({
+    title: '.page-header',
+    content: '.weather-main'
+  });
+
+  // ── Temperature countUp ──
+  if (!isReduced) {
+    gsap.to(tempObj, {
+      val: tempF,
+      duration: 1.8,
+      delay: 0.4,
+      ease: 'power2.out',
+      onUpdate: function() {
+        tempDisplay.textContent = Math.round(tempObj.val);
+      }
+    });
+  } else {
+    tempDisplay.textContent = tempF;
+  }
+
+  // ── Stat countUps ──
+  var statTargets = [
+    { el: document.getElementById('stat-humidity'), to: 65, suffix: '%' },
+    { el: document.getElementById('stat-wind'), to: 12, suffix: ' mph' },
+    { el: document.getElementById('stat-uv'), to: 6, suffix: '' }
+  ];
+
+  statTargets.forEach(function(s) {
+    if (!isReduced) {
+      var obj = { v: 0 };
+      gsap.to(obj, {
+        v: s.to,
+        duration: 1.5,
+        delay: 0.8,
+        ease: 'power2.out',
+        onUpdate: function() {
+          s.el.textContent = Math.round(obj.v) + s.suffix;
+        }
+      });
+    } else {
+      s.el.textContent = s.to + s.suffix;
+    }
+  });
+
+  // ── Sun animation: rotating rays + pulsing core ──
+  if (!isReduced) {
+    gsap.to(sunRays, {
+      rotation: 360,
+      repeat: -1,
+      duration: 20,
+      ease: 'none',
+      transformOrigin: '50% 50%'
+    });
+
+    gsap.to(sunCore, {
+      scale: 1.08,
+      duration: 2,
+      yoyo: true,
+      repeat: -1,
+      ease: 'sine.inOut',
+      transformOrigin: '50% 50%'
+    });
+  }
+
+  // ── Forecast cards stagger entrance ──
+  UV.fadeIn('.forecast-card', {
+    y: 20,
+    duration: 0.5,
+    stagger: 0.08,
+    delay: 0.6
+  });
+
+  // ── Forecast card hover ──
+  UV.hoverLift('.forecast-card', {
+    y: -6,
+    shadow: '0 12px 32px rgba(180,80,0,0.18)',
+    restShadow: '0 2px 8px rgba(180,80,0,0.08)'
+  });
+
+  // ── C/F toggle ──
+  cfBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var unit = btn.getAttribute('data-unit');
+      if (unit === currentUnit) return;
+      currentUnit = unit;
+
+      // Toggle active button styles via GSAP
+      cfBtns.forEach(function(b) {
+        var isActive = b.getAttribute('data-unit') === unit;
+        if (isActive) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+        b.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      });
+
+      // Update unit display
+      tempUnit.textContent = unit === 'f' ? '\u00B0F' : '\u00B0C';
+
+      // Animate temp change
+      var target = unit === 'f' ? tempF : tempC;
+
+      if (!isReduced) {
+        gsap.to(tempObj, {
+          val: target,
+          duration: 0.6,
+          ease: 'power2.out',
+          onUpdate: function() {
+            tempDisplay.textContent = Math.round(tempObj.val);
+          }
+        });
+      } else {
+        tempObj.val = target;
+        tempDisplay.textContent = target;
+      }
+
+      // Update forecast temps
+      forecastCards.forEach(function(card) {
+        var high = card.querySelector('.forecast-high');
+        var low = card.querySelector('.forecast-low');
+        high.textContent = high.getAttribute('data-' + unit) + '\u00B0';
+        low.textContent = low.getAttribute('data-' + unit) + '\u00B0';
+      });
+    });
+  });
+
+  // ── Ambient clouds ──
+  if (!isReduced) {
+    var clouds = document.querySelectorAll('.cloud');
+    clouds.forEach(function(cloud, i) {
+      var dur = 18 + i * 7;
+      gsap.fromTo(cloud,
+        { x: -300 },
+        {
+          x: window.innerWidth + 300,
+          duration: dur,
+          repeat: -1,
+          ease: 'none',
+          delay: i * 4
+        }
+      );
+    });
+  }
+
+  // ── Control panel ──
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal Dialog Showcase — Liquid Glass</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#12091F;
+  --surface:rgba(255,255,255,0.08);
+  --surface-hover:rgba(255,255,255,0.12);
+  --accent:#C4B5FD;
+  --accent-dim:rgba(196,181,253,0.15);
+  --text:#E8E0F0;
+  --text-secondary:rgba(232,224,240,0.6);
+  --border:rgba(255,255,255,0.15);
+  --border-strong:rgba(255,255,255,0.22);
+  --radius:16px;
+  --radius-sm:8px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Mesh background blobs ---- */
+.mesh-blob{
+  position:fixed;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:0;
+  will-change:transform;
+  filter:blur(80px);
+}
+.blob-1{
+  width:300px;height:300px;
+  background:radial-gradient(circle,#6B21A8,transparent 70%);
+  top:10%;left:15%;
+  opacity:0.45;
+}
+.blob-2{
+  width:250px;height:250px;
+  background:radial-gradient(circle,#4338CA,transparent 70%);
+  top:50%;right:10%;
+  opacity:0.4;
+}
+.blob-3{
+  width:200px;height:200px;
+  background:radial-gradient(circle,#0D9488,transparent 70%);
+  bottom:10%;left:40%;
+  opacity:0.35;
+}
+
+/* ---- Grid pattern overlay ---- */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Page layout ---- */
+.page{
+  position:relative;
+  z-index:1;
+  max-width:900px;
+  margin:0 auto;
+  padding:80px 24px 120px;
+}
+
+.page-header{
+  text-align:center;
+  margin-bottom:64px;
+}
+.page-header__eyebrow{
+  font-size:0.75rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+.page-header__title{
+  font-size:clamp(1.75rem,4vw + 0.5rem,2.75rem);
+  font-weight:800;
+  letter-spacing:-0.03em;
+  line-height:1.1;
+  color:var(--text);
+  margin-bottom:14px;
+  text-wrap:balance;
+}
+.page-header__desc{
+  font-size:1.0625rem;
+  color:var(--text-secondary);
+  max-width:52ch;
+  margin:0 auto;
+  line-height:1.6;
+  text-wrap:pretty;
+}
+
+/* ---- Trigger button grid ---- */
+.trigger-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+@media(max-width:768px){
+  .trigger-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .trigger-grid{grid-template-columns:1fr}
+}
+
+.trigger-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  padding:32px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  cursor:pointer;
+  font-family:inherit;
+  color:var(--text);
+  min-height:170px;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.trigger-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.trigger-btn__icon{
+  width:48px;height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--accent-dim);
+  border-radius:12px;
+  color:var(--accent);
+  flex-shrink:0;
+}
+.trigger-btn__icon svg{width:22px;height:22px}
+
+.trigger-btn__label{
+  font-size:0.9375rem;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  text-align:center;
+}
+.trigger-btn__desc{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  text-align:center;
+  line-height:1.4;
+}
+
+/* ---- Modal overlay ---- */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,0.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  padding:24px;
+}
+.modal-overlay.open{pointer-events:auto}
+
+/* ---- Modal base ---- */
+.modal{
+  position:relative;
+  background:rgba(30,20,50,0.92);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 24px 80px rgba(0,0,0,0.5),0 0 1px rgba(255,255,255,0.1);
+  max-width:480px;
+  width:100%;
+  max-height:80vh;
+  overflow:hidden;
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 24px 0;
+}
+.modal-title{
+  font-size:1.125rem;
+  font-weight:700;
+  letter-spacing:-0.01em;
+}
+.modal-close{
+  width:36px;height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  background:transparent;
+  border:none;
+  color:var(--text-secondary);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.modal-close:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+.modal-close svg{width:18px;height:18px}
+
+.modal-body{
+  padding:16px 24px 24px;
+  font-size:0.9375rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+}
+.modal-body.scrollable{
+  max-height:300px;
+  overflow-y:auto;
+}
+.modal-footer{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  padding:0 24px 20px;
+}
+
+/* ---- Modal buttons ---- */
+.modal-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 20px;
+  font-size:0.875rem;
+  font-weight:600;
+  font-family:inherit;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  border:none;
+  min-height:44px;
+}
+.modal-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+.modal-btn--primary{
+  background:var(--accent);
+  color:#1a0e30;
+}
+.modal-btn--secondary{
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.modal-btn--danger{
+  background:#EF4444;
+  color:#fff;
+}
+.modal-btn--cancel{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text-secondary);
+}
+
+/* ---- Side panel (drawer) ---- */
+.modal--drawer{
+  position:fixed;
+  top:0;right:0;bottom:0;
+  max-width:400px;
+  width:90%;
+  border-radius:var(--radius) 0 0 var(--radius);
+  max-height:none;
+  display:flex;
+  flex-direction:column;
+}
+.modal--drawer .modal-body{
+  flex:1;
+  overflow-y:auto;
+  max-height:none;
+}
+
+/* ---- Fullscreen modal ---- */
+.modal--fullscreen{
+  max-width:none;
+  width:calc(100vw - 48px);
+  max-height:calc(100vh - 48px);
+  height:calc(100vh - 48px);
+  border-radius:var(--radius);
+  display:flex;
+  flex-direction:column;
+}
+.modal--fullscreen .modal-body{
+  flex:1;
+  overflow-y:auto;
+  max-height:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:1.5rem;
+  color:var(--text);
+}
+
+/* ---- Lightbox modal ---- */
+.modal--lightbox{
+  max-width:700px;
+  background:rgba(15,10,30,0.95);
+  padding:0;
+  overflow:hidden;
+}
+.modal--lightbox .lightbox-img{
+  width:100%;
+  aspect-ratio:16/10;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
+  display:block;
+}
+.modal--lightbox .modal-body{
+  padding:16px 24px 20px;
+}
+
+/* ---- Form modal ---- */
+.modal--form .modal-body{padding-bottom:8px}
+.form-field{margin-bottom:16px}
+.form-field label{
+  display:block;
+  font-size:0.8125rem;
+  font-weight:600;
+  color:var(--text);
+  margin-bottom:6px;
+}
+.form-input{
+  display:block;
+  width:100%;
+  height:44px;
+  padding:0 14px;
+  font-size:0.9375rem;
+  font-family:inherit;
+  color:var(--text);
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  outline:none;
+}
+.form-input::placeholder{color:var(--text-secondary)}
+
+/* ---- Scrollbar styling ---- */
+.modal-body.scrollable::-webkit-scrollbar{width:6px}
+.modal-body.scrollable::-webkit-scrollbar-track{background:transparent}
+.modal-body.scrollable::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+
+@media(max-width:480px){
+  .modal{max-width:calc(100vw - 32px)}
+  .modal--drawer{max-width:calc(100vw - 16px)}
+}
+</style>
+</head>
+<body>
+
+<!-- Mesh background blobs -->
+<div class="mesh-blob blob-1" aria-hidden="true"></div>
+<div class="mesh-blob blob-2" aria-hidden="true"></div>
+<div class="mesh-blob blob-3" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="page-header">
+    <p class="page-header__eyebrow">Modal &amp; Dialog</p>
+    <h1 class="page-header__title">Dialog Showcase</h1>
+    <p class="page-header__desc">Six modal patterns with distinct GSAP entrance and exit animations. Click any card to preview.</p>
+  </header>
+
+  <div class="trigger-grid" id="triggerGrid">
+    <!-- 1: Confirmation -->
+    <button class="trigger-btn" data-modal="confirm" aria-label="Open confirmation dialog">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span>
+      <span class="trigger-btn__label">Confirmation</span>
+      <span class="trigger-btn__desc">Scale-in from center</span>
+    </button>
+
+    <!-- 2: Info -->
+    <button class="trigger-btn" data-modal="info" aria-label="Open info modal">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </span>
+      <span class="trigger-btn__label">Info Modal</span>
+      <span class="trigger-btn__desc">Slide up from bottom</span>
+    </button>
+
+    <!-- 3: Lightbox -->
+    <button class="trigger-btn" data-modal="lightbox" aria-label="Open image lightbox">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </span>
+      <span class="trigger-btn__label">Image Lightbox</span>
+      <span class="trigger-btn__desc">Zoom from click origin</span>
+    </button>
+
+    <!-- 4: Form -->
+    <button class="trigger-btn" data-modal="form" aria-label="Open form modal">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+      </span>
+      <span class="trigger-btn__label">Form Modal</span>
+      <span class="trigger-btn__desc">Flip-in with perspective</span>
+    </button>
+
+    <!-- 5: Fullscreen -->
+    <button class="trigger-btn" data-modal="fullscreen" aria-label="Open fullscreen takeover">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </span>
+      <span class="trigger-btn__label">Fullscreen</span>
+      <span class="trigger-btn__desc">Expand from center</span>
+    </button>
+
+    <!-- 6: Drawer -->
+    <button class="trigger-btn" data-modal="drawer" aria-label="Open side panel drawer">
+      <span class="trigger-btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+      </span>
+      <span class="trigger-btn__label">Side Panel</span>
+      <span class="trigger-btn__desc">Slide from right edge</span>
+    </button>
+  </div>
+</div>
+
+<!-- ====== MODAL: Confirmation ====== -->
+<div class="modal-overlay" id="overlay-confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="modal" id="modal-confirm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="confirm-title">Delete item?</h2>
+      <button class="modal-close" data-close="confirm" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>This action cannot be undone. The item and all associated data will be permanently removed from your account.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn--cancel" data-close="confirm">Cancel</button>
+      <button class="modal-btn modal-btn--danger" data-close="confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: Info ====== -->
+<div class="modal-overlay" id="overlay-info" role="dialog" aria-modal="true" aria-labelledby="info-title">
+  <div class="modal" id="modal-info">
+    <div class="modal-header">
+      <h2 class="modal-title" id="info-title">Release Notes v4.2</h2>
+      <button class="modal-close" data-close="info" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body scrollable">
+      <p style="margin-bottom:12px">We have been working hard to bring you the best experience possible. Here is what is new in this release:</p>
+      <p style="margin-bottom:12px"><strong style="color:var(--text)">Performance improvements</strong><br>Page load times have been reduced by 40% through optimized asset delivery and code splitting. Background tasks now run in dedicated workers.</p>
+      <p style="margin-bottom:12px"><strong style="color:var(--text)">New dashboard widgets</strong><br>Added three new customizable widgets for your dashboard: Activity Feed, Resource Monitor, and Quick Actions. Drag and drop to rearrange.</p>
+      <p style="margin-bottom:12px"><strong style="color:var(--text)">Enhanced security</strong><br>Two-factor authentication now supports hardware security keys. Session management has been improved with real-time device tracking.</p>
+      <p style="margin-bottom:12px"><strong style="color:var(--text)">API updates</strong><br>REST API v3 is now available with improved rate limiting, webhook support, and batch operations. GraphQL endpoint has been updated with new query capabilities.</p>
+      <p><strong style="color:var(--text)">Bug fixes</strong><br>Fixed 23 reported issues including notification delays, search indexing errors, and mobile layout inconsistencies. Thank you for your feedback.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn--primary" data-close="info">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: Lightbox ====== -->
+<div class="modal-overlay" id="overlay-lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+  <div class="modal modal--lightbox" id="modal-lightbox">
+    <div class="lightbox-img" role="img" aria-label="Gradient artwork preview"></div>
+    <div class="modal-body">
+      <h3 id="lightbox-title" style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">Aurora Drift</h3>
+      <p>Gradient studies in violet and teal. Exploring luminous depth through layered color fields.</p>
+    </div>
+    <button class="modal-close" data-close="lightbox" aria-label="Close lightbox" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);border-radius:50%">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ====== MODAL: Form ====== -->
+<div class="modal-overlay" id="overlay-form" role="dialog" aria-modal="true" aria-labelledby="form-title">
+  <div class="modal modal--form" id="modal-form">
+    <div class="modal-header">
+      <h2 class="modal-title" id="form-title">Subscribe to updates</h2>
+      <button class="modal-close" data-close="form" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px">Get weekly design inspiration and product updates delivered to your inbox.</p>
+      <div class="form-field">
+        <label for="sub-name">Name</label>
+        <input class="form-input" type="text" id="sub-name" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-field">
+        <label for="sub-email">Email</label>
+        <input class="form-input" type="email" id="sub-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn--cancel" data-close="form">Cancel</button>
+      <button class="modal-btn modal-btn--primary" data-close="form">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: Fullscreen ====== -->
+<div class="modal-overlay" id="overlay-fullscreen" role="dialog" aria-modal="true" aria-labelledby="fs-title" style="padding:24px">
+  <div class="modal modal--fullscreen" id="modal-fullscreen">
+    <div class="modal-header">
+      <h2 class="modal-title" id="fs-title">Immersive View</h2>
+      <button class="modal-close" data-close="fullscreen" aria-label="Close fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <p style="font-size:clamp(1.25rem,3vw,1.75rem);font-weight:700;margin-bottom:12px;color:var(--text)">Full-screen takeover</p>
+        <p style="font-size:1rem;color:var(--text-secondary);max-width:40ch;margin:0 auto;line-height:1.6">This modal expands from the center to fill the viewport. Ideal for immersive content, media viewers, or focused workflows.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: Drawer ====== -->
+<div class="modal-overlay" id="overlay-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="justify-content:flex-end;padding:0">
+  <div class="modal modal--drawer" id="modal-drawer">
+    <div class="modal-header" style="padding:24px 24px 0">
+      <h2 class="modal-title" id="drawer-title">Notification Settings</h2>
+      <button class="modal-close" data-close="drawer" aria-label="Close drawer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px">
+      <p style="margin-bottom:20px">Configure how and when you receive notifications. Changes save automatically.</p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:0.9375rem;font-weight:600;color:var(--text)">Email notifications</div>
+            <div style="font-size:0.8125rem;color:var(--text-secondary)">Receive updates via email</div>
+          </div>
+          <div style="width:44px;height:24px;background:var(--accent);border-radius:12px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:0.9375rem;font-weight:600;color:var(--text)">Push notifications</div>
+            <div style="font-size:0.8125rem;color:var(--text-secondary)">Browser push alerts</div>
+          </div>
+          <div style="width:44px;height:24px;background:rgba(255,255,255,0.15);border-radius:12px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;opacity:0.6"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:0.9375rem;font-weight:600;color:var(--text)">Weekly digest</div>
+            <div style="font-size:0.8125rem;color:var(--text-secondary)">Summary every Monday</div>
+          </div>
+          <div style="width:44px;height:24px;background:var(--accent);border-radius:12px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:0.9375rem;font-weight:600;color:var(--text)">Marketing emails</div>
+            <div style="font-size:0.8125rem;color:var(--text-secondary)">Product news and offers</div>
+          </div>
+          <div style="width:44px;height:24px;background:rgba(255,255,255,0.15);border-radius:12px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;opacity:0.6"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
+          <div>
+            <div style="font-size:0.9375rem;font-weight:600;color:var(--text)">Sound alerts</div>
+            <div style="font-size:0.8125rem;color:var(--text-secondary)">Play sound for notifications</div>
+          </div>
+          <div style="width:44px;height:24px;background:var(--accent);border-radius:12px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Mesh blob drifts ── */
+  if (!reducedMotion) {
+    gsap.to('.blob-1', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 40, y: 30, duration: 8 },
+        { x: -20, y: -25, duration: 7 },
+        { x: 0, y: 0, duration: 7 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+    gsap.to('.blob-2', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: -35, y: -20, duration: 9 },
+        { x: 25, y: 30, duration: 8 },
+        { x: 0, y: 0, duration: 8 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+    gsap.to('.blob-3', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 30, y: -35, duration: 10 },
+        { x: -15, y: 20, duration: 8 },
+        { x: 0, y: 0, duration: 7 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+  }
+
+  /* ── Page entrance ── */
+  UV.initPage({
+    title: '.page-header__eyebrow, .page-header__title',
+    subtitle: '.page-header__desc',
+    content: '.trigger-btn',
+  });
+
+  /* ── Trigger button hovers ── */
+  UV.hoverLift('.trigger-btn', {
+    y: -6,
+    shadow: '0 16px 48px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.2)',
+    restShadow: '0 0 0 0 transparent',
+  });
+
+  /* ── Focus effects on form inputs ── */
+  if (!reducedMotion) {
+    document.querySelectorAll('.form-input').forEach(function (input) {
+      input.addEventListener('focus', function () {
+        gsap.to(input, {
+          borderColor: '#C4B5FD',
+          boxShadow: '0 0 0 3px rgba(196,181,253,0.2)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+      input.addEventListener('blur', function () {
+        gsap.to(input, {
+          borderColor: 'rgba(255,255,255,0.15)',
+          boxShadow: '0 0 0 0px rgba(196,181,253,0)',
+          duration: 0.15, ease: 'power2.out',
+        });
+      });
+    });
+  }
+
+  /* ── Modal button hovers ── */
+  if (!reducedMotion) {
+    document.querySelectorAll('.modal-btn').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { scale: 1.03, duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { scale: 0.97, duration: 0.08 });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.12, ease: 'back.out(1.7)' });
+      });
+    });
+
+    /* Close button hover */
+    document.querySelectorAll('.modal-close').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { backgroundColor: 'rgba(255,255,255,0.1)', duration: 0.15 });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { backgroundColor: 'transparent', duration: 0.15 });
+      });
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     MODAL ANIMATION SYSTEM
+     ══════════════════════════════════════════ */
+
+  var activeModal = null;
+  var activeTl = null;
+  var clickOrigin = { x: 0, y: 0 };
+
+  /* Animation configs per modal type */
+  var animations = {
+    confirm: {
+      open: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, { scale: 0.85, opacity: 0, duration: 0.4, ease: 'back.out(1.7)' }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, { scale: 0.85, opacity: 0, duration: 0.25, ease: 'power2.in' })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.1');
+        return tl;
+      },
+    },
+    info: {
+      open: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, { y: 100, opacity: 0, duration: 0.45, ease: 'power3.out' }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, { y: 60, opacity: 0, duration: 0.3, ease: 'power2.in' })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.1');
+        return tl;
+      },
+    },
+    lightbox: {
+      open: function (overlay, modal) {
+        var viewW = window.innerWidth;
+        var viewH = window.innerHeight;
+        var originX = ((clickOrigin.x / viewW) - 0.5) * 200;
+        var originY = ((clickOrigin.y / viewH) - 0.5) * 200;
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, {
+            x: originX, y: originY, scale: 0.3, opacity: 0,
+            duration: 0.5, ease: 'power3.out',
+          }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, { scale: 0.7, opacity: 0, duration: 0.3, ease: 'power2.in' })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.1');
+        return tl;
+      },
+    },
+    form: {
+      open: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, {
+            rotateX: -15, y: 40, opacity: 0,
+            duration: 0.5, ease: 'power3.out',
+            transformPerspective: 800,
+          }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, {
+          rotateX: -10, y: 30, opacity: 0,
+          duration: 0.3, ease: 'power2.in',
+          transformPerspective: 800,
+        })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.1');
+        return tl;
+      },
+    },
+    fullscreen: {
+      open: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, { scale: 0, opacity: 0, borderRadius: '50%', duration: 0.55, ease: 'power3.out' }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, { scale: 0, opacity: 0, duration: 0.35, ease: 'power2.in' })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.15');
+        return tl;
+      },
+    },
+    drawer: {
+      open: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+          .from(modal, { x: '100%', duration: 0.45, ease: 'power3.out' }, '-=0.15');
+        return tl;
+      },
+      close: function (overlay, modal) {
+        var tl = gsap.timeline();
+        tl.to(modal, { x: '100%', duration: 0.35, ease: 'power2.in' })
+          .to(overlay, { opacity: 0, duration: 0.2 }, '-=0.15');
+        return tl;
+      },
+    },
+  };
+
+  function openModal(type, event) {
+    if (activeModal) return;
+
+    if (event) {
+      clickOrigin.x = event.clientX || window.innerWidth / 2;
+      clickOrigin.y = event.clientY || window.innerHeight / 2;
+    }
+
+    var overlay = document.getElementById('overlay-' + type);
+    var modal = document.getElementById('modal-' + type);
+    if (!overlay || !modal) return;
+
+    activeModal = type;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (reducedMotion) {
+      gsap.set(overlay, { opacity: 1 });
+      gsap.set(modal, { clearProps: 'all' });
+      trapFocus(overlay);
+      return;
+    }
+
+    var config = animations[type];
+    if (config) {
+      activeTl = config.open(overlay, modal);
+      activeTl.then(function () { trapFocus(overlay); });
+    }
+  }
+
+  function closeModal(type) {
+    if (!type) type = activeModal;
+    if (!type) return;
+
+    var overlay = document.getElementById('overlay-' + type);
+    var modal = document.getElementById('modal-' + type);
+    if (!overlay || !modal) return;
+
+    function onComplete() {
+      overlay.classList.remove('open');
+      gsap.set(overlay, { opacity: 0 });
+      gsap.set(modal, { clearProps: 'all' });
+      document.body.style.overflow = '';
+      activeModal = null;
+      activeTl = null;
+      /* Return focus to trigger button */
+      var trigger = document.querySelector('[data-modal="' + type + '"]');
+      if (trigger) trigger.focus();
+    }
+
+    if (reducedMotion) {
+      onComplete();
+      return;
+    }
+
+    var config = animations[type];
+    if (config) {
+      var tl = config.close(overlay, modal);
+      tl.then(onComplete);
+    } else {
+      onComplete();
+    }
+  }
+
+  /* ── Focus trap ── */
+  function trapFocus(container) {
+    var focusable = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    first.focus();
+
+    container._trapHandler = function (e) {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    container.addEventListener('keydown', container._trapHandler);
+  }
+
+  function releaseFocus(container) {
+    if (container._trapHandler) {
+      container.removeEventListener('keydown', container._trapHandler);
+      container._trapHandler = null;
+    }
+  }
+
+  /* ── Event: open via trigger buttons ── */
+  document.getElementById('triggerGrid').addEventListener('click', function (e) {
+    var btn = e.target.closest('.trigger-btn');
+    if (!btn) return;
+    var type = btn.getAttribute('data-modal');
+    openModal(type, e);
+  });
+
+  /* ── Event: close via close buttons ── */
+  document.addEventListener('click', function (e) {
+    var closeBtn = e.target.closest('[data-close]');
+    if (closeBtn) {
+      var type = closeBtn.getAttribute('data-close');
+      var overlay = document.getElementById('overlay-' + type);
+      if (overlay) releaseFocus(overlay);
+      closeModal(type);
+      return;
+    }
+    /* Close on overlay background click */
+    if (activeModal && e.target.classList.contains('modal-overlay')) {
+      var overlay = document.getElementById('overlay-' + activeModal);
+      if (overlay) releaseFocus(overlay);
+      closeModal(activeModal);
+    }
+  });
+
+  /* ── Event: Escape key ── */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && activeModal) {
+      var overlay = document.getElementById('overlay-' + activeModal);
+      if (overlay) releaseFocus(overlay);
+      closeModal(activeModal);
+    }
+  });
+
+  /* ── Control panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

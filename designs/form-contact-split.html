@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Form — Peach Split</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#1A1A2E;
+  --surface:#242440;
+  --accent:#FF6F61;
+  --accent-hover:#E85D50;
+  --accent-glow:rgba(255,111,97,0.25);
+  --text:#E8E0F0;
+  --text-secondary:rgba(232,224,240,0.6);
+  --text-dark:#3D1F0A;
+  --text-dark-secondary:rgba(61,31,10,0.65);
+  --border:rgba(255,111,97,0.2);
+  --border-neutral:rgba(255,255,255,0.1);
+  --peach-start:#FFD3AC;
+  --peach-mid:#FF9A76;
+  --peach-end:#FF6F61;
+  --radius:12px;
+  --radius-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --font-serif:Georgia,'Times New Roman',serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Split layout ---- */
+.split{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  min-height:100dvh;
+}
+@media(max-width:768px){
+  .split{
+    grid-template-columns:1fr;
+    grid-template-rows:auto 1fr;
+  }
+}
+
+/* ---- Left panel (peach) ---- */
+.panel-info{
+  position:relative;
+  background:linear-gradient(160deg,var(--peach-start),var(--peach-mid),var(--peach-end));
+  padding:64px 48px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+  min-height:100dvh;
+}
+@media(max-width:768px){
+  .panel-info{
+    min-height:auto;
+    padding:48px 24px;
+  }
+}
+
+/* Decorative floating shapes */
+.deco-shape{
+  position:absolute;
+  border-radius:50%;
+  opacity:0.2;
+  pointer-events:none;
+  will-change:transform;
+}
+.deco-1{
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(255,255,255,0.6),transparent 70%);
+  top:8%;right:10%;
+}
+.deco-2{
+  width:100px;height:100px;
+  background:rgba(255,255,255,0.35);
+  bottom:15%;left:5%;
+}
+.deco-3{
+  width:0;height:0;
+  border-left:50px solid transparent;
+  border-right:50px solid transparent;
+  border-bottom:86px solid rgba(255,255,255,0.2);
+  border-radius:0;
+  top:55%;right:20%;
+}
+.deco-4{
+  width:70px;height:70px;
+  background:rgba(255,255,255,0.25);
+  bottom:35%;right:8%;
+}
+
+/* Faint dot grid on peach */
+.panel-info::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(61,31,10,0.06) 1px,transparent 1px);
+  background-size:24px 24px;
+  pointer-events:none;
+}
+
+.info-content{
+  position:relative;
+  z-index:1;
+}
+
+.info-heading{
+  font-family:var(--font-serif);
+  font-size:clamp(2.5rem,5vw + 1rem,4rem);
+  font-weight:700;
+  line-height:1.05;
+  letter-spacing:-0.02em;
+  color:var(--text-dark);
+  margin-bottom:24px;
+  text-wrap:balance;
+}
+
+.info-desc{
+  font-size:1.0625rem;
+  color:var(--text-dark-secondary);
+  line-height:1.6;
+  max-width:36ch;
+  margin-bottom:40px;
+}
+
+/* Contact details */
+.contact-list{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin-bottom:40px;
+}
+.contact-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:0.9375rem;
+  color:var(--text-dark);
+}
+.contact-item__icon{
+  width:40px;height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.4);
+  border-radius:10px;
+  flex-shrink:0;
+  color:var(--text-dark);
+}
+.contact-item__icon svg{width:18px;height:18px}
+
+/* Social links */
+.social-row{
+  display:flex;
+  gap:12px;
+}
+.social-link{
+  width:44px;height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.35);
+  border-radius:10px;
+  color:var(--text-dark);
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+}
+.social-link:focus-visible{
+  outline:2px solid var(--text-dark);
+  outline-offset:2px;
+}
+.social-link svg{width:18px;height:18px}
+
+/* ---- Right panel (dark) ---- */
+.panel-form{
+  background:var(--bg);
+  padding:64px 48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+@media(max-width:768px){
+  .panel-form{
+    padding:40px 24px 56px;
+  }
+}
+
+/* Subtle grid on dark panel */
+.panel-form::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+.form-container{
+  width:100%;
+  max-width:420px;
+  position:relative;
+  z-index:1;
+}
+
+.form-title{
+  font-size:1.5rem;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  margin-bottom:6px;
+}
+.form-subtitle{
+  font-size:0.9375rem;
+  color:var(--text-secondary);
+  margin-bottom:36px;
+  line-height:1.5;
+}
+
+/* ---- Floating label field ---- */
+.field{
+  position:relative;
+  margin-bottom:28px;
+}
+.field-input{
+  display:block;
+  width:100%;
+  padding:20px 0 8px;
+  font-size:1rem;
+  font-family:inherit;
+  color:var(--text);
+  background:transparent;
+  border:none;
+  border-bottom:2px solid var(--border-neutral);
+  outline:none;
+  min-height:52px;
+}
+.field-input::placeholder{color:transparent}
+
+.field-label{
+  position:absolute;
+  left:0;
+  top:20px;
+  font-size:1rem;
+  color:var(--text-secondary);
+  pointer-events:none;
+  /* No CSS transition — GSAP handles this */
+}
+
+/* Focus underline bar */
+.field-bar{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  width:0;
+  height:2px;
+  background:var(--accent);
+  /* No CSS transition — GSAP handles this */
+}
+
+/* Select field */
+.field-select{
+  display:block;
+  width:100%;
+  padding:20px 0 8px;
+  font-size:1rem;
+  font-family:inherit;
+  color:var(--text);
+  background:transparent;
+  border:none;
+  border-bottom:2px solid var(--border-neutral);
+  outline:none;
+  cursor:pointer;
+  appearance:none;
+  min-height:52px;
+}
+.field-select option{
+  background:var(--surface);
+  color:var(--text);
+}
+
+/* Select arrow */
+.field--select::after{
+  content:'';
+  position:absolute;
+  right:4px;top:50%;
+  width:0;height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:5px solid var(--text-secondary);
+  pointer-events:none;
+  transform:translateY(-50%);
+}
+
+/* Textarea */
+.field-textarea{
+  display:block;
+  width:100%;
+  padding:20px 0 8px;
+  font-size:1rem;
+  font-family:inherit;
+  color:var(--text);
+  background:transparent;
+  border:none;
+  border-bottom:2px solid var(--border-neutral);
+  outline:none;
+  resize:vertical;
+  min-height:80px;
+  line-height:1.5;
+}
+.field-textarea::placeholder{color:transparent}
+
+/* Error shake state (added via JS) */
+.field.has-error .field-input,
+.field.has-error .field-select,
+.field.has-error .field-textarea{
+  border-bottom-color:#EF4444;
+}
+.field-error{
+  font-size:0.75rem;
+  color:#EF4444;
+  margin-top:4px;
+  opacity:0;
+  display:none;
+}
+.field.has-error .field-error{
+  display:block;
+}
+
+/* ---- Submit button ---- */
+.submit-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:52px;
+  font-size:1rem;
+  font-weight:700;
+  font-family:inherit;
+  color:#fff;
+  background:var(--accent);
+  border:none;
+  border-radius:var(--radius);
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  margin-top:8px;
+}
+.submit-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* Submit button text/spinner containers */
+.submit-text{display:inline-block}
+.submit-spinner{
+  display:none;
+  width:22px;height:22px;
+  border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+}
+.submit-check{
+  display:none;
+  width:22px;height:22px;
+}
+.submit-check svg{width:22px;height:22px;color:#fff}
+
+/* ---- Success state ---- */
+.success-msg{
+  text-align:center;
+  opacity:0;
+  display:none;
+}
+.success-msg.visible{display:block}
+
+.success-icon{
+  width:64px;height:64px;
+  margin:0 auto 20px;
+  color:var(--accent);
+}
+.success-icon svg{width:64px;height:64px}
+.success-title{
+  font-size:1.5rem;
+  font-weight:700;
+  margin-bottom:8px;
+}
+.success-desc{
+  font-size:0.9375rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+  margin-bottom:24px;
+}
+.success-btn{
+  display:inline-flex;
+  align-items:center;
+  padding:10px 24px;
+  font-size:0.9375rem;
+  font-weight:600;
+  font-family:inherit;
+  color:#fff;
+  background:var(--accent);
+  border:none;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  min-height:44px;
+}
+.success-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+</style>
+</head>
+<body>
+
+<div class="split">
+  <!-- ====== LEFT: INFO PANEL ====== -->
+  <div class="panel-info">
+    <!-- Decorative shapes -->
+    <div class="deco-shape deco-1" aria-hidden="true"></div>
+    <div class="deco-shape deco-2" aria-hidden="true"></div>
+    <div class="deco-shape deco-3" aria-hidden="true"></div>
+    <div class="deco-shape deco-4" aria-hidden="true"></div>
+
+    <div class="info-content">
+      <h1 class="info-heading">Let's Talk</h1>
+      <p class="info-desc">Have a project in mind? We would love to hear from you. Send us a message and we will get back within 24 hours.</p>
+
+      <div class="contact-list">
+        <div class="contact-item">
+          <span class="contact-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+          </span>
+          <span>hello@studio.com</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </span>
+          <span>+1 (555) 123-4567</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span>San Francisco, CA</span>
+        </div>
+      </div>
+
+      <div class="social-row">
+        <!-- Twitter/X -->
+        <a href="#" class="social-link" aria-label="Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <!-- LinkedIn -->
+        <a href="#" class="social-link" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <!-- GitHub -->
+        <a href="#" class="social-link" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.337-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        </a>
+        <!-- Dribbble -->
+        <a href="#" class="social-link" aria-label="Dribbble">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c5.51 0 10-4.48 10-10S17.51 2 12 2zm6.605 4.61a8.502 8.502 0 011.93 5.314c-.281-.054-3.101-.629-5.943-.271-.065-.141-.12-.293-.184-.445a25.424 25.424 0 00-.564-1.236c3.145-1.28 4.577-3.124 4.761-3.362zM12 3.475c2.17 0 4.154.813 5.662 2.148-.152.216-1.443 1.941-4.48 3.08-1.399-2.57-2.95-4.675-3.189-5A8.687 8.687 0 0112 3.475zm-3.633.803a53.896 53.896 0 013.167 4.935c-3.992 1.063-7.517 1.04-7.896 1.04a8.581 8.581 0 014.729-5.975zM3.453 12.01v-.26c.37.01 4.512.065 8.775-1.215.245.477.477.965.694 1.453-.109.033-.228.065-.336.098-4.404 1.42-6.747 5.303-6.942 5.629a8.522 8.522 0 01-2.19-5.705zM12 20.547a8.482 8.482 0 01-5.239-1.8c.152-.315 1.888-3.656 6.703-5.337.022-.01.033-.01.054-.022a35.318 35.318 0 011.823 6.475 8.4 8.4 0 01-3.341.684zm4.761-1.465c-.086-.52-.542-3.015-1.659-6.084 2.679-.423 5.022.271 5.314.369a8.468 8.468 0 01-3.655 5.715z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== RIGHT: FORM PANEL ====== -->
+  <div class="panel-form">
+    <div class="form-container">
+      <h2 class="form-title">Send a message</h2>
+      <p class="form-subtitle">Fill out the form below and we will be in touch soon.</p>
+
+      <form id="contactForm" autocomplete="on" novalidate>
+        <!-- Name -->
+        <div class="field" data-field="name">
+          <input class="field-input" type="text" id="c-name" name="name" placeholder="Your name" autocomplete="name" required>
+          <label class="field-label" for="c-name">Name</label>
+          <span class="field-bar"></span>
+          <div class="field-error">Please enter your name</div>
+        </div>
+
+        <!-- Email -->
+        <div class="field" data-field="email">
+          <input class="field-input" type="email" id="c-email" name="email" placeholder="Your email" autocomplete="email" required>
+          <label class="field-label" for="c-email">Email</label>
+          <span class="field-bar"></span>
+          <div class="field-error">Please enter a valid email</div>
+        </div>
+
+        <!-- Subject -->
+        <div class="field field--select" data-field="subject">
+          <select class="field-select" id="c-subject" name="subject" required>
+            <option value="" disabled selected>Choose a subject</option>
+            <option value="general">General Inquiry</option>
+            <option value="project">Project Proposal</option>
+            <option value="support">Support</option>
+            <option value="partnership">Partnership</option>
+          </select>
+          <label class="field-label" for="c-subject">Subject</label>
+          <span class="field-bar"></span>
+          <div class="field-error">Please select a subject</div>
+        </div>
+
+        <!-- Message -->
+        <div class="field" data-field="message">
+          <textarea class="field-textarea" id="c-message" name="message" placeholder="Your message" rows="3" required></textarea>
+          <label class="field-label" for="c-message">Message</label>
+          <span class="field-bar"></span>
+          <div class="field-error">Please enter a message</div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="submit-text">Send Message</span>
+          <span class="submit-spinner" id="submitSpinner"></span>
+          <span class="submit-check" id="submitCheck">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+      </form>
+
+      <!-- Success message -->
+      <div class="success-msg" id="successMsg">
+        <div class="success-icon">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Paper plane -->
+            <path d="M6 30L58 6 42 58 30 38z"/>
+            <line x1="58" y1="6" x2="30" y2="38"/>
+          </svg>
+        </div>
+        <h3 class="success-title">Message Sent!</h3>
+        <p class="success-desc">Thank you for reaching out. We will get back to you within 24 hours.</p>
+        <button class="success-btn" id="resetBtn" type="button">Send Another</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* -- Decorative shape drifts -- */
+  if (!reducedMotion) {
+    gsap.to('.deco-1', {
+      keyframes: [
+        { x: 0, y: 0, scale: 1, duration: 0 },
+        { x: -20, y: 15, scale: 1.05, duration: 8 },
+        { x: 12, y: -10, scale: 0.95, duration: 7 },
+        { x: 0, y: 0, scale: 1, duration: 7 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+    gsap.to('.deco-2', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 18, y: -14, duration: 9 },
+        { x: -10, y: 8, duration: 7 },
+        { x: 0, y: 0, duration: 8 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+    gsap.to('.deco-3', {
+      keyframes: [
+        { x: 0, y: 0, rotation: 0, duration: 0 },
+        { x: -12, y: 18, rotation: 30, duration: 10 },
+        { x: 8, y: -8, rotation: -15, duration: 8 },
+        { x: 0, y: 0, rotation: 0, duration: 9 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+    gsap.to('.deco-4', {
+      keyframes: [
+        { x: 0, y: 0, duration: 0 },
+        { x: 14, y: 12, duration: 8 },
+        { x: -8, y: -16, duration: 7 },
+        { x: 0, y: 0, duration: 7 },
+      ],
+      repeat: -1, ease: 'sine.inOut',
+    });
+  }
+
+  /* -- Left panel entrance -- */
+  if (!reducedMotion) {
+    var leftTl = gsap.timeline({ delay: 0.15 });
+    leftTl
+      .from('.info-heading', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
+      .from('.info-desc', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' }, '-=0.3')
+      .from('.contact-item', { opacity: 0, x: -20, duration: 0.4, stagger: 0.08, ease: 'power3.out' }, '-=0.2')
+      .from('.social-link', { opacity: 0, scale: 0.8, duration: 0.3, stagger: 0.06, ease: 'back.out(1.7)' }, '-=0.1');
+  }
+
+  /* -- Right panel entrance -- */
+  UV.staggerSequence('.form-container > *, .form-container form > *', {
+    y: 25, duration: 0.45, stagger: 0.06,
+  });
+
+  /* -- Social link hover -- */
+  if (!reducedMotion) {
+    document.querySelectorAll('.social-link').forEach(function (link) {
+      link.addEventListener('mouseenter', function () {
+        gsap.to(link, {
+          scale: 1.12,
+          backgroundColor: 'rgba(255,255,255,0.5)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+      link.addEventListener('mouseleave', function () {
+        gsap.to(link, {
+          scale: 1,
+          backgroundColor: 'rgba(255,255,255,0.35)',
+          duration: 0.2, ease: 'power2.out',
+        });
+      });
+    });
+  }
+
+  /* -- Submit button hover -- */
+  if (!reducedMotion) {
+    var submitBtn = document.getElementById('submitBtn');
+    submitBtn.addEventListener('mouseenter', function () {
+      gsap.to(submitBtn, {
+        backgroundColor: '#E85D50',
+        boxShadow: '0 4px 20px rgba(255,111,97,0.35)',
+        duration: 0.15, ease: 'power2.out',
+      });
+    });
+    submitBtn.addEventListener('mouseleave', function () {
+      gsap.to(submitBtn, {
+        backgroundColor: '#FF6F61',
+        boxShadow: '0 0 0 0 rgba(255,111,97,0)',
+        duration: 0.15, ease: 'power2.out',
+      });
+    });
+    submitBtn.addEventListener('mousedown', function () {
+      gsap.to(submitBtn, { scale: 0.97, duration: 0.08 });
+    });
+    submitBtn.addEventListener('mouseup', function () {
+      gsap.to(submitBtn, { scale: 1, duration: 0.12, ease: 'back.out(1.7)' });
+    });
+  }
+
+  /* ==================================
+     FLOATING LABEL SYSTEM
+     ================================== */
+
+  var allInputs = document.querySelectorAll('.field-input, .field-textarea');
+  var allSelects = document.querySelectorAll('.field-select');
+
+  function activateLabel(field) {
+    var label = field.querySelector('.field-label');
+    var bar = field.querySelector('.field-bar');
+    if (!label || !bar) return;
+
+    if (reducedMotion) {
+      gsap.set(label, { y: -24, scale: 0.85, color: '#FF6F61' });
+      gsap.set(bar, { width: '100%', left: 0 });
+    } else {
+      gsap.to(label, { y: -24, scale: 0.85, color: '#FF6F61', duration: 0.25, ease: 'power2.out' });
+      gsap.to(bar, { width: '100%', left: 0, duration: 0.3, ease: 'power2.out' });
+    }
+  }
+
+  function deactivateLabel(field, hasValue) {
+    var label = field.querySelector('.field-label');
+    var bar = field.querySelector('.field-bar');
+    if (!label || !bar) return;
+
+    if (hasValue) {
+      /* Keep label up but change color back */
+      gsap.to(label, { color: 'rgba(232,224,240,0.6)', duration: reducedMotion ? 0 : 0.2 });
+    } else {
+      if (reducedMotion) {
+        gsap.set(label, { y: 0, scale: 1, color: 'rgba(232,224,240,0.6)' });
+      } else {
+        gsap.to(label, { y: 0, scale: 1, color: 'rgba(232,224,240,0.6)', duration: 0.25, ease: 'power2.out' });
+      }
+    }
+    if (reducedMotion) {
+      gsap.set(bar, { width: 0, left: '50%' });
+    } else {
+      gsap.to(bar, { width: 0, left: '50%', duration: 0.25, ease: 'power2.in' });
+    }
+  }
+
+  /* Text inputs & textarea */
+  allInputs.forEach(function (input) {
+    var field = input.closest('.field');
+
+    input.addEventListener('focus', function () {
+      activateLabel(field);
+    });
+
+    input.addEventListener('blur', function () {
+      deactivateLabel(field, input.value.trim().length > 0);
+    });
+
+    /* If prefilled */
+    if (input.value.trim().length > 0) {
+      gsap.set(field.querySelector('.field-label'), { y: -24, scale: 0.85 });
+    }
+  });
+
+  /* Select */
+  allSelects.forEach(function (select) {
+    var field = select.closest('.field');
+
+    select.addEventListener('focus', function () {
+      activateLabel(field);
+    });
+
+    select.addEventListener('blur', function () {
+      deactivateLabel(field, select.value !== '');
+    });
+
+    select.addEventListener('change', function () {
+      if (select.value) {
+        var label = field.querySelector('.field-label');
+        gsap.set(label, { y: -24, scale: 0.85 });
+      }
+    });
+  });
+
+  /* ==================================
+     FORM VALIDATION & SUBMIT
+     ================================== */
+
+  var form = document.getElementById('contactForm');
+  var isSubmitting = false;
+
+  function validateField(field) {
+    var input = field.querySelector('.field-input, .field-select, .field-textarea');
+    if (!input) return true;
+
+    var valid = true;
+
+    if (input.hasAttribute('required')) {
+      if (input.tagName === 'SELECT') {
+        valid = input.value !== '';
+      } else {
+        valid = input.value.trim().length > 0;
+      }
+    }
+
+    /* Email format check */
+    if (valid && input.type === 'email' && input.value.trim().length > 0) {
+      valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    }
+
+    if (!valid) {
+      field.classList.add('has-error');
+      /* Shake animation */
+      if (!reducedMotion) {
+        gsap.to(input, {
+          x: [-10, 10, -10, 10, 0],
+          duration: 0.4,
+          ease: 'power2.out',
+        });
+      }
+      /* Show error text */
+      var errorEl = field.querySelector('.field-error');
+      if (errorEl) {
+        gsap.to(errorEl, { opacity: 1, duration: reducedMotion ? 0 : 0.2 });
+      }
+    } else {
+      field.classList.remove('has-error');
+      var errorEl = field.querySelector('.field-error');
+      if (errorEl) {
+        gsap.to(errorEl, { opacity: 0, duration: reducedMotion ? 0 : 0.15 });
+      }
+    }
+
+    return valid;
+  }
+
+  /* Clear error on input */
+  document.querySelectorAll('.field').forEach(function (field) {
+    var input = field.querySelector('.field-input, .field-select, .field-textarea');
+    if (!input) return;
+    input.addEventListener('input', function () {
+      if (field.classList.contains('has-error')) {
+        field.classList.remove('has-error');
+        var errorEl = field.querySelector('.field-error');
+        if (errorEl) gsap.to(errorEl, { opacity: 0, duration: 0.15 });
+      }
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    /* Validate all fields */
+    var fields = form.querySelectorAll('.field');
+    var allValid = true;
+    fields.forEach(function (field) {
+      if (!validateField(field)) allValid = false;
+    });
+
+    if (!allValid) return;
+
+    isSubmitting = true;
+
+    /* Submit animation timeline */
+    var submitBtnEl = document.getElementById('submitBtn');
+    var textEl = submitBtnEl.querySelector('.submit-text');
+    var spinnerEl = document.getElementById('submitSpinner');
+    var checkEl = document.getElementById('submitCheck');
+
+    if (reducedMotion) {
+      /* Skip animation, go directly to success */
+      textEl.style.display = 'none';
+      checkEl.style.display = 'inline-block';
+      setTimeout(function () { showSuccess(); }, 300);
+      return;
+    }
+
+    var tl = gsap.timeline();
+
+    /* 1. Shrink to circle */
+    tl.to(textEl, { opacity: 0, duration: 0.15 })
+      .add(function () {
+        textEl.style.display = 'none';
+        spinnerEl.style.display = 'inline-block';
+      })
+      .to(submitBtnEl, { width: 52, borderRadius: 26, duration: 0.35, ease: 'power2.inOut' })
+      .add(function () {
+        /* Spinning — use GSAP infinite rotation */
+        gsap.to(spinnerEl, { rotation: 360, duration: 0.6, repeat: 2, ease: 'none' });
+      })
+      /* 2. Wait for "loading" */
+      .to({}, { duration: 1.5 })
+      /* 3. Show checkmark */
+      .add(function () {
+        spinnerEl.style.display = 'none';
+        checkEl.style.display = 'inline-block';
+      })
+      .from(checkEl, { scale: 0, duration: 0.3, ease: 'back.out(2)' })
+      /* 4. Expand back */
+      .to(submitBtnEl, { width: '100%', borderRadius: 12, duration: 0.35, ease: 'power2.inOut', delay: 0.3 })
+      .add(function () {
+        checkEl.style.display = 'none';
+        textEl.style.display = 'inline-block';
+        textEl.textContent = 'Sent!';
+        gsap.set(textEl, { opacity: 1 });
+      })
+      .from(textEl, { opacity: 0, duration: 0.2 })
+      .to({}, { duration: 0.5 })
+      .add(function () { showSuccess(); });
+  });
+
+  function showSuccess() {
+    var formEl = document.getElementById('contactForm');
+    var successEl = document.getElementById('successMsg');
+
+    if (reducedMotion) {
+      formEl.style.display = 'none';
+      successEl.classList.add('visible');
+      gsap.set(successEl, { opacity: 1 });
+      return;
+    }
+
+    var tl = gsap.timeline();
+    tl.to(formEl, { opacity: 0, y: -20, duration: 0.35, ease: 'power2.in' })
+      .add(function () {
+        formEl.style.display = 'none';
+        successEl.classList.add('visible');
+      })
+      .from(successEl, { opacity: 0, y: 20, duration: 0 })
+      .to(successEl, { opacity: 1, duration: 0.4, ease: 'power2.out' })
+      .from('.success-icon', { scale: 0, rotation: -30, duration: 0.5, ease: 'back.out(1.7)' }, '-=0.2')
+      .from('.success-title', { opacity: 0, y: 10, duration: 0.3 }, '-=0.15')
+      .from('.success-desc', { opacity: 0, y: 10, duration: 0.3 }, '-=0.15')
+      .from('.success-btn', { opacity: 0, scale: 0.9, duration: 0.3, ease: 'back.out(1.7)' }, '-=0.1');
+
+    /* Animate paper plane flying up */
+    if (!reducedMotion) {
+      gsap.to('.success-icon svg', {
+        y: -8, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.5,
+      });
+    }
+  }
+
+  /* Reset form */
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    var formEl = document.getElementById('contactForm');
+    var successEl = document.getElementById('successMsg');
+    var submitBtnEl = document.getElementById('submitBtn');
+    var textEl = submitBtnEl.querySelector('.submit-text');
+
+    isSubmitting = false;
+    formEl.reset();
+    textEl.textContent = 'Send Message';
+
+    /* Reset labels */
+    document.querySelectorAll('.field').forEach(function (field) {
+      field.classList.remove('has-error');
+      var label = field.querySelector('.field-label');
+      var bar = field.querySelector('.field-bar');
+      var errorEl = field.querySelector('.field-error');
+      if (label) gsap.set(label, { y: 0, scale: 1, color: 'rgba(232,224,240,0.6)' });
+      if (bar) gsap.set(bar, { width: 0, left: '50%' });
+      if (errorEl) gsap.set(errorEl, { opacity: 0 });
+    });
+
+    if (reducedMotion) {
+      successEl.classList.remove('visible');
+      gsap.set(successEl, { opacity: 0 });
+      formEl.style.display = '';
+      gsap.set(formEl, { opacity: 1, y: 0 });
+      return;
+    }
+
+    var tl = gsap.timeline();
+    tl.to(successEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' })
+      .add(function () {
+        successEl.classList.remove('visible');
+        gsap.set(successEl, { opacity: 0, y: 0 });
+        formEl.style.display = '';
+        gsap.set(formEl, { opacity: 0, y: 20 });
+        gsap.set(submitBtnEl, { width: '100%', borderRadius: 12 });
+      })
+      .to(formEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' });
+  });
+
+  /* Reset button hover */
+  if (!reducedMotion) {
+    var resetBtn = document.getElementById('resetBtn');
+    resetBtn.addEventListener('mouseenter', function () {
+      gsap.to(resetBtn, { scale: 1.05, duration: 0.15, ease: 'power2.out' });
+    });
+    resetBtn.addEventListener('mouseleave', function () {
+      gsap.to(resetBtn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+    });
+  }
+
+  /* -- Control panel -- */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

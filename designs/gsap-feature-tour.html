@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feature Tour Spotlight — Electric Cyan</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#181C20;
+  --surface:#22272E;
+  --surface-raised:#2A3038;
+  --accent:#00D4FF;
+  --accent-dim:rgba(0,212,255,0.12);
+  --accent-glow:rgba(0,212,255,0.3);
+  --text:#E6EDF3;
+  --text-secondary:rgba(230,237,243,0.6);
+  --border:rgba(0,212,255,0.2);
+  --border-neutral:rgba(255,255,255,0.08);
+  --radius:10px;
+  --radius-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'SF Mono',SFMono-Regular,ui-monospace,Menlo,monospace;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* ---- Dot grid ---- */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(0,212,255,0.03) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Dashboard shell ---- */
+.dashboard{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:220px 1fr;
+  grid-template-rows:56px 1fr;
+  min-height:100dvh;
+}
+@media(max-width:768px){
+  .dashboard{
+    grid-template-columns:1fr;
+    grid-template-rows:56px auto 1fr;
+  }
+}
+
+/* ---- Top nav ---- */
+.topnav{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border-neutral);
+  position:relative;
+  z-index:10;
+}
+.topnav__brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+  font-size:0.9375rem;
+  letter-spacing:-0.01em;
+}
+.topnav__logo{
+  width:28px;height:28px;
+  background:var(--accent);
+  border-radius:7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.topnav__logo svg{width:16px;height:16px;color:var(--bg)}
+.topnav__actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.topnav__action-btn{
+  width:36px;height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:var(--radius-sm);
+  background:transparent;
+  border:none;
+  color:var(--text-secondary);
+  cursor:pointer;
+  position:relative;
+}
+.topnav__action-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topnav__action-btn svg{width:18px;height:18px}
+
+/* Settings gear — tour target */
+.settings-gear{
+  position:relative;
+}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  background:var(--surface);
+  border-right:1px solid var(--border-neutral);
+  padding:20px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  position:relative;
+  z-index:5;
+}
+@media(max-width:768px){
+  .sidebar{
+    flex-direction:row;
+    padding:12px;
+    border-right:none;
+    border-bottom:1px solid var(--border-neutral);
+    overflow-x:auto;
+  }
+}
+
+.sidebar__item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:var(--radius-sm);
+  font-size:0.875rem;
+  font-weight:500;
+  color:var(--text-secondary);
+  cursor:pointer;
+  border:none;
+  background:transparent;
+  font-family:inherit;
+  white-space:nowrap;
+  min-height:44px;
+  width:100%;
+  text-align:left;
+}
+.sidebar__item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sidebar__item.active{
+  background:var(--accent-dim);
+  color:var(--accent);
+}
+.sidebar__item svg{width:18px;height:18px;flex-shrink:0}
+
+/* ---- Main content ---- */
+.main{
+  padding:28px;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  position:relative;
+  z-index:5;
+}
+@media(max-width:480px){
+  .main{padding:16px;gap:16px}
+}
+
+/* ---- Stat card ---- */
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border-neutral);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  max-width:280px;
+  position:relative;
+}
+.stat-card__icon{
+  width:44px;height:44px;
+  background:var(--accent-dim);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--accent);
+  flex-shrink:0;
+}
+.stat-card__icon svg{width:20px;height:20px}
+.stat-card__value{
+  font-size:1.5rem;
+  font-weight:800;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+}
+.stat-card__label{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  margin-top:2px;
+}
+
+/* ---- Chart area ---- */
+.chart-area{
+  background:var(--surface);
+  border:1px solid var(--border-neutral);
+  border-radius:var(--radius);
+  padding:24px;
+  min-height:200px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  position:relative;
+}
+.chart-area__title{
+  font-size:0.875rem;
+  font-weight:600;
+  color:var(--text);
+}
+.chart-bars{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  flex:1;
+  min-height:120px;
+}
+.chart-bar{
+  flex:1;
+  background:var(--accent-dim);
+  border-radius:4px 4px 0 0;
+  min-height:12px;
+  position:relative;
+}
+
+/* ---- Action button row ---- */
+.action-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.action-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 20px;
+  font-size:0.875rem;
+  font-weight:600;
+  font-family:inherit;
+  color:var(--bg);
+  background:var(--accent);
+  border:none;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  min-height:44px;
+  position:relative;
+}
+.action-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.action-btn svg{width:16px;height:16px}
+
+.action-btn--secondary{
+  background:var(--surface);
+  color:var(--text);
+  border:1px solid var(--border-neutral);
+}
+
+/* ---- Start Tour FAB ---- */
+.start-tour{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:50;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 28px;
+  font-size:0.9375rem;
+  font-weight:700;
+  font-family:inherit;
+  color:var(--bg);
+  background:var(--accent);
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 4px 24px rgba(0,212,255,0.3),0 0 0 1px rgba(0,212,255,0.2);
+  min-height:48px;
+}
+.start-tour:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.start-tour svg{width:18px;height:18px}
+
+/* ══════════════════════════════════════════
+   TOUR OVERLAY SYSTEM
+   ══════════════════════════════════════════ */
+
+.tour-overlay{
+  position:fixed;
+  inset:0;
+  z-index:900;
+  pointer-events:none;
+  opacity:0;
+}
+.tour-overlay.active{pointer-events:auto}
+
+/* SVG mask overlay */
+.tour-overlay svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* Pulse ring around current element */
+.tour-ring{
+  position:fixed;
+  border:2px solid var(--accent);
+  border-radius:var(--radius);
+  pointer-events:none;
+  z-index:901;
+  opacity:0;
+  box-shadow:0 0 0 4px rgba(0,212,255,0.15);
+}
+
+/* Tour tooltip */
+.tour-tooltip{
+  position:fixed;
+  z-index:902;
+  background:var(--surface);
+  border:1px solid var(--accent);
+  border-radius:var(--radius);
+  padding:20px;
+  width:320px;
+  max-width:calc(100vw - 32px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 20px rgba(0,212,255,0.15);
+  opacity:0;
+  pointer-events:none;
+}
+.tour-tooltip.visible{pointer-events:auto}
+
+.tour-tooltip__step{
+  font-family:var(--font-mono);
+  font-size:0.6875rem;
+  font-weight:600;
+  color:var(--accent);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.tour-tooltip__title{
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  letter-spacing:-0.01em;
+}
+.tour-tooltip__desc{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+  margin-bottom:16px;
+}
+
+/* Progress dots */
+.tour-dots{
+  display:flex;
+  gap:6px;
+  margin-bottom:16px;
+}
+.tour-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+}
+.tour-dot.completed{background:var(--accent)}
+.tour-dot.current{
+  background:var(--accent);
+  box-shadow:0 0 6px var(--accent-glow);
+}
+
+/* Auto-advance progress bar */
+.tour-progress{
+  width:100%;
+  height:3px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  margin-bottom:16px;
+  overflow:hidden;
+  display:none;
+}
+.tour-progress.active{display:block}
+.tour-progress__bar{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  border-radius:2px;
+}
+
+/* Tooltip buttons */
+.tour-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.tour-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 16px;
+  font-size:0.8125rem;
+  font-weight:600;
+  font-family:inherit;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  border:none;
+  min-height:36px;
+}
+.tour-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tour-btn--primary{background:var(--accent);color:var(--bg)}
+.tour-btn--ghost{background:transparent;color:var(--text-secondary);border:none}
+
+/* Auto-advance toggle */
+.tour-auto{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--border-neutral);
+}
+.tour-auto label{
+  font-size:0.75rem;
+  color:var(--text-secondary);
+  cursor:pointer;
+  user-select:none;
+}
+.tour-auto input[type="checkbox"]{
+  appearance:none;
+  width:16px;height:16px;
+  border:1.5px solid rgba(255,255,255,0.2);
+  border-radius:4px;
+  cursor:pointer;
+  position:relative;
+  flex-shrink:0;
+}
+.tour-auto input[type="checkbox"]:checked{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.tour-auto input[type="checkbox"]:checked::after{
+  content:'';
+  position:absolute;
+  top:1px;left:4px;
+  width:5px;height:8px;
+  border:solid var(--bg);
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.tour-auto input[type="checkbox"]:focus-visible{
+  box-shadow:0 0 0 3px rgba(0,212,255,0.3);
+}
+
+/* ---- Tour complete overlay ---- */
+.tour-complete{
+  position:fixed;
+  inset:0;
+  z-index:950;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.6);
+  opacity:0;
+  pointer-events:none;
+}
+.tour-complete.visible{pointer-events:auto}
+.tour-complete__card{
+  background:var(--surface);
+  border:1px solid var(--accent);
+  border-radius:var(--radius);
+  padding:40px 48px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px rgba(0,212,255,0.15);
+}
+.tour-complete__icon{
+  width:56px;height:56px;
+  background:var(--accent-dim);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 16px;
+  color:var(--accent);
+}
+.tour-complete__icon svg{width:28px;height:28px}
+.tour-complete__title{
+  font-size:1.25rem;
+  font-weight:800;
+  letter-spacing:-0.02em;
+  margin-bottom:8px;
+}
+.tour-complete__desc{
+  font-size:0.875rem;
+  color:var(--text-secondary);
+  margin-bottom:20px;
+  line-height:1.5;
+}
+</style>
+</head>
+<body>
+
+<!-- ====== MOCK DASHBOARD ====== -->
+<div class="dashboard">
+  <!-- Top Nav -->
+  <nav class="topnav" id="tour-topnav" aria-label="Main navigation">
+    <div class="topnav__brand">
+      <div class="topnav__logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <span>Voltex</span>
+    </div>
+    <div class="topnav__actions">
+      <button class="topnav__action-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="topnav__action-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </button>
+      <button class="topnav__action-btn settings-gear" id="tour-settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="tour-sidebar" aria-label="Sidebar navigation">
+    <button class="sidebar__item active" id="tour-sidebar-item-1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="sidebar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Team
+    </button>
+    <button class="sidebar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <!-- Stat card -->
+    <div class="stat-card" id="tour-stat">
+      <div class="stat-card__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div>
+        <div class="stat-card__value">$12,480</div>
+        <div class="stat-card__label">Revenue this month</div>
+      </div>
+    </div>
+
+    <!-- Chart area -->
+    <div class="chart-area" id="tour-chart">
+      <div class="chart-area__title">Weekly Activity</div>
+      <div class="chart-bars">
+        <div class="chart-bar" style="height:45%"></div>
+        <div class="chart-bar" style="height:72%"></div>
+        <div class="chart-bar" style="height:58%"></div>
+        <div class="chart-bar" style="height:85%"></div>
+        <div class="chart-bar" style="height:65%"></div>
+        <div class="chart-bar" style="height:92%"></div>
+        <div class="chart-bar" style="height:78%"></div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-row" id="tour-action">
+      <button class="action-btn" id="tour-action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Report
+      </button>
+      <button class="action-btn action-btn--secondary">Export</button>
+    </div>
+  </main>
+</div>
+
+<!-- Start Tour FAB -->
+<button class="start-tour" id="startTourBtn" aria-label="Start feature tour">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+  Start Tour
+</button>
+
+<!-- Tour overlay (SVG mask) -->
+<div class="tour-overlay" id="tourOverlay" aria-hidden="true">
+  <svg>
+    <defs>
+      <mask id="spotlightMask">
+        <rect width="100%" height="100%" fill="white"/>
+        <rect id="spotlightHole" x="0" y="0" width="0" height="0" rx="10" fill="black"/>
+      </mask>
+    </defs>
+    <rect width="100%" height="100%" fill="rgba(0,0,0,0.7)" mask="url(#spotlightMask)"/>
+  </svg>
+</div>
+
+<!-- Pulse ring -->
+<div class="tour-ring" id="tourRing" aria-hidden="true"></div>
+
+<!-- Tour tooltip -->
+<div class="tour-tooltip" id="tourTooltip" role="tooltip">
+  <div class="tour-tooltip__step" id="tooltipStep"></div>
+  <div class="tour-tooltip__title" id="tooltipTitle"></div>
+  <div class="tour-tooltip__desc" id="tooltipDesc"></div>
+  <div class="tour-dots" id="tourDots"></div>
+  <div class="tour-progress" id="tourProgress"><div class="tour-progress__bar" id="tourProgressBar"></div></div>
+  <div class="tour-actions">
+    <button class="tour-btn tour-btn--ghost" id="tourSkip">Skip</button>
+    <button class="tour-btn tour-btn--primary" id="tourNext">Next</button>
+  </div>
+  <div class="tour-auto">
+    <input type="checkbox" id="autoAdvance">
+    <label for="autoAdvance">Auto-advance (3s per step)</label>
+  </div>
+</div>
+
+<!-- Tour complete -->
+<div class="tour-complete" id="tourComplete">
+  <div class="tour-complete__card" id="tourCompleteCard">
+    <div class="tour-complete__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div class="tour-complete__title">Tour Complete!</div>
+    <div class="tour-complete__desc">You have explored all the key features. Ready to dive in?</div>
+    <button class="tour-btn tour-btn--primary" id="tourDone" style="padding:10px 24px">Get Started</button>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* -- Page entrance -- */
+  UV.initPage({
+    title: '.topnav',
+    content: '.sidebar__item, .stat-card, .chart-area, .action-row',
+  });
+
+  /* -- Sidebar hover -- */
+  if (!reducedMotion) {
+    document.querySelectorAll('.sidebar__item').forEach(function (item) {
+      item.addEventListener('mouseenter', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, { backgroundColor: 'rgba(0,212,255,0.06)', duration: 0.15 });
+        }
+      });
+      item.addEventListener('mouseleave', function () {
+        if (!item.classList.contains('active')) {
+          gsap.to(item, { backgroundColor: 'transparent', duration: 0.15 });
+        }
+      });
+    });
+
+    /* Action button hovers */
+    document.querySelectorAll('.action-btn').forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(btn, { scale: 1.03, duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+      btn.addEventListener('mousedown', function () {
+        gsap.to(btn, { scale: 0.97, duration: 0.08 });
+      });
+      btn.addEventListener('mouseup', function () {
+        gsap.to(btn, { scale: 1, duration: 0.12, ease: 'back.out(1.7)' });
+      });
+    });
+
+    /* Start tour button pulse glow */
+    gsap.to('#startTourBtn', {
+      boxShadow: '0 4px 32px rgba(0,212,255,0.5), 0 0 0 1px rgba(0,212,255,0.3)',
+      duration: 1.2,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+    });
+  }
+
+  /* ==================================
+     FEATURE TOUR SYSTEM
+     ================================== */
+
+  var tourSteps = [
+    {
+      target: '#tour-topnav',
+      title: 'Navigation Bar',
+      desc: 'Your main navigation bar. Access search, notifications, and settings from any page.',
+      position: 'bottom',
+    },
+    {
+      target: '#tour-sidebar',
+      title: 'Sidebar Menu',
+      desc: 'Switch between Dashboard, Team, and Reports. The active page is highlighted in cyan.',
+      position: 'right',
+    },
+    {
+      target: '#tour-stat',
+      title: 'Revenue Card',
+      desc: 'Real-time revenue tracking at a glance. Click to see detailed breakdowns.',
+      position: 'bottom',
+    },
+    {
+      target: '#tour-chart',
+      title: 'Activity Chart',
+      desc: 'Visual overview of weekly activity. Bars represent daily engagement metrics.',
+      position: 'top',
+    },
+    {
+      target: '#tour-action-btn',
+      title: 'Quick Actions',
+      desc: 'Create new reports with one click. Export options are available next to it.',
+      position: 'top',
+    },
+    {
+      target: '#tour-settings',
+      title: 'Settings',
+      desc: 'Access your account settings, preferences, and integrations from here.',
+      position: 'bottom-left',
+    },
+  ];
+
+  var currentStep = -1;
+  var isTouring = false;
+  var autoAdvanceEnabled = false;
+  var autoAdvanceTl = null;
+  var pulseRingTl = null;
+
+  var overlay = document.getElementById('tourOverlay');
+  var ring = document.getElementById('tourRing');
+  var tooltip = document.getElementById('tourTooltip');
+  var spotlightHole = document.getElementById('spotlightHole');
+  var progressBarEl = document.getElementById('tourProgressBar');
+  var progressWrap = document.getElementById('tourProgress');
+  var dotsContainer = document.getElementById('tourDots');
+
+  /* Build dots via DOM API */
+  function buildDots() {
+    while (dotsContainer.firstChild) {
+      dotsContainer.removeChild(dotsContainer.firstChild);
+    }
+    for (var i = 0; i < tourSteps.length; i++) {
+      var dot = document.createElement('div');
+      dot.className = 'tour-dot';
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  function updateDots() {
+    var dots = dotsContainer.querySelectorAll('.tour-dot');
+    dots.forEach(function (dot, i) {
+      dot.className = 'tour-dot';
+      if (i < currentStep) dot.classList.add('completed');
+      else if (i === currentStep) dot.classList.add('current');
+    });
+  }
+
+  function getTargetRect(selector) {
+    var el = document.querySelector(selector);
+    if (!el) return { x: 0, y: 0, width: 0, height: 0 };
+    var r = el.getBoundingClientRect();
+    return { x: r.left, y: r.top, width: r.width, height: r.height };
+  }
+
+  function positionTooltip(rect, position) {
+    var tw = tooltip.offsetWidth;
+    var th = tooltip.offsetHeight;
+    var pad = 16;
+    var x, y;
+
+    switch (position) {
+      case 'bottom':
+        x = rect.x + rect.width / 2 - tw / 2;
+        y = rect.y + rect.height + pad;
+        break;
+      case 'top':
+        x = rect.x + rect.width / 2 - tw / 2;
+        y = rect.y - th - pad;
+        break;
+      case 'right':
+        x = rect.x + rect.width + pad;
+        y = rect.y + rect.height / 2 - th / 2;
+        break;
+      case 'left':
+        x = rect.x - tw - pad;
+        y = rect.y + rect.height / 2 - th / 2;
+        break;
+      case 'bottom-left':
+        x = rect.x - tw + rect.width;
+        y = rect.y + rect.height + pad;
+        break;
+      default:
+        x = rect.x + rect.width / 2 - tw / 2;
+        y = rect.y + rect.height + pad;
+    }
+
+    /* Clamp to viewport */
+    x = Math.max(16, Math.min(x, window.innerWidth - tw - 16));
+    y = Math.max(16, Math.min(y, window.innerHeight - th - 16));
+
+    return { x: x, y: y };
+  }
+
+  function showStep(index) {
+    if (index < 0 || index >= tourSteps.length) return;
+    currentStep = index;
+
+    var step = tourSteps[index];
+    var rect = getTargetRect(step.target);
+    var hPad = 8;
+
+    /* Update text */
+    document.getElementById('tooltipStep').textContent = 'Step ' + (index + 1) + ' of ' + tourSteps.length;
+    document.getElementById('tooltipTitle').textContent = step.title;
+    document.getElementById('tooltipDesc').textContent = step.desc;
+    document.getElementById('tourNext').textContent = index === tourSteps.length - 1 ? 'Finish' : 'Next';
+    updateDots();
+
+    /* Spotlight hole */
+    var holeProps = {
+      attr: {
+        x: rect.x - hPad,
+        y: rect.y - hPad,
+        width: rect.width + hPad * 2,
+        height: rect.height + hPad * 2,
+      },
+      duration: reducedMotion ? 0 : 0.4,
+      ease: 'power2.inOut',
+    };
+
+    gsap.to(spotlightHole, holeProps);
+
+    /* Ring position */
+    var ringProps = {
+      left: rect.x - hPad,
+      top: rect.y - hPad,
+      width: rect.width + hPad * 2,
+      height: rect.height + hPad * 2,
+      duration: reducedMotion ? 0 : 0.4,
+      ease: 'power2.inOut',
+    };
+    gsap.to(ring, ringProps);
+
+    /* Tooltip position */
+    tooltip.style.visibility = 'hidden';
+    gsap.set(tooltip, { opacity: 1 });
+    tooltip.classList.add('visible');
+
+    requestAnimationFrame(function () {
+      var pos = positionTooltip(rect, step.position);
+      if (reducedMotion) {
+        gsap.set(tooltip, { left: pos.x, top: pos.y });
+      } else {
+        gsap.to(tooltip, { left: pos.x, top: pos.y, duration: 0.35, ease: 'power2.out' });
+      }
+      tooltip.style.visibility = 'visible';
+    });
+
+    /* Pulse ring animation */
+    if (pulseRingTl) { pulseRingTl.kill(); pulseRingTl = null; }
+    if (!reducedMotion) {
+      pulseRingTl = gsap.to(ring, {
+        boxShadow: '0 0 0 10px rgba(0,212,255,0.08)',
+        duration: 1,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    }
+
+    /* Auto-advance */
+    startAutoAdvance();
+  }
+
+  function startAutoAdvance() {
+    stopAutoAdvance();
+    if (!autoAdvanceEnabled) {
+      progressWrap.classList.remove('active');
+      return;
+    }
+    progressWrap.classList.add('active');
+    gsap.set(progressBarEl, { width: '0%' });
+    autoAdvanceTl = gsap.to(progressBarEl, {
+      width: '100%',
+      duration: 3,
+      ease: 'none',
+      onComplete: function () {
+        nextStep();
+      },
+    });
+  }
+
+  function stopAutoAdvance() {
+    if (autoAdvanceTl) {
+      autoAdvanceTl.kill();
+      autoAdvanceTl = null;
+    }
+    gsap.set(progressBarEl, { width: '0%' });
+  }
+
+  function startTour() {
+    isTouring = true;
+    currentStep = -1;
+    buildDots();
+
+    overlay.classList.add('active');
+    gsap.set(spotlightHole, { attr: { x: 0, y: 0, width: 0, height: 0 } });
+
+    if (reducedMotion) {
+      gsap.set(overlay, { opacity: 1 });
+      gsap.set(ring, { opacity: 1 });
+      gsap.set(tooltip, { opacity: 1 });
+    } else {
+      gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+      gsap.to(ring, { opacity: 1, duration: 0.3, delay: 0.1 });
+    }
+
+    /* Hide start button */
+    gsap.to('#startTourBtn', { opacity: 0, scale: 0.8, duration: reducedMotion ? 0 : 0.3, ease: 'power2.in' });
+
+    showStep(0);
+  }
+
+  function nextStep() {
+    stopAutoAdvance();
+    if (currentStep >= tourSteps.length - 1) {
+      endTour();
+      return;
+    }
+    showStep(currentStep + 1);
+  }
+
+  function prevStep() {
+    stopAutoAdvance();
+    if (currentStep <= 0) return;
+    showStep(currentStep - 1);
+  }
+
+  function endTour() {
+    stopAutoAdvance();
+    if (pulseRingTl) { pulseRingTl.kill(); pulseRingTl = null; }
+    isTouring = false;
+
+    var dur = reducedMotion ? 0 : 0.3;
+
+    gsap.to(tooltip, { opacity: 0, duration: dur });
+    gsap.to(ring, { opacity: 0, duration: dur });
+    gsap.to(overlay, {
+      opacity: 0, duration: dur, delay: 0.1,
+      onComplete: function () {
+        overlay.classList.remove('active');
+        tooltip.classList.remove('visible');
+      },
+    });
+
+    /* Show completion */
+    showCompletion();
+  }
+
+  function exitTour() {
+    stopAutoAdvance();
+    if (pulseRingTl) { pulseRingTl.kill(); pulseRingTl = null; }
+    isTouring = false;
+
+    var dur = reducedMotion ? 0 : 0.25;
+    gsap.to(tooltip, { opacity: 0, duration: dur });
+    gsap.to(ring, { opacity: 0, duration: dur });
+    gsap.to(overlay, {
+      opacity: 0, duration: dur,
+      onComplete: function () {
+        overlay.classList.remove('active');
+        tooltip.classList.remove('visible');
+      },
+    });
+
+    /* Show start button again */
+    gsap.to('#startTourBtn', { opacity: 1, scale: 1, duration: dur, delay: 0.2, ease: 'back.out(1.7)' });
+  }
+
+  function showCompletion() {
+    var complete = document.getElementById('tourComplete');
+    complete.classList.add('visible');
+
+    if (reducedMotion) {
+      gsap.set(complete, { opacity: 1 });
+    } else {
+      var tl = gsap.timeline();
+      tl.to(complete, { opacity: 1, duration: 0.3 })
+        .from('#tourCompleteCard', { scale: 0.85, opacity: 0, duration: 0.45, ease: 'back.out(1.7)' }, '-=0.1');
+    }
+  }
+
+  function hideCompletion() {
+    var complete = document.getElementById('tourComplete');
+    var dur = reducedMotion ? 0 : 0.25;
+    gsap.to(complete, {
+      opacity: 0, duration: dur,
+      onComplete: function () { complete.classList.remove('visible'); },
+    });
+    /* Show start button again */
+    gsap.to('#startTourBtn', { opacity: 1, scale: 1, duration: dur, delay: 0.15, ease: 'back.out(1.7)' });
+  }
+
+  /* -- Event listeners -- */
+  document.getElementById('startTourBtn').addEventListener('click', startTour);
+  document.getElementById('tourNext').addEventListener('click', nextStep);
+  document.getElementById('tourSkip').addEventListener('click', exitTour);
+  document.getElementById('tourDone').addEventListener('click', hideCompletion);
+
+  document.getElementById('autoAdvance').addEventListener('change', function (e) {
+    autoAdvanceEnabled = e.target.checked;
+    if (isTouring) startAutoAdvance();
+  });
+
+  /* Click on overlay background to skip */
+  overlay.querySelector('svg').addEventListener('click', function (e) {
+    if (currentStep < 0 || currentStep >= tourSteps.length) return;
+    var rect = getTargetRect(tourSteps[currentStep].target);
+    var hPad = 8;
+    var cx = e.clientX;
+    var cy = e.clientY;
+    if (cx < rect.x - hPad || cx > rect.x + rect.width + hPad ||
+        cy < rect.y - hPad || cy > rect.y + rect.height + hPad) {
+      exitTour();
+    }
+  });
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', function (e) {
+    if (!isTouring) return;
+    if (e.key === 'Escape') exitTour();
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); nextStep(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevStep(); }
+  });
+
+  /* Reposition on resize */
+  window.addEventListener('resize', function () {
+    if (isTouring && currentStep >= 0) {
+      showStep(currentStep);
+    }
+  });
+
+  /* -- Control panel -- */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

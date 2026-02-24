@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Consent Banners</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#3D2117;
+  --surface:#5A3626;
+  --accent:#EADACE;
+  --text:#EADACE;
+  --text-secondary:rgba(234,218,206,0.6);
+  --border:rgba(234,218,206,0.15);
+  --radius:12px;
+  --radius-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* Background texture */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(circle,rgba(234,218,206,0.04) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Page Layout ---- */
+.page-wrapper{
+  position:relative;
+  z-index:1;
+  max-width:900px;
+  margin:0 auto;
+  padding:60px 24px 200px;
+}
+
+.section-header{
+  text-align:center;
+  margin-bottom:48px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--border);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:rgba(234,218,206,0.06);
+}
+
+.section-title{
+  font-size:clamp(1.75rem,4vw,2.5rem);
+  font-weight:700;
+  line-height:1.15;
+  text-wrap:balance;
+  letter-spacing:-0.02em;
+}
+
+.section-subtitle{
+  font-size:1rem;
+  color:var(--text-secondary);
+  margin-top:12px;
+  max-width:50ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Demo Controls ---- */
+.demo-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:48px;
+}
+
+.demo-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 24px;
+  background:var(--surface);
+  color:var(--accent);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-family:var(--font);
+  font-size:0.875rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:44px;
+}
+
+.demo-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.demo-btn svg{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+}
+
+/* ---- Mock Webpage Content ---- */
+.mock-content{
+  margin-bottom:64px;
+}
+
+.mock-content h2{
+  font-size:1.5rem;
+  font-weight:700;
+  margin-bottom:16px;
+  color:var(--text);
+}
+
+.mock-content p{
+  font-size:0.9375rem;
+  line-height:1.7;
+  color:var(--text-secondary);
+  margin-bottom:16px;
+  max-width:65ch;
+}
+
+.mock-card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));
+  gap:16px;
+  margin-top:24px;
+}
+
+.mock-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+}
+
+.mock-card h3{
+  font-size:1rem;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.mock-card p{
+  font-size:0.8125rem;
+  margin-bottom:0;
+}
+
+/* ========================================
+   VARIANT 1: Bottom Bar
+   ======================================== */
+.cookie-bottom-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:1000;
+  background:#EADACE;
+  border-top:1px solid rgba(61,33,23,0.12);
+  padding:20px 24px;
+  display:none;
+}
+
+.cookie-bottom-bar.is-visible{
+  display:block;
+}
+
+.cookie-bottom-bar-inner{
+  max-width:1100px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+
+.cookie-bottom-bar .cookie-text{
+  flex:1;
+  min-width:240px;
+}
+
+.cookie-bottom-bar .cookie-title{
+  font-size:0.9375rem;
+  font-weight:700;
+  color:#3D2117;
+  margin-bottom:4px;
+}
+
+.cookie-bottom-bar .cookie-desc{
+  font-size:0.8125rem;
+  color:rgba(61,33,23,0.7);
+  line-height:1.5;
+}
+
+.cookie-bottom-bar .cookie-actions{
+  display:flex;
+  gap:10px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+}
+
+.cookie-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 24px;
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:600;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  min-height:44px;
+  min-width:120px;
+  border:none;
+}
+
+.cookie-btn:focus-visible{
+  outline:2px solid #3D2117;
+  outline-offset:2px;
+}
+
+/* Both buttons identical for GDPR parity */
+.cookie-btn--bar{
+  background:#3D2117;
+  color:#EADACE;
+}
+
+.cookie-btn--customize{
+  background:transparent;
+  color:#3D2117;
+  border:1.5px solid rgba(61,33,23,0.3);
+}
+
+.cookie-btn--customize:focus-visible{
+  outline:2px solid #3D2117;
+  outline-offset:2px;
+}
+
+/* ========================================
+   VARIANT 2: Modal
+   ======================================== */
+.cookie-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1100;
+  background:rgba(30,12,6,0.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.cookie-overlay.is-visible{
+  display:flex;
+}
+
+.cookie-modal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  width:100%;
+  max-width:500px;
+  max-height:90vh;
+  overflow-y:auto;
+  padding:32px;
+  position:relative;
+}
+
+.cookie-modal-header{
+  margin-bottom:24px;
+}
+
+.cookie-modal-header h2{
+  font-size:1.25rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+
+.cookie-modal-header p{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+}
+
+.cookie-categories{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:28px;
+}
+
+.cookie-category{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 16px;
+  background:rgba(234,218,206,0.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+
+.cookie-cat-info{
+  flex:1;
+}
+
+.cookie-cat-name{
+  font-size:0.875rem;
+  font-weight:600;
+  color:var(--text);
+  margin-bottom:2px;
+}
+
+.cookie-cat-desc{
+  font-size:0.75rem;
+  color:var(--text-secondary);
+  line-height:1.4;
+}
+
+/* Toggle Switch */
+.toggle-switch{
+  position:relative;
+  width:44px;
+  height:24px;
+  border-radius:12px;
+  background:rgba(234,218,206,0.15);
+  cursor:pointer;
+  flex-shrink:0;
+  border:none;
+  padding:0;
+  min-height:24px;
+}
+
+.toggle-switch:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.toggle-knob{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:var(--accent);
+}
+
+.toggle-switch[aria-checked="true"]{
+  background:#B8735A;
+}
+
+.toggle-switch[data-locked]{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+.cookie-modal-actions{
+  display:flex;
+  gap:10px;
+}
+
+.cookie-btn--modal-accept{
+  flex:1;
+  background:var(--accent);
+  color:#3D2117;
+}
+
+.cookie-btn--modal-reject{
+  flex:1;
+  background:rgba(234,218,206,0.1);
+  color:var(--accent);
+  border:1px solid var(--border);
+}
+
+/* ========================================
+   VARIANT 3: Corner Card
+   ======================================== */
+.cookie-corner{
+  position:fixed;
+  bottom:24px;
+  left:24px;
+  z-index:1000;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  width:320px;
+  max-width:calc(100vw - 48px);
+  display:none;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+
+.cookie-corner.is-visible{
+  display:block;
+}
+
+.cookie-corner-icon{
+  width:32px;
+  height:32px;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+
+.cookie-corner h3{
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+}
+
+.cookie-corner p{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+  margin-bottom:18px;
+}
+
+.cookie-corner-actions{
+  display:flex;
+  gap:8px;
+}
+
+.cookie-btn--corner{
+  flex:1;
+  padding:10px 16px;
+  font-size:0.8125rem;
+  min-width:auto;
+}
+
+.cookie-btn--corner-accept{
+  background:var(--accent);
+  color:#3D2117;
+}
+
+.cookie-btn--corner-customize{
+  background:rgba(234,218,206,0.08);
+  color:var(--accent);
+  border:1px solid var(--border);
+}
+
+/* ---- Responsive ---- */
+@media(max-width:640px){
+  .page-wrapper{padding:40px 16px 200px}
+  .cookie-bottom-bar-inner{flex-direction:column;align-items:flex-start}
+  .cookie-bottom-bar .cookie-actions{width:100%}
+  .cookie-btn{flex:1}
+  .cookie-modal{padding:24px}
+  .cookie-modal-actions{flex-direction:column}
+  .cookie-corner{left:16px;right:16px;width:auto;bottom:16px}
+  .demo-controls{flex-direction:column;align-items:stretch}
+  .demo-btn{justify-content:center}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Section Header -->
+  <header class="section-header">
+    <div class="section-label">Cookie Consent</div>
+    <h1 class="section-title">Cookie Consent Banners</h1>
+    <p class="section-subtitle">Three banner variants with GDPR-compliant equal-weight buttons, category toggles, and smooth GSAP-powered entrances and exits.</p>
+  </header>
+
+  <!-- Demo Controls -->
+  <nav class="demo-controls" aria-label="Banner demos">
+    <button class="demo-btn" data-variant="bar" aria-label="Show bottom bar banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="17" width="20" height="5" rx="1"/><path d="M2 7h20M2 12h20"/></svg>
+      Bottom Bar
+    </button>
+    <button class="demo-btn" data-variant="modal" aria-label="Show modal banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+      Modal
+    </button>
+    <button class="demo-btn" data-variant="corner" aria-label="Show corner card banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="10" height="10" rx="2"/><path d="M2 7h20M2 2h20"/></svg>
+      Corner Card
+    </button>
+  </nav>
+
+  <!-- Mock Page Content -->
+  <section class="mock-content" aria-label="Example webpage content">
+    <h2>Welcome to Our Artisanal Studio</h2>
+    <p>We believe in craft, quality, and transparency. Every product we create is made with care, from sourcing raw materials to the final finish. Our commitment to sustainability drives every decision we make.</p>
+    <p>Browse our latest collections below and discover pieces that bring warmth and character to your space. Each item tells a story of tradition meeting modern design sensibility.</p>
+
+    <div class="mock-card-grid">
+      <div class="mock-card">
+        <h3>Hand-Thrown Ceramics</h3>
+        <p>Each piece is uniquely shaped on the wheel, glazed with our signature terra cotta finish.</p>
+      </div>
+      <div class="mock-card">
+        <h3>Woven Textiles</h3>
+        <p>Organic cotton and linen blends, dyed with natural pigments from local plants.</p>
+      </div>
+      <div class="mock-card">
+        <h3>Carved Woodwork</h3>
+        <p>Reclaimed hardwoods transformed into functional art for the modern home.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========================================
+     VARIANT 1: Bottom Bar
+     ======================================== -->
+<div class="cookie-bottom-bar" id="cookieBar" role="dialog" aria-label="Cookie consent" aria-modal="false">
+  <div class="cookie-bottom-bar-inner">
+    <div class="cookie-text">
+      <div class="cookie-title">We use cookies</div>
+      <div class="cookie-desc">We use cookies and similar technologies to provide the best experience. You can accept or reject non-essential cookies below.</div>
+    </div>
+    <div class="cookie-actions">
+      <button class="cookie-btn cookie-btn--bar" data-action="accept" aria-label="Accept all cookies">Accept All</button>
+      <button class="cookie-btn cookie-btn--bar" data-action="reject" aria-label="Reject non-essential cookies">Reject All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     VARIANT 2: Modal
+     ======================================== -->
+<div class="cookie-overlay" id="cookieOverlay" role="dialog" aria-label="Cookie preferences" aria-modal="true">
+  <div class="cookie-modal" id="cookieModal">
+    <div class="cookie-modal-header">
+      <h2>Cookie Preferences</h2>
+      <p>Manage your cookie settings. Necessary cookies are always active. You can enable or disable other categories below.</p>
+    </div>
+
+    <div class="cookie-categories">
+      <div class="cookie-category">
+        <div class="cookie-cat-info">
+          <div class="cookie-cat-name">Necessary</div>
+          <div class="cookie-cat-desc">Required for core functionality. Cannot be disabled.</div>
+        </div>
+        <button class="toggle-switch" aria-checked="true" aria-label="Necessary cookies (always on)" data-locked role="switch">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+      <div class="cookie-category">
+        <div class="cookie-cat-info">
+          <div class="cookie-cat-name">Analytics</div>
+          <div class="cookie-cat-desc">Help us understand how visitors interact with our site.</div>
+        </div>
+        <button class="toggle-switch" aria-checked="false" aria-label="Toggle analytics cookies" data-category="analytics" role="switch">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+      <div class="cookie-category">
+        <div class="cookie-cat-info">
+          <div class="cookie-cat-name">Marketing</div>
+          <div class="cookie-cat-desc">Used to deliver relevant ads and track campaign performance.</div>
+        </div>
+        <button class="toggle-switch" aria-checked="false" aria-label="Toggle marketing cookies" data-category="marketing" role="switch">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+      <div class="cookie-category">
+        <div class="cookie-cat-info">
+          <div class="cookie-cat-name">Preferences</div>
+          <div class="cookie-cat-desc">Remember your settings and personalize your experience.</div>
+        </div>
+        <button class="toggle-switch" aria-checked="false" aria-label="Toggle preference cookies" data-category="preferences" role="switch">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="cookie-modal-actions">
+      <button class="cookie-btn cookie-btn--modal-accept" data-action="accept" aria-label="Accept selected cookies">Accept Selected</button>
+      <button class="cookie-btn cookie-btn--modal-reject" data-action="reject" aria-label="Reject all optional cookies">Reject All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     VARIANT 3: Corner Card
+     ======================================== -->
+<div class="cookie-corner" id="cookieCorner" role="dialog" aria-label="Cookie notice" aria-modal="false">
+  <svg class="cookie-corner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4c.69 0 1.34-.18 1.9-.5"/>
+    <circle cx="8.5" cy="10.5" r="1" fill="currentColor"/>
+    <circle cx="11" cy="14" r="0.8" fill="currentColor"/>
+    <circle cx="14.5" cy="11" r="0.6" fill="currentColor"/>
+  </svg>
+  <h3>We use cookies</h3>
+  <p>This site uses cookies to improve your browsing experience. Manage your preferences or accept to continue.</p>
+  <div class="cookie-corner-actions">
+    <button class="cookie-btn cookie-btn--corner cookie-btn--corner-accept" data-action="accept" aria-label="Accept cookies">Accept</button>
+    <button class="cookie-btn cookie-btn--corner cookie-btn--corner-customize" data-action="customize" aria-label="Customize cookie settings">Customize</button>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  var reduced = UV.prefersReducedMotion;
+  var bar = document.getElementById('cookieBar');
+  var overlay = document.getElementById('cookieOverlay');
+  var modal = document.getElementById('cookieModal');
+  var corner = document.getElementById('cookieCorner');
+
+  // ---- Helpers ----
+  function hideAll(skipId) {
+    [bar, overlay, corner].forEach(function(el) {
+      if (el.id === skipId) return;
+      el.classList.remove('is-visible');
+      gsap.set(el, { clearProps: 'all' });
+      if (el === overlay) {
+        gsap.set(modal, { clearProps: 'all' });
+      }
+    });
+  }
+
+  // ---- Show Bottom Bar ----
+  function showBar() {
+    hideAll('cookieBar');
+    bar.classList.add('is-visible');
+    if (reduced) return;
+    gsap.fromTo(bar, { y: '100%' }, { y: '0%', duration: 0.5, ease: 'power3.out' });
+  }
+
+  function hideBar() {
+    if (reduced) { bar.classList.remove('is-visible'); return; }
+    gsap.to(bar, {
+      y: '100%',
+      duration: 0.4,
+      ease: 'power3.in',
+      onComplete: function() { bar.classList.remove('is-visible'); gsap.set(bar, { clearProps: 'all' }); }
+    });
+  }
+
+  // ---- Show Modal ----
+  function showModal() {
+    hideAll('cookieOverlay');
+    overlay.classList.add('is-visible');
+    if (reduced) return;
+    gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+    gsap.fromTo(modal, { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.4)', delay: 0.05 });
+    gsap.fromTo('.cookie-category', { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.06, ease: 'power2.out', delay: 0.2 });
+  }
+
+  function hideModal() {
+    if (reduced) { overlay.classList.remove('is-visible'); return; }
+    gsap.to(modal, {
+      scale: 0.9,
+      opacity: 0,
+      duration: 0.25,
+      ease: 'power2.in'
+    });
+    gsap.to(overlay, {
+      opacity: 0,
+      duration: 0.3,
+      delay: 0.1,
+      ease: 'power2.in',
+      onComplete: function() { overlay.classList.remove('is-visible'); gsap.set([overlay, modal], { clearProps: 'all' }); }
+    });
+  }
+
+  // ---- Show Corner ----
+  function showCorner() {
+    hideAll('cookieCorner');
+    corner.classList.add('is-visible');
+    if (reduced) return;
+    gsap.fromTo(corner, { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' });
+  }
+
+  function hideCorner() {
+    if (reduced) { corner.classList.remove('is-visible'); return; }
+    gsap.to(corner, {
+      x: -40,
+      opacity: 0,
+      duration: 0.35,
+      ease: 'power2.in',
+      onComplete: function() { corner.classList.remove('is-visible'); gsap.set(corner, { clearProps: 'all' }); }
+    });
+  }
+
+  // ---- Demo Buttons ----
+  document.querySelectorAll('.demo-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var variant = btn.getAttribute('data-variant');
+      if (variant === 'bar') showBar();
+      else if (variant === 'modal') showModal();
+      else if (variant === 'corner') showCorner();
+    });
+
+    // GSAP hover
+    if (!reduced) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.03, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    }
+  });
+
+  // ---- Cookie Button Actions ----
+  document.querySelectorAll('[data-action="accept"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var parent = btn.closest('.cookie-bottom-bar, .cookie-overlay, .cookie-corner');
+      if (parent === bar) hideBar();
+      else if (parent === overlay) hideModal();
+      else if (parent === corner) hideCorner();
+    });
+  });
+
+  document.querySelectorAll('[data-action="reject"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var parent = btn.closest('.cookie-bottom-bar, .cookie-overlay, .cookie-corner');
+      if (parent === bar) hideBar();
+      else if (parent === overlay) hideModal();
+      else if (parent === corner) hideCorner();
+    });
+  });
+
+  document.querySelectorAll('[data-action="customize"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      hideCorner();
+      setTimeout(showModal, 300);
+    });
+  });
+
+  // ---- Overlay click to close ----
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) hideModal();
+  });
+
+  // ---- Escape key ----
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (overlay.classList.contains('is-visible')) hideModal();
+      if (bar.classList.contains('is-visible')) hideBar();
+      if (corner.classList.contains('is-visible')) hideCorner();
+    }
+  });
+
+  // ---- Toggle Switches (Modal) ----
+  document.querySelectorAll('.toggle-switch:not([data-locked])').forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+      var checked = toggle.getAttribute('aria-checked') === 'true';
+      var newVal = !checked;
+      toggle.setAttribute('aria-checked', String(newVal));
+      var knob = toggle.querySelector('.toggle-knob');
+
+      if (newVal) {
+        toggle.style.background = '#B8735A';
+        if (!reduced) {
+          gsap.to(knob, { x: 20, duration: 0.25, ease: 'back.out(1.5)' });
+        } else {
+          knob.style.transform = 'translateX(20px)';
+        }
+      } else {
+        toggle.style.background = 'rgba(234,218,206,0.15)';
+        if (!reduced) {
+          gsap.to(knob, { x: 0, duration: 0.25, ease: 'back.out(1.5)' });
+        } else {
+          knob.style.transform = 'translateX(0)';
+        }
+      }
+    });
+  });
+
+  // ---- Set locked toggle to ON position ----
+  document.querySelectorAll('.toggle-switch[data-locked]').forEach(function(toggle) {
+    var knob = toggle.querySelector('.toggle-knob');
+    gsap.set(knob, { x: 20 });
+  });
+
+  // ---- Cookie button hover ----
+  if (!reduced) {
+    document.querySelectorAll('.cookie-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.03, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ---- Page Entrance ----
+  UV.initPage({
+    title: '.section-label, .section-title',
+    subtitle: '.section-subtitle',
+    content: '.demo-btn'
+  });
+
+  UV.scrollReveal('.mock-content h2, .mock-content p', { stagger: 0.08 });
+  UV.scrollReveal('.mock-card', { stagger: 0.1, y: 25 });
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

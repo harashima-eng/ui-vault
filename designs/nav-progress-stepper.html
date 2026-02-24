@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Stepper</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: #0C1B33;
+  --surface: #132847;
+  --accent: #D4A843;
+  --text: #E8E0D0;
+  --text-secondary: rgba(232,224,208,0.6);
+  --border: rgba(212,168,67,0.2);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --muted: #4A5568;
+  --success: #48BB78;
+}
+
+html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  min-height:100dvh;overflow-x:hidden;
+}
+
+/* ── Skip Link ── */
+.skip-link{
+  position:absolute;top:-100%;left:50%;transform:translateX(-50%);
+  padding:8px 20px;background:var(--accent);color:var(--bg);
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+  font-weight:600;font-size:14px;z-index:9999;text-decoration:none;
+}
+.skip-link:focus-visible{top:0;outline:none}
+
+/* ── Page ── */
+.page{
+  max-width:900px;width:100%;margin:0 auto;
+  padding:48px 24px 60px;
+}
+.page-header{margin-bottom:48px;text-align:center}
+.page-header h1{
+  font-size:clamp(1.625rem,3vw+0.5rem,2.25rem);font-weight:700;
+  letter-spacing:-0.025em;line-height:1.15;margin-bottom:8px;
+  color:var(--text);
+}
+.page-header p{font-size:15px;color:var(--text-secondary);line-height:1.5;max-width:50ch;margin:0 auto}
+
+/* ── Section Labels ── */
+.section-label{
+  font-size:0.6875rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--accent);margin-bottom:24px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+.demo-section{margin-bottom:56px}
+
+/* ── Focus Visible ── */
+*:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ============================
+   VARIANT 1: Horizontal Stepper
+   ============================ */
+.stepper-h{
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 0;
+  margin-bottom:8px;
+  overflow-x:auto;
+}
+.step-h{
+  display:flex;align-items:center;flex-shrink:0;
+}
+.step-h-circle{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.8125rem;font-weight:700;
+  border:2px solid var(--muted);
+  color:var(--muted);
+  background:transparent;
+  position:relative;
+  flex-shrink:0;
+}
+.step-h-circle svg{
+  width:18px;height:18px;display:none;
+  stroke:var(--bg);stroke-width:2.5;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.step-h-label{
+  font-size:0.75rem;font-weight:500;
+  color:var(--muted);text-align:center;
+  position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  white-space:nowrap;
+}
+/* Connector line */
+.step-h-line{
+  width:60px;height:3px;
+  background:var(--muted);
+  margin:0 4px;
+  position:relative;overflow:hidden;
+  border-radius:2px;
+  flex-shrink:0;
+}
+.step-h-line-fill{
+  position:absolute;inset:0;
+  background:var(--accent);
+  transform-origin:left center;
+  border-radius:2px;
+}
+
+/* States applied via JS */
+.step-h.completed .step-h-circle{
+  background:var(--accent);border-color:var(--accent);color:var(--bg);
+}
+.step-h.completed .step-h-circle .step-num{display:none}
+.step-h.completed .step-h-circle svg{display:block}
+.step-h.completed .step-h-label{color:var(--accent)}
+
+.step-h.active .step-h-circle{
+  border-color:var(--accent);color:var(--accent);
+}
+.step-h.active .step-h-label{color:var(--accent);font-weight:600}
+
+/* ============================
+   VARIANT 2: Vertical Stepper
+   ============================ */
+.stepper-v{
+  padding:8px 0 8px 8px;
+}
+.step-v{display:flex;gap:16px;position:relative;padding-bottom:32px}
+.step-v:last-child{padding-bottom:0}
+
+.step-v-indicator{
+  display:flex;flex-direction:column;align-items:center;flex-shrink:0;
+  position:relative;z-index:1;
+}
+.step-v-circle{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:700;
+  border:2px solid var(--muted);
+  color:var(--muted);
+  background:var(--bg);
+  flex-shrink:0;
+}
+.step-v-circle svg{
+  width:16px;height:16px;display:none;
+  stroke:var(--bg);stroke-width:2.5;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+/* Vertical connector */
+.step-v-connector{
+  width:3px;flex:1;min-height:20px;
+  background:var(--muted);
+  margin-top:6px;
+  border-radius:2px;
+  position:relative;overflow:hidden;
+}
+.step-v-connector-fill{
+  position:absolute;inset:0;
+  background:var(--accent);
+  transform-origin:top center;
+  border-radius:2px;
+}
+.step-v:last-child .step-v-connector{display:none}
+
+.step-v-content{padding-top:6px;flex:1;min-width:0}
+.step-v-title{font-size:0.9375rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+.step-v-desc{font-size:0.8125rem;color:var(--text-secondary);line-height:1.5}
+
+/* States */
+.step-v.completed .step-v-circle{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.step-v.completed .step-v-circle .step-num{display:none}
+.step-v.completed .step-v-circle svg{display:block}
+.step-v.completed .step-v-title{color:var(--accent)}
+
+.step-v.active .step-v-circle{border-color:var(--accent);color:var(--accent);background:var(--bg)}
+.step-v.active .step-v-title{color:var(--text);font-weight:700}
+
+/* ============================
+   VARIANT 3: Compact Pill
+   ============================ */
+.stepper-pill{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:10px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:999px;
+}
+.pill-text{
+  font-size:0.8125rem;font-weight:600;color:var(--text);
+  white-space:nowrap;
+}
+.pill-track{
+  width:120px;height:6px;
+  background:rgba(74,85,104,0.5);
+  border-radius:3px;overflow:hidden;
+}
+.pill-fill{
+  height:100%;background:var(--accent);
+  border-radius:3px;
+  transform-origin:left center;
+}
+
+/* ============================
+   INTERACTIVE DEMO
+   ============================ */
+.demo-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:32px;
+}
+.demo-stepper-wrap{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+
+/* Step Panels */
+.step-panels{position:relative;min-height:180px;margin-bottom:28px}
+.step-panel{display:none;padding:4px 0}
+.step-panel.active{display:block}
+.step-panel h3{font-size:1.125rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+.step-panel p{font-size:0.875rem;color:var(--text-secondary);line-height:1.6;margin-bottom:16px}
+
+/* Mock form fields */
+.mock-field{
+  display:flex;flex-direction:column;gap:6px;margin-bottom:16px;
+}
+.mock-field label{font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em}
+.mock-input{
+  padding:10px 14px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  color:var(--text);font-family:var(--font);font-size:0.875rem;
+  min-height:44px;
+}
+.mock-input:focus-visible{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+
+.completion-msg{text-align:center;padding:24px 0}
+.completion-msg h3{font-size:1.25rem;font-weight:700;color:var(--success);margin-bottom:8px}
+.completion-msg p{font-size:0.875rem;color:var(--text-secondary)}
+.completion-check{
+  width:56px;height:56px;margin:0 auto 16px;
+  border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+}
+.completion-check svg{
+  width:28px;height:28px;stroke:var(--bg);stroke-width:2.5;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* Buttons */
+.demo-actions{display:flex;gap:12px;justify-content:flex-end}
+.btn{
+  padding:10px 24px;border-radius:var(--radius-sm);
+  font-family:var(--font);font-size:0.875rem;font-weight:600;
+  cursor:pointer;border:none;min-height:44px;min-width:44px;
+}
+.btn-primary{
+  background:var(--accent);color:var(--bg);
+}
+.btn-secondary{
+  background:transparent;color:var(--text-secondary);
+  border:1px solid var(--border);
+}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .page{padding:32px 16px 48px}
+  .stepper-h{justify-content:flex-start;padding:24px 8px}
+  .step-h-line{width:36px}
+  .step-h-circle{width:34px;height:34px;font-size:0.75rem}
+  .demo-card{padding:20px}
+  .demo-actions{flex-direction:column}
+  .demo-actions .btn{width:100%}
+  .pill-track{width:80px}
+}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<div class="page" id="main-content">
+  <header class="page-header">
+    <h1>Progress Stepper</h1>
+    <p>Three variants of multi-step progress indicators with smooth GSAP-powered transitions.</p>
+  </header>
+
+  <!-- VARIANT 1: Horizontal Numbered Stepper -->
+  <section class="demo-section" aria-label="Horizontal stepper variant">
+    <div class="section-label">Variant 1 -- Horizontal Numbered</div>
+    <div class="stepper-h" id="stepper-h" role="group" aria-label="Setup progress">
+      <div class="step-h completed" data-step="1">
+        <div class="step-h-circle">
+          <span class="step-num">1</span>
+          <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+        </div>
+        <span class="step-h-label">Account</span>
+      </div>
+      <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+      <div class="step-h completed" data-step="2">
+        <div class="step-h-circle">
+          <span class="step-num">2</span>
+          <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+        </div>
+        <span class="step-h-label">Profile</span>
+      </div>
+      <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+      <div class="step-h active" data-step="3">
+        <div class="step-h-circle">
+          <span class="step-num">3</span>
+          <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+        </div>
+        <span class="step-h-label">Settings</span>
+      </div>
+      <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+      <div class="step-h" data-step="4">
+        <div class="step-h-circle">
+          <span class="step-num">4</span>
+          <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+        </div>
+        <span class="step-h-label">Review</span>
+      </div>
+      <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+      <div class="step-h" data-step="5">
+        <div class="step-h-circle">
+          <span class="step-num">5</span>
+          <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+        </div>
+        <span class="step-h-label">Complete</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- VARIANT 2: Vertical with Descriptions -->
+  <section class="demo-section" aria-label="Vertical stepper variant">
+    <div class="section-label">Variant 2 -- Vertical with Descriptions</div>
+    <div class="stepper-v" id="stepper-v" role="group" aria-label="Order progress">
+      <div class="step-v completed">
+        <div class="step-v-indicator">
+          <div class="step-v-circle">
+            <span class="step-num">1</span>
+            <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+          </div>
+          <div class="step-v-connector"><div class="step-v-connector-fill"></div></div>
+        </div>
+        <div class="step-v-content">
+          <div class="step-v-title">Order Placed</div>
+          <div class="step-v-desc">Your order has been confirmed and is being prepared for shipment.</div>
+        </div>
+      </div>
+      <div class="step-v completed">
+        <div class="step-v-indicator">
+          <div class="step-v-circle">
+            <span class="step-num">2</span>
+            <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+          </div>
+          <div class="step-v-connector"><div class="step-v-connector-fill"></div></div>
+        </div>
+        <div class="step-v-content">
+          <div class="step-v-title">Processing</div>
+          <div class="step-v-desc">Payment verified and items picked from warehouse inventory.</div>
+        </div>
+      </div>
+      <div class="step-v active">
+        <div class="step-v-indicator">
+          <div class="step-v-circle">
+            <span class="step-num">3</span>
+            <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+          </div>
+          <div class="step-v-connector"><div class="step-v-connector-fill"></div></div>
+        </div>
+        <div class="step-v-content">
+          <div class="step-v-title">Shipped</div>
+          <div class="step-v-desc">Package handed to carrier. Estimated delivery in 2-3 business days.</div>
+        </div>
+      </div>
+      <div class="step-v">
+        <div class="step-v-indicator">
+          <div class="step-v-circle">
+            <span class="step-num">4</span>
+            <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+          </div>
+        </div>
+        <div class="step-v-content">
+          <div class="step-v-title">Delivered</div>
+          <div class="step-v-desc">Package will be left at your door or with a household member.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VARIANT 3: Compact Pill -->
+  <section class="demo-section" aria-label="Compact pill stepper variant">
+    <div class="section-label">Variant 3 -- Compact Pill</div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+      <div class="stepper-pill" role="progressbar" aria-valuenow="2" aria-valuemin="1" aria-valuemax="5" aria-label="Step 2 of 5">
+        <span class="pill-text" id="pill-text">Step 2 of 5</span>
+        <div class="pill-track"><div class="pill-fill" id="pill-fill"></div></div>
+      </div>
+      <div class="stepper-pill" role="progressbar" aria-valuenow="4" aria-valuemin="1" aria-valuemax="5" aria-label="Step 4 of 5">
+        <span class="pill-text">Step 4 of 5</span>
+        <div class="pill-track"><div class="pill-fill" id="pill-fill-2"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE DEMO -->
+  <section class="demo-section" aria-label="Interactive stepper demo">
+    <div class="section-label">Interactive Demo</div>
+    <div class="demo-card">
+      <!-- Demo Horizontal Stepper -->
+      <div class="demo-stepper-wrap">
+        <div class="stepper-h" id="demo-stepper" role="group" aria-label="Registration progress">
+          <div class="step-h active" data-step="1">
+            <div class="step-h-circle">
+              <span class="step-num">1</span>
+              <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+            </div>
+            <span class="step-h-label">Account</span>
+          </div>
+          <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+          <div class="step-h" data-step="2">
+            <div class="step-h-circle">
+              <span class="step-num">2</span>
+              <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+            </div>
+            <span class="step-h-label">Profile</span>
+          </div>
+          <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+          <div class="step-h" data-step="3">
+            <div class="step-h-circle">
+              <span class="step-num">3</span>
+              <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+            </div>
+            <span class="step-h-label">Preferences</span>
+          </div>
+          <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+          <div class="step-h" data-step="4">
+            <div class="step-h-circle">
+              <span class="step-num">4</span>
+              <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+            </div>
+            <span class="step-h-label">Review</span>
+          </div>
+          <div class="step-h-line"><div class="step-h-line-fill"></div></div>
+          <div class="step-h" data-step="5">
+            <div class="step-h-circle">
+              <span class="step-num">5</span>
+              <svg viewBox="0 0 18 18"><polyline points="3.5 9 7 12.5 14.5 5.5"/></svg>
+            </div>
+            <span class="step-h-label">Complete</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Panels -->
+      <div class="step-panels" id="step-panels">
+        <div class="step-panel active" data-panel="1">
+          <h3>Create Your Account</h3>
+          <p>Enter your credentials to get started.</p>
+          <div class="mock-field">
+            <label for="demo-email">Email Address</label>
+            <input class="mock-input" id="demo-email" type="email" placeholder="you@example.com">
+          </div>
+          <div class="mock-field">
+            <label for="demo-pass">Password</label>
+            <input class="mock-input" id="demo-pass" type="password" placeholder="Min. 8 characters">
+          </div>
+        </div>
+        <div class="step-panel" data-panel="2">
+          <h3>Tell Us About Yourself</h3>
+          <p>Help us personalize your experience.</p>
+          <div class="mock-field">
+            <label for="demo-name">Full Name</label>
+            <input class="mock-input" id="demo-name" type="text" placeholder="Jane Doe">
+          </div>
+          <div class="mock-field">
+            <label for="demo-company">Company</label>
+            <input class="mock-input" id="demo-company" type="text" placeholder="Acme Inc.">
+          </div>
+        </div>
+        <div class="step-panel" data-panel="3">
+          <h3>Set Your Preferences</h3>
+          <p>Choose what matters most to you.</p>
+          <div class="mock-field">
+            <label for="demo-lang">Language</label>
+            <input class="mock-input" id="demo-lang" type="text" placeholder="English" value="English" readonly>
+          </div>
+          <div class="mock-field">
+            <label for="demo-tz">Timezone</label>
+            <input class="mock-input" id="demo-tz" type="text" placeholder="UTC+9 (Tokyo)">
+          </div>
+        </div>
+        <div class="step-panel" data-panel="4">
+          <h3>Review Everything</h3>
+          <p>Double-check your details before we finalize your account.</p>
+          <div style="font-size:0.875rem;line-height:1.8;color:var(--text-secondary)">
+            <div><strong style="color:var(--text)">Email:</strong> you@example.com</div>
+            <div><strong style="color:var(--text)">Name:</strong> Jane Doe</div>
+            <div><strong style="color:var(--text)">Company:</strong> Acme Inc.</div>
+            <div><strong style="color:var(--text)">Language:</strong> English</div>
+            <div><strong style="color:var(--text)">Timezone:</strong> UTC+9 (Tokyo)</div>
+          </div>
+        </div>
+        <div class="step-panel" data-panel="5">
+          <div class="completion-msg">
+            <div class="completion-check" id="completion-check">
+              <svg viewBox="0 0 24 24"><polyline points="4 12 9.5 17.5 20 6.5"/></svg>
+            </div>
+            <h3>All Done!</h3>
+            <p>Your account has been created successfully. Welcome aboard.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nav Buttons -->
+      <div class="demo-actions">
+        <button class="btn btn-secondary" id="btn-prev" disabled aria-label="Go to previous step">Previous</button>
+        <button class="btn btn-primary" id="btn-next" aria-label="Go to next step">Next</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DUR = reduced ? 0 : 0.35;
+  var EASE = 'power2.out';
+
+  /* ═══════════════════════════════════
+     STATIC STEPPER ANIMATIONS (Variants 1, 2, 3)
+     ═══════════════════════════════════ */
+
+  function animateStaticSteppers() {
+    /* Variant 1: Horizontal — animate completed fills and active pulse */
+    var hLines = document.querySelectorAll('#stepper-h .step-h-line-fill');
+    var hSteps = document.querySelectorAll('#stepper-h .step-h');
+
+    /* Completed line fills */
+    hLines.forEach(function (fill, i) {
+      var parentLine = fill.parentElement;
+      /* The line comes after a step — check if the step BEFORE is completed */
+      var prevStep = parentLine.previousElementSibling;
+      if (prevStep && prevStep.classList.contains('completed')) {
+        if (reduced) {
+          gsap.set(fill, { scaleX: 1 });
+        } else {
+          gsap.fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: 0.5, delay: 0.4 + i * 0.2, ease: EASE });
+        }
+      } else {
+        gsap.set(fill, { scaleX: 0 });
+      }
+    });
+
+    /* Active step pulse */
+    var activeH = document.querySelector('#stepper-h .step-h.active .step-h-circle');
+    if (activeH && !reduced) {
+      gsap.fromTo(activeH, { boxShadow: '0 0 0 0 rgba(212,168,67,0.4)' }, {
+        boxShadow: '0 0 0 8px rgba(212,168,67,0)',
+        duration: 1.5,
+        repeat: -1,
+        ease: 'power1.out',
+      });
+    }
+
+    /* Completed circles scale in */
+    if (!reduced) {
+      document.querySelectorAll('#stepper-h .step-h.completed .step-h-circle').forEach(function (circle, i) {
+        gsap.from(circle, { scale: 0.7, opacity: 0, duration: 0.4, delay: 0.2 + i * 0.15, ease: 'back.out(1.5)' });
+      });
+    }
+
+    /* Variant 2: Vertical connector fills */
+    var vConnectors = document.querySelectorAll('#stepper-v .step-v-connector-fill');
+    vConnectors.forEach(function (fill, i) {
+      var parentStep = fill.closest('.step-v');
+      if (parentStep && parentStep.classList.contains('completed')) {
+        if (reduced) {
+          gsap.set(fill, { scaleY: 1 });
+        } else {
+          gsap.fromTo(fill, { scaleY: 0 }, { scaleY: 1, duration: 0.5, delay: 0.5 + i * 0.25, ease: EASE });
+        }
+      } else {
+        gsap.set(fill, { scaleY: 0 });
+      }
+    });
+
+    /* Vertical completed circle scale-in */
+    if (!reduced) {
+      document.querySelectorAll('#stepper-v .step-v.completed .step-v-circle').forEach(function (circle, i) {
+        gsap.from(circle, { scale: 0.7, opacity: 0, duration: 0.4, delay: 0.3 + i * 0.15, ease: 'back.out(1.5)' });
+      });
+    }
+
+    /* Vertical active pulse */
+    var activeV = document.querySelector('#stepper-v .step-v.active .step-v-circle');
+    if (activeV && !reduced) {
+      gsap.fromTo(activeV, { boxShadow: '0 0 0 0 rgba(212,168,67,0.4)' }, {
+        boxShadow: '0 0 0 8px rgba(212,168,67,0)',
+        duration: 1.5,
+        repeat: -1,
+        ease: 'power1.out',
+      });
+    }
+
+    /* Variant 3: Pill progress fills */
+    if (reduced) {
+      gsap.set('#pill-fill', { scaleX: 0.4 });
+      gsap.set('#pill-fill-2', { scaleX: 0.8 });
+    } else {
+      gsap.fromTo('#pill-fill', { scaleX: 0 }, { scaleX: 0.4, duration: 0.8, delay: 0.6, ease: 'power2.out' });
+      gsap.fromTo('#pill-fill-2', { scaleX: 0 }, { scaleX: 0.8, duration: 0.8, delay: 0.8, ease: 'power2.out' });
+    }
+  }
+
+  /* ═══════════════════════════════════
+     INTERACTIVE DEMO
+     ═══════════════════════════════════ */
+
+  var currentStep = 1;
+  var totalSteps = 5;
+  var demoStepper = document.getElementById('demo-stepper');
+  var demoSteps = Array.from(demoStepper.querySelectorAll('.step-h'));
+  var demoLines = Array.from(demoStepper.querySelectorAll('.step-h-line-fill'));
+  var panels = Array.from(document.querySelectorAll('#step-panels .step-panel'));
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  /* Initialize: all line fills at scaleX 0 */
+  demoLines.forEach(function (fill) { gsap.set(fill, { scaleX: 0 }); });
+
+  function updateButtonStates() {
+    btnPrev.disabled = currentStep <= 1;
+    btnNext.textContent = currentStep >= totalSteps ? 'Finish' : 'Next';
+    btnNext.disabled = currentStep > totalSteps;
+  }
+
+  function getStepCircle(stepEl) {
+    return stepEl.querySelector('.step-h-circle');
+  }
+
+  function animateToStep(newStep) {
+    var oldStep = currentStep;
+    currentStep = newStep;
+
+    /* Update step states */
+    demoSteps.forEach(function (stepEl, i) {
+      var num = i + 1;
+      stepEl.classList.remove('completed', 'active');
+
+      if (num < currentStep) {
+        stepEl.classList.add('completed');
+      } else if (num === currentStep) {
+        stepEl.classList.add('active');
+      }
+    });
+
+    /* Animate circles */
+    demoSteps.forEach(function (stepEl, i) {
+      var num = i + 1;
+      var circle = getStepCircle(stepEl);
+
+      if (num < currentStep) {
+        /* Completed: gold background, show checkmark */
+        gsap.to(circle, {
+          backgroundColor: '#D4A843',
+          borderColor: '#D4A843',
+          color: '#0C1B33',
+          duration: DUR,
+          ease: EASE,
+        });
+      } else if (num === currentStep) {
+        /* Active: outlined gold */
+        gsap.to(circle, {
+          backgroundColor: 'transparent',
+          borderColor: '#D4A843',
+          color: '#D4A843',
+          duration: DUR,
+          ease: EASE,
+        });
+        /* Pulse */
+        if (!reduced) {
+          gsap.killTweensOf(circle, 'boxShadow');
+          gsap.fromTo(circle, { boxShadow: '0 0 0 0 rgba(212,168,67,0.4)' }, {
+            boxShadow: '0 0 0 8px rgba(212,168,67,0)',
+            duration: 1.5,
+            repeat: -1,
+            ease: 'power1.out',
+          });
+        }
+      } else {
+        /* Upcoming: gray */
+        gsap.killTweensOf(circle, 'boxShadow');
+        gsap.to(circle, {
+          backgroundColor: 'transparent',
+          borderColor: '#4A5568',
+          color: '#4A5568',
+          boxShadow: 'none',
+          duration: DUR,
+          ease: EASE,
+        });
+      }
+    });
+
+    /* Animate labels */
+    demoSteps.forEach(function (stepEl, i) {
+      var num = i + 1;
+      var label = stepEl.querySelector('.step-h-label');
+      if (num < currentStep) {
+        gsap.to(label, { color: '#D4A843', duration: DUR, ease: EASE });
+      } else if (num === currentStep) {
+        gsap.to(label, { color: '#D4A843', fontWeight: 600, duration: DUR, ease: EASE });
+      } else {
+        gsap.to(label, { color: '#4A5568', fontWeight: 500, duration: DUR, ease: EASE });
+      }
+    });
+
+    /* Animate connector lines */
+    demoLines.forEach(function (fill, i) {
+      var lineNum = i + 1; /* Line after step i+1 */
+      if (lineNum < currentStep) {
+        gsap.to(fill, { scaleX: 1, duration: DUR * 1.2, ease: EASE });
+      } else {
+        gsap.to(fill, { scaleX: 0, duration: DUR * 0.8, ease: 'power2.in' });
+      }
+    });
+
+    /* SVG checkmark draw-in for newly completed step */
+    if (newStep > oldStep && oldStep >= 1 && oldStep <= totalSteps) {
+      var completedEl = demoSteps[oldStep - 1];
+      if (completedEl) {
+        var svgPath = completedEl.querySelector('svg polyline');
+        if (svgPath && !reduced) {
+          var length = svgPath.getTotalLength ? svgPath.getTotalLength() : 30;
+          gsap.set(svgPath, { strokeDasharray: length, strokeDashoffset: length });
+          gsap.to(svgPath, { strokeDashoffset: 0, duration: 0.4, delay: 0.1, ease: 'power2.out' });
+        }
+      }
+    }
+
+    /* Switch panels */
+    var oldPanel = document.querySelector('#step-panels .step-panel.active');
+    var newPanel = panels[currentStep - 1];
+
+    if (oldPanel === newPanel) {
+      updateButtonStates();
+      return;
+    }
+
+    if (reduced) {
+      if (oldPanel) oldPanel.classList.remove('active');
+      if (newPanel) newPanel.classList.add('active');
+      /* Completion animation */
+      if (currentStep === totalSteps) {
+        gsap.set('#completion-check', { scale: 1, opacity: 1 });
+      }
+      updateButtonStates();
+      return;
+    }
+
+    var direction = newStep > oldStep ? 1 : -1;
+
+    if (oldPanel) {
+      gsap.to(oldPanel, {
+        opacity: 0,
+        x: -30 * direction,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: function () {
+          oldPanel.classList.remove('active');
+          gsap.set(oldPanel, { opacity: 1, x: 0 });
+
+          if (newPanel) {
+            newPanel.classList.add('active');
+            gsap.fromTo(newPanel,
+              { opacity: 0, x: 30 * direction },
+              { opacity: 1, x: 0, duration: 0.35, ease: EASE }
+            );
+
+            /* Completion celebration */
+            if (currentStep === totalSteps) {
+              gsap.fromTo('#completion-check',
+                { scale: 0, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.5, delay: 0.15, ease: 'back.out(1.7)' }
+              );
+              /* Ripple across all step circles */
+              demoSteps.forEach(function (s, i) {
+                var c = getStepCircle(s);
+                gsap.fromTo(c, { scale: 1 }, {
+                  scale: 1.15,
+                  duration: 0.2,
+                  delay: i * 0.06,
+                  yoyo: true,
+                  repeat: 1,
+                  ease: 'power2.out',
+                });
+              });
+            }
+          }
+          updateButtonStates();
+        }
+      });
+    } else {
+      if (newPanel) {
+        newPanel.classList.add('active');
+        gsap.fromTo(newPanel,
+          { opacity: 0, x: 30 * direction },
+          { opacity: 1, x: 0, duration: 0.35, ease: EASE }
+        );
+      }
+      updateButtonStates();
+    }
+  }
+
+  /* Button handlers */
+  btnNext.addEventListener('click', function () {
+    if (currentStep < totalSteps) {
+      animateToStep(currentStep + 1);
+    } else if (currentStep === totalSteps) {
+      /* Already at last step, disable */
+      btnNext.disabled = true;
+    }
+  });
+
+  btnPrev.addEventListener('click', function () {
+    if (currentStep > 1) {
+      animateToStep(currentStep - 1);
+    }
+  });
+
+  /* ═══════════════════════════════════
+     PAGE ENTRANCE
+     ═══════════════════════════════════ */
+
+  if (!reduced) {
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from('.page-header h1', { opacity: 0, y: 20, duration: 0.5 });
+    tl.from('.page-header p', { opacity: 0, y: 15, duration: 0.4 }, '-=0.2');
+    tl.from('.demo-section', { opacity: 0, y: 25, duration: 0.5, stagger: 0.12 }, '-=0.2');
+  }
+
+  animateStaticSteppers();
+  updateButtonStates();
+
+  /* ═══════════════════════════════════
+     HOVER EFFECTS
+     ═══════════════════════════════════ */
+
+  if (!reduced) {
+    /* Button hovers */
+    [btnPrev, btnNext].forEach(function (btn) {
+      btn.addEventListener('mouseenter', function () {
+        if (!btn.disabled) {
+          gsap.to(btn, { scale: 1.03, duration: 0.15, ease: 'power2.out' });
+        }
+      });
+      btn.addEventListener('mouseleave', function () {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+
+    /* Demo card hover */
+    var demoCard = document.querySelector('.demo-card');
+    demoCard.addEventListener('mouseenter', function () {
+      gsap.to(demoCard, {
+        boxShadow: '0 8px 32px rgba(212,168,67,0.08)',
+        borderColor: 'rgba(212,168,67,0.35)',
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    });
+    demoCard.addEventListener('mouseleave', function () {
+      gsap.to(demoCard, {
+        boxShadow: 'none',
+        borderColor: 'rgba(212,168,67,0.2)',
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    });
+
+    /* Pill hover */
+    document.querySelectorAll('.stepper-pill').forEach(function (pill) {
+      pill.addEventListener('mouseenter', function () {
+        gsap.to(pill, {
+          boxShadow: '0 4px 16px rgba(212,168,67,0.1)',
+          borderColor: 'rgba(212,168,67,0.4)',
+          duration: 0.25,
+          ease: 'power2.out',
+        });
+      });
+      pill.addEventListener('mouseleave', function () {
+        gsap.to(pill, {
+          boxShadow: 'none',
+          borderColor: 'rgba(212,168,67,0.2)',
+          duration: 0.25,
+          ease: 'power2.out',
+        });
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════
+     SCROLL REVEAL for static sections
+     ═══════════════════════════════════ */
+
+  if (!reduced) {
+    UV.scrollReveal('#stepper-v .step-v', {
+      trigger: '#stepper-v',
+      stagger: 0.1,
+      y: 20,
+    });
+  }
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

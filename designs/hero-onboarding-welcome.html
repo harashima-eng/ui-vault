@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding Welcome — Blush Dream</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Blush Dream
+   Soft pastel pink + hot pink accent. Playful, feminine.
+   ============================================================ */
+:root {
+  --bg: #FFF5F7;
+  --bg-gradient: linear-gradient(180deg, #FFF5F7 0%, #FFFAFC 50%, #FFFFFF 100%);
+  --surface: #FFFFFF;
+  --accent: #FF4A9E;
+  --accent-hover: #E63D8B;
+  --accent-soft: rgba(255,74,158,0.08);
+  --text: #4A2040;
+  --text-secondary: #8B6B82;
+  --border: rgba(255,74,158,0.15);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --shadow-sm: 0 1px 3px rgba(74,32,64,0.06), 0 1px 2px rgba(74,32,64,0.04);
+  --shadow-md: 0 4px 12px rgba(74,32,64,0.07), 0 2px 4px rgba(74,32,64,0.04);
+  --shadow-lg: 0 12px 32px rgba(74,32,64,0.10), 0 4px 8px rgba(74,32,64,0.05);
+
+  /* Interest card pastels */
+  --pastel-pink: #FFE8EF;
+  --pastel-lavender: #F0E4FF;
+  --pastel-mint: #E4FFF0;
+  --pastel-peach: #FFF0E4;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg-gradient);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ============================================================
+   FLOATING AMBIENT CIRCLES
+   ============================================================ */
+.ambient-circles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* ============================================================
+   ONBOARDING CONTAINER
+   ============================================================ */
+.onboarding {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 40px 24px;
+}
+
+/* ============================================================
+   PROGRESS STEPPER
+   ============================================================ */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,74,158,0.3);
+  background: transparent;
+  position: relative;
+}
+
+.step-dot.active {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.step-dot.completed {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.step-dot.completed::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.step-connector {
+  width: 32px;
+  height: 2px;
+  background: rgba(255,74,158,0.15);
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.step-connector-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.step-connector.filled .step-connector-fill {
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   STEP PANELS
+   ============================================================ */
+.step-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-panel {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.step-panel.active {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================================================
+   STEP 1 — WELCOME
+   ============================================================ */
+.welcome-illustration {
+  position: relative;
+  width: 280px;
+  height: 200px;
+  margin-bottom: 40px;
+}
+
+.welcome-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+.welcome-title {
+  font-size: clamp(2rem, 5vw + 0.5rem, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-wrap: balance;
+  margin-bottom: 16px;
+}
+
+.welcome-title .word {
+  display: inline-block;
+  opacity: 0;
+}
+
+.welcome-desc {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  max-width: 42ch;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   STEP 2 — PERSONALIZE
+   ============================================================ */
+.personalize-title {
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 2rem);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.personalize-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.interest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 36px;
+}
+
+.interest-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 20px;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.interest-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.interest-card.selected {
+  border-color: var(--accent);
+}
+
+.interest-card-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.interest-card-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.interest-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.interest-card-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   STEP 3 — GET STARTED
+   ============================================================ */
+.success-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.success-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.success-check {
+  width: 56px;
+  height: 56px;
+}
+
+.success-check path {
+  stroke: var(--accent);
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+}
+
+.success-title {
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 2.25rem);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.success-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 36ch;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+/* Confetti particles */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.confetti-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 16px rgba(255,74,158,0.25);
+  min-width: 160px;
+  min-height: 48px;
+}
+
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 50px;
+  min-height: 44px;
+}
+
+.btn-secondary:hover { color: var(--text); background: rgba(74,32,64,0.04); }
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ============================================================
+   STEP LABELS
+   ============================================================ */
+.step-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 500px) {
+  .onboarding { padding: 28px 16px; }
+  .interest-grid { gap: 12px; }
+  .interest-card { padding: 20px 14px; }
+  .welcome-illustration { width: 220px; height: 160px; }
+  .stepper { margin-bottom: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ambient floating circles -->
+<div class="ambient-circles" aria-hidden="true">
+  <div class="ambient-circle" style="width:200px;height:200px;background:rgba(255,74,158,0.06);top:10%;left:-5%;"></div>
+  <div class="ambient-circle" style="width:150px;height:150px;background:rgba(255,74,158,0.04);top:60%;right:-3%;"></div>
+  <div class="ambient-circle" style="width:100px;height:100px;background:rgba(255,150,200,0.06);top:30%;right:15%;"></div>
+  <div class="ambient-circle" style="width:120px;height:120px;background:rgba(255,74,158,0.05);bottom:15%;left:10%;"></div>
+</div>
+
+<div class="onboarding">
+  <!-- Progress Stepper -->
+  <nav class="stepper" aria-label="Onboarding progress">
+    <div class="step-dot active" id="dot1" aria-label="Step 1: Welcome, current"></div>
+    <div class="step-connector" id="conn1"><div class="step-connector-fill"></div></div>
+    <div class="step-dot" id="dot2" aria-label="Step 2: Personalize"></div>
+    <div class="step-connector" id="conn2"><div class="step-connector-fill"></div></div>
+    <div class="step-dot" id="dot3" aria-label="Step 3: Get Started"></div>
+  </nav>
+
+  <!-- Step Container -->
+  <div class="step-container">
+
+    <!-- Step 1: Welcome -->
+    <div class="step-panel active" id="step1" role="region" aria-label="Welcome">
+      <div class="welcome-illustration" aria-hidden="true">
+        <svg viewBox="0 0 280 200" fill="none">
+          <!-- Abstract decorative circles + curves -->
+          <circle cx="140" cy="100" r="60" fill="rgba(255,74,158,0.08)"/>
+          <circle cx="90" cy="70" r="35" fill="rgba(255,150,200,0.12)"/>
+          <circle cx="195" cy="130" r="28" fill="rgba(255,74,158,0.1)"/>
+          <circle cx="60" cy="140" r="20" fill="rgba(255,200,220,0.15)"/>
+          <circle cx="220" cy="70" r="18" fill="rgba(255,100,170,0.08)"/>
+          <path d="M80 120 Q140 40 200 120" stroke="#FF4A9E" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.3"/>
+          <path d="M60 90 Q120 160 220 80" stroke="#FF4A9E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.2"/>
+          <circle cx="140" cy="100" r="8" fill="#FF4A9E" opacity="0.6"/>
+          <circle cx="100" cy="85" r="4" fill="#FF4A9E" opacity="0.4"/>
+          <circle cx="185" cy="110" r="5" fill="#FF4A9E" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="step-label">Step 1 of 3</div>
+      <h1 class="welcome-title" id="welcomeTitle">
+        <span class="word">Welcome</span> <span class="word">to</span> <span class="word">CreativeHub</span>
+      </h1>
+      <p class="welcome-desc">Your creative workspace awaits. Let us know a bit about you so we can personalize your experience.</p>
+      <button class="btn-primary" id="goStep2" aria-label="Continue to personalization">
+        Let's Go
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Step 2: Personalize -->
+    <div class="step-panel" id="step2" role="region" aria-label="Personalize your interests">
+      <div class="step-label">Step 2 of 3</div>
+      <h2 class="personalize-title">What interests you?</h2>
+      <p class="personalize-desc">Pick at least one to customize your dashboard.</p>
+
+      <div class="interest-grid">
+        <div class="interest-card" style="background:var(--pastel-pink);" tabindex="0" role="checkbox" aria-checked="false" data-interest="design">
+          <div class="interest-card-icon">
+            <svg viewBox="0 0 24 24" stroke="#FF4A9E">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="interest-card-title">Design</div>
+          <div class="interest-card-desc">UI, graphics, branding</div>
+        </div>
+
+        <div class="interest-card" style="background:var(--pastel-lavender);" tabindex="0" role="checkbox" aria-checked="false" data-interest="development">
+          <div class="interest-card-icon">
+            <svg viewBox="0 0 24 24" stroke="#9B6BFF">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </div>
+          <div class="interest-card-title">Development</div>
+          <div class="interest-card-desc">Code, APIs, frameworks</div>
+        </div>
+
+        <div class="interest-card" style="background:var(--pastel-mint);" tabindex="0" role="checkbox" aria-checked="false" data-interest="marketing">
+          <div class="interest-card-icon">
+            <svg viewBox="0 0 24 24" stroke="#3DAF7D">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <div class="interest-card-title">Marketing</div>
+          <div class="interest-card-desc">Campaigns, analytics</div>
+        </div>
+
+        <div class="interest-card" style="background:var(--pastel-peach);" tabindex="0" role="checkbox" aria-checked="false" data-interest="analytics">
+          <div class="interest-card-icon">
+            <svg viewBox="0 0 24 24" stroke="#D48343">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <div class="interest-card-title">Analytics</div>
+          <div class="interest-card-desc">Data, insights, reports</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" id="backStep1" aria-label="Go back to welcome">Back</button>
+        <button class="btn-primary" id="goStep3" aria-label="Continue to finish">
+          Continue
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Get Started -->
+    <div class="step-panel" id="step3" role="region" aria-label="Setup complete">
+      <div class="success-area">
+        <div class="success-circle">
+          <svg class="success-check" viewBox="0 0 56 56">
+            <path d="M14 28 L24 38 L42 18" id="checkPath"/>
+          </svg>
+        </div>
+      </div>
+      <div class="step-label">Step 3 of 3</div>
+      <h2 class="success-title">You're all set!</h2>
+      <p class="success-desc">Your workspace is ready and personalized just for you.</p>
+      <div class="btn-row">
+        <button class="btn-secondary" id="backStep2" aria-label="Go back to interests">Back</button>
+        <button class="btn-primary" id="goToDashboard" aria-label="Open your dashboard">
+          Open Dashboard
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confetti container for step 3 -->
+<div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  var currentStep = 1;
+  var selectedInterests = new Set();
+
+  // ─── AMBIENT CIRCLES ──────────────────────────────────
+  function initAmbient() {
+    if (UV.prefersReducedMotion) return;
+
+    document.querySelectorAll('.ambient-circle').forEach(function(circle, i) {
+      gsap.set(circle, { opacity: 1 });
+      gsap.to(circle, {
+        x: 'random(-30, 30)',
+        y: 'random(-30, 30)',
+        duration: 'random(6, 10)',
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: i * 0.8,
+      });
+    });
+  }
+
+  // ─── STEPPER ──────────────────────────────────────────
+  function updateStepper(step) {
+    for (var i = 1; i <= 3; i++) {
+      var dot = document.getElementById('dot' + i);
+      dot.classList.remove('active', 'completed');
+      if (i < step) dot.classList.add('completed');
+      else if (i === step) dot.classList.add('active');
+    }
+
+    // Animate connectors
+    for (var c = 1; c <= 2; c++) {
+      var conn = document.getElementById('conn' + c);
+      var fill = conn.querySelector('.step-connector-fill');
+      if (c < step) {
+        conn.classList.add('filled');
+        gsap.to(fill, { scaleX: 1, duration: 0.4, ease: 'power2.out' });
+      } else {
+        conn.classList.remove('filled');
+        gsap.to(fill, { scaleX: 0, duration: 0.3, ease: 'power2.in' });
+      }
+    }
+
+    // Pulse active dot
+    UV.safeAnimate(function() {
+      var activeDot = document.querySelector('.step-dot.active');
+      if (activeDot) {
+        gsap.fromTo(activeDot, { scale: 1 }, {
+          scale: 1.3,
+          duration: 0.3,
+          ease: 'back.out(2)',
+          yoyo: true,
+          repeat: 1,
+        });
+      }
+    });
+  }
+
+  // ─── STEP TRANSITIONS ─────────────────────────────────
+  function goToStep(newStep) {
+    if (newStep === currentStep) return;
+
+    var oldPanel = document.getElementById('step' + currentStep);
+    var newPanel = document.getElementById('step' + newStep);
+    var direction = newStep > currentStep ? 1 : -1;
+
+    // Animate out
+    var outX = -60 * direction;
+    var inX = 60 * direction;
+
+    if (UV.prefersReducedMotion) {
+      oldPanel.classList.remove('active');
+      oldPanel.style.opacity = '0';
+      oldPanel.style.pointerEvents = 'none';
+      newPanel.classList.add('active');
+      newPanel.style.opacity = '1';
+      newPanel.style.pointerEvents = 'auto';
+    } else {
+      gsap.to(oldPanel, {
+        opacity: 0,
+        x: outX,
+        duration: 0.35,
+        ease: 'power2.in',
+        onComplete: function() {
+          oldPanel.classList.remove('active');
+          oldPanel.style.pointerEvents = 'none';
+        }
+      });
+
+      newPanel.classList.add('active');
+      newPanel.style.pointerEvents = 'auto';
+      gsap.fromTo(newPanel,
+        { opacity: 0, x: inX },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.4,
+          delay: 0.15,
+          ease: 'power2.out',
+          onComplete: function() {
+            onStepEnter(newStep);
+          }
+        }
+      );
+    }
+
+    currentStep = newStep;
+    updateStepper(newStep);
+  }
+
+  function onStepEnter(step) {
+    if (step === 1) animateStep1();
+    if (step === 2) animateStep2();
+    if (step === 3) animateStep3();
+  }
+
+  // ─── STEP 1 ANIMATION ─────────────────────────────────
+  function animateStep1() {
+    UV.safeAnimate(function() {
+      var words = document.querySelectorAll('#welcomeTitle .word');
+      gsap.fromTo(words, { opacity: 0, y: 20 }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        stagger: 0.12,
+      });
+    });
+
+    UV.safeAnimate(function() {
+      gsap.from('.welcome-illustration svg circle, .welcome-illustration svg path', {
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'back.out(1.5)',
+        stagger: 0.06,
+        transformOrigin: 'center center',
+      });
+    });
+  }
+
+  // ─── STEP 2 ANIMATION ─────────────────────────────────
+  function animateStep2() {
+    UV.safeAnimate(function() {
+      gsap.from('.interest-card', {
+        opacity: 0,
+        y: 20,
+        scale: 0.9,
+        duration: 0.4,
+        ease: 'power2.out',
+        stagger: 0.08,
+      });
+    });
+  }
+
+  // ─── STEP 3 ANIMATION ─────────────────────────────────
+  function animateStep3() {
+    UV.safeAnimate(function() {
+      // Animate check circle
+      gsap.from('.success-circle', {
+        scale: 0,
+        duration: 0.5,
+        ease: 'back.out(1.7)',
+      });
+
+      // Draw checkmark
+      gsap.to('#checkPath', {
+        strokeDashoffset: 0,
+        duration: 0.6,
+        delay: 0.3,
+        ease: 'power2.out',
+      });
+
+      // Trigger confetti
+      setTimeout(showConfetti, 500);
+    });
+  }
+
+  // ─── CONFETTI ──────────────────────────────────────────
+  function showConfetti() {
+    if (UV.prefersReducedMotion) return;
+
+    var container = document.getElementById('confettiContainer');
+    var colors = ['#FF4A9E', '#FF85BE', '#FFB8D8', '#FF6BAF', '#FFD0E5', '#FF9ECC'];
+    var count = 30;
+
+    for (var i = 0; i < count; i++) {
+      var dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+      dot.style.width = (4 + Math.random() * 8) + 'px';
+      dot.style.height = dot.style.width;
+      dot.style.left = (20 + Math.random() * 60) + '%';
+      dot.style.top = '50%';
+      container.appendChild(dot);
+
+      gsap.to(dot, {
+        opacity: 1,
+        y: -(100 + Math.random() * 300),
+        x: (Math.random() - 0.5) * 200,
+        scale: 0,
+        duration: 1.2 + Math.random() * 0.8,
+        ease: 'power2.out',
+        delay: Math.random() * 0.3,
+        onComplete: function() { dot.remove(); }
+      });
+    }
+  }
+
+  // ─── INTEREST CARD INTERACTIONS ────────────────────────
+  document.querySelectorAll('.interest-card').forEach(function(card) {
+    function toggleCard() {
+      var interest = card.dataset.interest;
+      var isSelected = card.classList.contains('selected');
+
+      if (isSelected) {
+        card.classList.remove('selected');
+        card.setAttribute('aria-checked', 'false');
+        selectedInterests.delete(interest);
+        UV.safeAnimate(function() {
+          gsap.to(card, { scale: 1, borderColor: 'transparent', duration: 0.25, ease: 'power2.out' });
+        });
+      } else {
+        card.classList.add('selected');
+        card.setAttribute('aria-checked', 'true');
+        selectedInterests.add(interest);
+        UV.safeAnimate(function() {
+          gsap.fromTo(card, { scale: 0.95 }, {
+            scale: 1,
+            borderColor: '#FF4A9E',
+            duration: 0.35,
+            ease: 'back.out(2)',
+          });
+        });
+      }
+    }
+
+    card.addEventListener('click', toggleCard);
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleCard();
+      }
+    });
+  });
+
+  // ─── BUTTON HOVER (GSAP) ──────────────────────────────
+  function setupButtonHovers() {
+    if (UV.prefersReducedMotion) return;
+
+    document.querySelectorAll('.btn-primary').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.03, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ─── NAVIGATION ────────────────────────────────────────
+  document.getElementById('goStep2').addEventListener('click', function() { goToStep(2); });
+  document.getElementById('goStep3').addEventListener('click', function() { goToStep(3); });
+  document.getElementById('backStep1').addEventListener('click', function() { goToStep(1); });
+  document.getElementById('backStep2').addEventListener('click', function() { goToStep(2); });
+
+  document.getElementById('goToDashboard').addEventListener('click', function() {
+    UV.safeAnimate(function() {
+      gsap.to('.onboarding', {
+        opacity: 0,
+        scale: 0.98,
+        duration: 0.4,
+        ease: 'power2.in',
+        onComplete: function() {
+          // In a real app, navigate to dashboard
+          goToStep(1);
+          gsap.to('.onboarding', { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' });
+        }
+      });
+    });
+  });
+
+  // ─── INIT ──────────────────────────────────────────────
+  function init() {
+    initAmbient();
+    setupButtonHovers();
+    animateStep1();
+
+    // Page entrance
+    UV.fadeIn('.stepper', { y: -15, duration: 0.5 });
+
+    UV.addControlPanel();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

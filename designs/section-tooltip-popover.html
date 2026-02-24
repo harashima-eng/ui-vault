@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tooltip &amp; Popover Showcase</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0C1A12;
+  --surface:#162A1C;
+  --accent:#5CB88A;
+  --text:#D4E8DB;
+  --text-secondary:rgba(212,232,219,0.6);
+  --border:rgba(92,184,138,0.2);
+  --radius:10px;
+  --radius-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --tooltip-bg:#1E3A28;
+  --tooltip-border:rgba(92,184,138,0.35);
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* Grid background */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(92,184,138,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(92,184,138,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Page Layout ---- */
+.page-wrapper{
+  position:relative;
+  z-index:1;
+  max-width:880px;
+  margin:0 auto;
+  padding:60px 24px 120px;
+}
+
+.section-header{
+  text-align:center;
+  margin-bottom:56px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--border);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:rgba(92,184,138,0.06);
+}
+
+.section-title{
+  font-size:clamp(1.75rem,4vw,2.5rem);
+  font-weight:700;
+  line-height:1.15;
+  text-wrap:balance;
+  letter-spacing:-0.02em;
+}
+
+.section-subtitle{
+  font-size:1rem;
+  color:var(--text-secondary);
+  margin-top:12px;
+  max-width:52ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Section Dividers ---- */
+.showcase-section{
+  margin-bottom:64px;
+}
+
+.showcase-section-title{
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:28px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ---- Demo Row ---- */
+.demo-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
+  align-items:center;
+}
+
+.demo-row--spaced{
+  gap:40px;
+}
+
+/* ---- Trigger Elements ---- */
+.trigger-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 20px;
+  background:var(--surface);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:44px;
+  position:relative;
+}
+
+.trigger-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.trigger-btn svg{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+}
+
+.trigger-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  color:var(--text);
+  position:relative;
+}
+
+.trigger-icon:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.trigger-icon svg{
+  width:18px;
+  height:18px;
+}
+
+.trigger-link{
+  color:var(--accent);
+  text-decoration:underline;
+  text-decoration-color:rgba(92,184,138,0.3);
+  text-underline-offset:3px;
+  cursor:pointer;
+  font-size:0.875rem;
+  font-weight:500;
+  position:relative;
+  padding:4px 0;
+}
+
+.trigger-link:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:4px;
+  border-radius:2px;
+}
+
+.trigger-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 12px;
+  background:rgba(92,184,138,0.1);
+  color:var(--accent);
+  border:1px solid var(--border);
+  border-radius:100px;
+  font-size:0.75rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:32px;
+  position:relative;
+}
+
+.trigger-badge:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ---- Tooltip ---- */
+.tooltip{
+  position:absolute;
+  z-index:100;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  border-radius:var(--radius-sm);
+  padding:8px 12px;
+  font-size:0.75rem;
+  font-weight:500;
+  color:var(--text);
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
+
+/* Arrow */
+.tooltip::after{
+  content:'';
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  transform:rotate(45deg);
+}
+
+/* Positions */
+.tooltip--top{
+  bottom:calc(100% + 10px);
+  left:50%;
+  transform:translateX(-50%);
+}
+.tooltip--top::after{
+  bottom:-5px;
+  left:50%;
+  margin-left:-4px;
+  border-top:none;
+  border-left:none;
+}
+
+.tooltip--bottom{
+  top:calc(100% + 10px);
+  left:50%;
+  transform:translateX(-50%);
+}
+.tooltip--bottom::after{
+  top:-5px;
+  left:50%;
+  margin-left:-4px;
+  border-bottom:none;
+  border-right:none;
+}
+
+.tooltip--left{
+  right:calc(100% + 10px);
+  top:50%;
+  transform:translateY(-50%);
+}
+.tooltip--left::after{
+  right:-5px;
+  top:50%;
+  margin-top:-4px;
+  border-bottom:none;
+  border-left:none;
+}
+
+.tooltip--right{
+  left:calc(100% + 10px);
+  top:50%;
+  transform:translateY(-50%);
+}
+.tooltip--right::after{
+  left:-5px;
+  top:50%;
+  margin-top:-4px;
+  border-top:none;
+  border-right:none;
+}
+
+/* ---- Popover ---- */
+.popover{
+  position:absolute;
+  z-index:200;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  border-radius:var(--radius);
+  padding:0;
+  opacity:0;
+  pointer-events:none;
+  box-shadow:0 12px 40px rgba(0,0,0,0.35);
+  top:calc(100% + 12px);
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.popover.is-open{
+  pointer-events:auto;
+}
+
+/* Arrow */
+.popover::before{
+  content:'';
+  position:absolute;
+  top:-5px;
+  left:50%;
+  margin-left:-5px;
+  width:10px;
+  height:10px;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  border-bottom:none;
+  border-right:none;
+  transform:rotate(45deg);
+}
+
+/* ---- User Card Popover ---- */
+.user-popover{
+  width:280px;
+  padding:20px;
+}
+
+.user-popover-header{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.user-avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:rgba(92,184,138,0.15);
+  border:2px solid var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:1rem;
+  color:var(--accent);
+  flex-shrink:0;
+}
+
+.user-name{
+  font-size:0.9375rem;
+  font-weight:700;
+  color:var(--text);
+}
+
+.user-handle{
+  font-size:0.75rem;
+  color:var(--text-secondary);
+}
+
+.user-bio{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.user-follow-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  padding:8px 16px;
+  background:var(--accent);
+  color:#0C1A12;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:36px;
+}
+
+.user-follow-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ---- Color Picker Popover ---- */
+.color-popover{
+  width:200px;
+  padding:16px;
+}
+
+.color-popover-title{
+  font-size:0.75rem;
+  font-weight:600;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  margin-bottom:12px;
+}
+
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.color-swatch{
+  width:100%;
+  aspect-ratio:1;
+  border-radius:var(--radius-sm);
+  border:2px solid transparent;
+  cursor:pointer;
+  min-height:44px;
+}
+
+.color-swatch:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.color-swatch.selected{
+  border-color:var(--text);
+  box-shadow:0 0 0 2px var(--tooltip-bg),0 0 0 4px var(--text);
+}
+
+/* ---- Emoji Popover ---- */
+.emoji-popover{
+  width:240px;
+  padding:12px;
+}
+
+.emoji-popover-title{
+  font-size:0.75rem;
+  font-weight:600;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  margin-bottom:10px;
+  padding:0 4px;
+}
+
+.emoji-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:4px;
+}
+
+.emoji-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  aspect-ratio:1;
+  font-size:1.25rem;
+  background:none;
+  border:none;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  min-height:36px;
+}
+
+.emoji-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:1px;
+}
+
+/* ---- Rich Tooltip ---- */
+.rich-tooltip{
+  position:absolute;
+  z-index:100;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  border-radius:var(--radius);
+  opacity:0;
+  pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+  bottom:calc(100% + 12px);
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.rich-tooltip::after{
+  content:'';
+  position:absolute;
+  bottom:-5px;
+  left:50%;
+  margin-left:-5px;
+  width:10px;
+  height:10px;
+  background:var(--tooltip-bg);
+  border:1px solid var(--tooltip-border);
+  border-top:none;
+  border-left:none;
+  transform:rotate(45deg);
+}
+
+/* Code tooltip */
+.code-tooltip{
+  width:300px;
+  padding:14px;
+}
+
+.code-tooltip-label{
+  font-size:0.7rem;
+  font-weight:600;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  margin-bottom:8px;
+}
+
+.code-tooltip pre{
+  font-family:'SF Mono',Consolas,monospace;
+  font-size:0.75rem;
+  line-height:1.6;
+  color:var(--accent);
+  background:rgba(0,0,0,0.25);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  overflow-x:auto;
+  white-space:pre;
+}
+
+/* Image tooltip */
+.image-tooltip{
+  width:220px;
+  padding:10px;
+}
+
+.image-tooltip-img{
+  width:100%;
+  aspect-ratio:16/10;
+  border-radius:var(--radius-sm);
+  background:rgba(92,184,138,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:8px;
+  overflow:hidden;
+}
+
+.image-tooltip-img svg{
+  width:48px;
+  height:48px;
+  color:var(--accent);
+  opacity:0.4;
+}
+
+.image-tooltip-caption{
+  font-size:0.75rem;
+  color:var(--text-secondary);
+  text-align:center;
+}
+
+/* ---- Popover Container ---- */
+.popover-trigger-wrap{
+  position:relative;
+  display:inline-flex;
+}
+
+.tooltip-trigger-wrap{
+  position:relative;
+  display:inline-flex;
+}
+
+/* ---- Section Description ---- */
+.showcase-desc{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+  margin-bottom:24px;
+  max-width:60ch;
+}
+
+/* ---- Responsive ---- */
+@media(max-width:640px){
+  .page-wrapper{padding:40px 16px 100px}
+  .demo-row{gap:16px}
+  .demo-row--spaced{gap:24px}
+  .tooltip{white-space:normal;max-width:200px}
+  .popover{left:auto;right:-20px;transform:none}
+  .popover::before{left:auto;right:24px}
+  .rich-tooltip{left:auto;right:-20px;transform:none}
+  .rich-tooltip::after{left:auto;right:24px}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Section Header -->
+  <header class="section-header">
+    <div class="section-label">Overlays</div>
+    <h1 class="section-title">Tooltip &amp; Popover Showcase</h1>
+    <p class="section-subtitle">Directional tooltips, click-triggered popovers, and rich preview tooltips with GSAP-powered entrances and contextual positioning.</p>
+  </header>
+
+  <!-- ================================
+       SECTION 1: Tooltips
+       ================================ -->
+  <section class="showcase-section" id="sectionTooltips">
+    <h2 class="showcase-section-title">Directional Tooltips</h2>
+    <p class="showcase-desc">Hover or focus each element to reveal a tooltip. Each demonstrates a different placement direction with a smooth scale entrance.</p>
+
+    <div class="demo-row demo-row--spaced">
+      <!-- Top tooltip on button -->
+      <div class="tooltip-trigger-wrap">
+        <button class="trigger-btn" data-tooltip="top" aria-describedby="tt-top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          Hover me (top)
+        </button>
+        <div class="tooltip tooltip--top" id="tt-top" role="tooltip">Tooltip on top</div>
+      </div>
+
+      <!-- Right tooltip on icon -->
+      <div class="tooltip-trigger-wrap">
+        <button class="trigger-icon" data-tooltip="right" aria-describedby="tt-right" aria-label="Settings with right tooltip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <div class="tooltip tooltip--right" id="tt-right" role="tooltip">Settings</div>
+      </div>
+
+      <!-- Bottom tooltip on link -->
+      <div class="tooltip-trigger-wrap">
+        <a class="trigger-link" data-tooltip="bottom" aria-describedby="tt-bottom" tabindex="0">Learn more (bottom)</a>
+        <div class="tooltip tooltip--bottom" id="tt-bottom" role="tooltip">Opens documentation page</div>
+      </div>
+
+      <!-- Left tooltip on badge -->
+      <div class="tooltip-trigger-wrap">
+        <span class="trigger-badge" data-tooltip="left" aria-describedby="tt-left" tabindex="0">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Beta (left)
+        </span>
+        <div class="tooltip tooltip--left" id="tt-left" role="tooltip">Feature in beta testing</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================
+       SECTION 2: Popovers
+       ================================ -->
+  <section class="showcase-section" id="sectionPopovers">
+    <h2 class="showcase-section-title">Click-Triggered Popovers</h2>
+    <p class="showcase-desc">Click each button to open a popover. Click outside or press Escape to close. Content stays interactive while open.</p>
+
+    <div class="demo-row demo-row--spaced">
+      <!-- User Card Popover -->
+      <div class="popover-trigger-wrap">
+        <button class="trigger-btn" data-popover="user" aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          User Card
+        </button>
+        <div class="popover user-popover" data-popover-content="user" role="dialog" aria-label="User profile card">
+          <div class="user-popover-header">
+            <div class="user-avatar">JD</div>
+            <div>
+              <div class="user-name">Jane Doe</div>
+              <div class="user-handle">@janedoe</div>
+            </div>
+          </div>
+          <div class="user-bio">Product designer crafting digital experiences. Passionate about accessibility and design systems.</div>
+          <button class="user-follow-btn" aria-label="Follow Jane Doe">Follow</button>
+        </div>
+      </div>
+
+      <!-- Color Picker Popover -->
+      <div class="popover-trigger-wrap">
+        <button class="trigger-btn" data-popover="colors" aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12a10 10 0 0 0 10 10z"/></svg>
+          Color Picker
+        </button>
+        <div class="popover color-popover" data-popover-content="colors" role="dialog" aria-label="Pick a color">
+          <div class="color-popover-title">Choose a color</div>
+          <div class="color-grid">
+            <button class="color-swatch selected" style="background:#5CB88A" aria-label="Green" data-color="green"></button>
+            <button class="color-swatch" style="background:#3B82F6" aria-label="Blue" data-color="blue"></button>
+            <button class="color-swatch" style="background:#8B5CF6" aria-label="Purple" data-color="purple"></button>
+            <button class="color-swatch" style="background:#EF4444" aria-label="Red" data-color="red"></button>
+            <button class="color-swatch" style="background:#F59E0B" aria-label="Amber" data-color="amber"></button>
+            <button class="color-swatch" style="background:#EC4899" aria-label="Pink" data-color="pink"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emoji Popover -->
+      <div class="popover-trigger-wrap">
+        <button class="trigger-btn" data-popover="emoji" aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Emoji
+        </button>
+        <div class="popover emoji-popover" data-popover-content="emoji" role="dialog" aria-label="Pick an emoji">
+          <div class="emoji-popover-title">Reactions</div>
+          <div class="emoji-grid">
+            <button class="emoji-btn" aria-label="Thumbs up">&#x1F44D;</button>
+            <button class="emoji-btn" aria-label="Heart">&#x2764;&#xFE0F;</button>
+            <button class="emoji-btn" aria-label="Fire">&#x1F525;</button>
+            <button class="emoji-btn" aria-label="Clap">&#x1F44F;</button>
+            <button class="emoji-btn" aria-label="Laugh">&#x1F602;</button>
+            <button class="emoji-btn" aria-label="Thinking">&#x1F914;</button>
+            <button class="emoji-btn" aria-label="Rocket">&#x1F680;</button>
+            <button class="emoji-btn" aria-label="Star eyes">&#x1F929;</button>
+            <button class="emoji-btn" aria-label="100">&#x1F4AF;</button>
+            <button class="emoji-btn" aria-label="Party">&#x1F389;</button>
+            <button class="emoji-btn" aria-label="Sparkles">&#x2728;</button>
+            <button class="emoji-btn" aria-label="Check">&#x2705;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================
+       SECTION 3: Rich Tooltips
+       ================================ -->
+  <section class="showcase-section" id="sectionRich">
+    <h2 class="showcase-section-title">Rich Preview Tooltips</h2>
+    <p class="showcase-desc">Hover or focus to preview content — code snippets and image thumbnails — without navigating away.</p>
+
+    <div class="demo-row demo-row--spaced">
+      <!-- Code Preview Tooltip -->
+      <div class="tooltip-trigger-wrap">
+        <button class="trigger-btn" data-rich-tooltip="code" aria-describedby="rt-code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Code Preview
+        </button>
+        <div class="rich-tooltip code-tooltip" id="rt-code" role="tooltip">
+          <div class="code-tooltip-label">utils/animate.js</div>
+          <pre><code>function fadeIn(el, opts) {
+  return gsap.from(el, {
+    opacity: 0,
+    y: opts.y || 30,
+    duration: 0.6,
+    ease: 'power3.out'
+  });
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Image Preview Tooltip -->
+      <div class="tooltip-trigger-wrap">
+        <button class="trigger-btn" data-rich-tooltip="image" aria-describedby="rt-image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Image Preview
+        </button>
+        <div class="rich-tooltip image-tooltip" id="rt-image" role="tooltip">
+          <div class="image-tooltip-img">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="image-tooltip-caption">landscape-hero.webp &mdash; 1920 &times; 1080</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  var reduced = UV.prefersReducedMotion;
+  var TOOLTIP_DELAY = 200;
+  var TOOLTIP_HIDE_DELAY = 150;
+
+  // ---- Tooltip System ----
+  var tooltipTimers = {};
+
+  function showTooltip(trigger, tooltip) {
+    clearTimeout(tooltipTimers[tooltip.id + '_hide']);
+    tooltipTimers[tooltip.id] = setTimeout(function() {
+      if (reduced) {
+        gsap.set(tooltip, { opacity: 1 });
+      } else {
+        gsap.fromTo(tooltip,
+          { opacity: 0, scale: 0.85 },
+          { opacity: 1, scale: 1, duration: 0.2, ease: 'back.out(1.5)' }
+        );
+      }
+    }, TOOLTIP_DELAY);
+  }
+
+  function hideTooltip(tooltip) {
+    clearTimeout(tooltipTimers[tooltip.id]);
+    tooltipTimers[tooltip.id + '_hide'] = setTimeout(function() {
+      if (reduced) {
+        gsap.set(tooltip, { opacity: 0 });
+      } else {
+        gsap.to(tooltip, { opacity: 0, scale: 0.85, duration: 0.15, ease: 'power2.in' });
+      }
+    }, TOOLTIP_HIDE_DELAY);
+  }
+
+  // Setup standard tooltips
+  document.querySelectorAll('[data-tooltip]').forEach(function(trigger) {
+    var tooltipEl = trigger.parentElement.querySelector('.tooltip');
+    if (!tooltipEl) return;
+
+    trigger.addEventListener('mouseenter', function() { showTooltip(trigger, tooltipEl); });
+    trigger.addEventListener('mouseleave', function() { hideTooltip(tooltipEl); });
+    trigger.addEventListener('focus', function() { showTooltip(trigger, tooltipEl); });
+    trigger.addEventListener('blur', function() { hideTooltip(tooltipEl); });
+  });
+
+  // Setup rich tooltips
+  document.querySelectorAll('[data-rich-tooltip]').forEach(function(trigger) {
+    var tooltipEl = trigger.parentElement.querySelector('.rich-tooltip');
+    if (!tooltipEl) return;
+
+    trigger.addEventListener('mouseenter', function() { showTooltip(trigger, tooltipEl); });
+    trigger.addEventListener('mouseleave', function() { hideTooltip(tooltipEl); });
+    trigger.addEventListener('focus', function() { showTooltip(trigger, tooltipEl); });
+    trigger.addEventListener('blur', function() { hideTooltip(tooltipEl); });
+  });
+
+  // ---- Popover System ----
+  var openPopover = null;
+
+  function openPop(trigger, popover) {
+    // Close any open popover first
+    if (openPopover && openPopover !== popover) {
+      closePop(openPopover._trigger, openPopover);
+    }
+
+    trigger.setAttribute('aria-expanded', 'true');
+    popover.classList.add('is-open');
+    popover._trigger = trigger;
+    openPopover = popover;
+
+    if (reduced) {
+      gsap.set(popover, { opacity: 1 });
+    } else {
+      gsap.fromTo(popover,
+        { opacity: 0, scale: 0.9, y: -5 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.25, ease: 'back.out(1.5)' }
+      );
+    }
+  }
+
+  function closePop(trigger, popover) {
+    if (!popover.classList.contains('is-open')) return;
+    trigger.setAttribute('aria-expanded', 'false');
+
+    var done = function() {
+      popover.classList.remove('is-open');
+      if (openPopover === popover) openPopover = null;
+    };
+
+    if (reduced) {
+      gsap.set(popover, { opacity: 0 });
+      done();
+    } else {
+      gsap.to(popover, {
+        opacity: 0, scale: 0.9, y: -5,
+        duration: 0.15, ease: 'power2.in',
+        onComplete: done
+      });
+    }
+  }
+
+  document.querySelectorAll('[data-popover]').forEach(function(trigger) {
+    var name = trigger.getAttribute('data-popover');
+    var popover = trigger.parentElement.querySelector('[data-popover-content="' + name + '"]');
+    if (!popover) return;
+
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (popover.classList.contains('is-open')) {
+        closePop(trigger, popover);
+      } else {
+        openPop(trigger, popover);
+      }
+    });
+  });
+
+  // Outside click
+  document.addEventListener('click', function(e) {
+    if (openPopover && !openPopover.contains(e.target) && !openPopover._trigger.contains(e.target)) {
+      closePop(openPopover._trigger, openPopover);
+    }
+  });
+
+  // Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && openPopover) {
+      closePop(openPopover._trigger, openPopover);
+      openPopover._trigger.focus();
+    }
+  });
+
+  // ---- Color Swatch Selection ----
+  document.querySelectorAll('.color-swatch').forEach(function(swatch) {
+    swatch.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('selected'); });
+      swatch.classList.add('selected');
+      if (!reduced) {
+        gsap.fromTo(swatch, { scale: 0.85 }, { scale: 1, duration: 0.25, ease: 'back.out(2)' });
+      }
+    });
+  });
+
+  // ---- Emoji Hover ----
+  if (!reduced) {
+    document.querySelectorAll('.emoji-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.3, duration: 0.15, ease: 'back.out(2)' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ---- Button Hovers ----
+  if (!reduced) {
+    document.querySelectorAll('.trigger-btn, .user-follow-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.03, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+
+    document.querySelectorAll('.trigger-icon').forEach(function(icon) {
+      icon.addEventListener('mouseenter', function() {
+        gsap.to(icon.querySelector('svg'), { rotation: 45, duration: 0.3, ease: 'power2.out' });
+      });
+      icon.addEventListener('mouseleave', function() {
+        gsap.to(icon.querySelector('svg'), { rotation: 0, duration: 0.3, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ---- Page Entrance ----
+  UV.initPage({
+    title: '.section-label, .section-title',
+    subtitle: '.section-subtitle'
+  });
+
+  UV.scrollReveal('#sectionTooltips', { y: 30 });
+  UV.scrollReveal('#sectionTooltips .demo-row > *', { stagger: 0.08, y: 20, trigger: '#sectionTooltips .demo-row' });
+
+  UV.scrollReveal('#sectionPopovers', { y: 30 });
+  UV.scrollReveal('#sectionPopovers .demo-row > *', { stagger: 0.08, y: 20, trigger: '#sectionPopovers .demo-row' });
+
+  UV.scrollReveal('#sectionRich', { y: 30 });
+  UV.scrollReveal('#sectionRich .demo-row > *', { stagger: 0.08, y: 20, trigger: '#sectionRich .demo-row' });
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

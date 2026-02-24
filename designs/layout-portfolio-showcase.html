@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Showcase — Olive Editorial</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS — Olive Editorial
+   Warm cream + muted olive/brown. Minimal, editorial, artisanal.
+   ============================================================ */
+:root {
+  --bg: #E8E3D9;
+  --surface: #F5F2EC;
+  --accent: #6E5B3E;
+  --accent-hover: #5A4930;
+  --text: #6E5B3E;
+  --text-secondary: #8A7E6C;
+  --border: rgba(110,91,62,0.15);
+  --radius: 8px;
+  --radius-sm: 4px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  --shadow-sm: 0 1px 3px rgba(110,91,62,0.06), 0 1px 2px rgba(110,91,62,0.04);
+  --shadow-md: 0 4px 12px rgba(110,91,62,0.08), 0 2px 4px rgba(110,91,62,0.04);
+  --shadow-lg: 0 12px 32px rgba(110,91,62,0.12), 0 4px 8px rgba(110,91,62,0.06);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 48px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-name {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+.header-nav {
+  display: flex;
+  gap: 24px;
+}
+
+.header-nav-link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  position: relative;
+}
+
+.header-nav-link:hover { color: var(--text); }
+.header-nav-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* ============================================================
+   STATS BAR
+   ============================================================ */
+.stats-bar {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stat-number {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 36px;
+}
+
+.filter-pill {
+  padding: 8px 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-pill:hover {
+  color: var(--text);
+  border-color: rgba(110,91,62,0.3);
+}
+
+.filter-pill:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filter-pill.active {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   PROJECT GRID — MASONRY-STYLE
+   ============================================================ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .project-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PROJECT CARD
+   ============================================================ */
+.project-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.project-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.project-card-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card-image-bg {
+  width: 100%;
+  display: block;
+}
+
+/* Overlay on hover */
+.project-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(110,91,62,0.6) 100%);
+  opacity: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+.project-card-overlay-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFDF9;
+  opacity: 0;
+}
+
+/* Card body */
+.project-card-body {
+  padding: 16px 18px;
+}
+
+.project-card-category {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.project-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.project-card-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(110,91,62,0.5);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+}
+
+.lightbox-backdrop.visible {
+  display: flex;
+}
+
+.lightbox {
+  background: var(--surface);
+  border-radius: var(--radius);
+  max-width: 720px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(110,91,62,0.08);
+  z-index: 2;
+  color: var(--text);
+}
+
+.lightbox-close:hover { background: rgba(110,91,62,0.15); }
+.lightbox-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lightbox-close svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.lightbox-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+}
+
+.lightbox-body {
+  padding: 28px 32px 32px;
+}
+
+.lightbox-category {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.lightbox-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.lightbox-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.lightbox-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.lightbox-tag {
+  padding: 4px 12px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  color: var(--text-secondary);
+}
+
+.lightbox-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 10px 22px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50px;
+  min-height: 44px;
+}
+
+.lightbox-link:hover { background: var(--accent); color: var(--surface); }
+.lightbox-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lightbox-link svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .page { padding: 28px 16px 60px; }
+  .site-header { margin-bottom: 32px; }
+  .header-nav { gap: 16px; }
+  .stats-bar { gap: 24px; }
+  .stat-number { font-size: 1.5rem; }
+  .lightbox-body { padding: 20px; }
+  .lightbox-title { font-size: 1.375rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Header -->
+  <header class="site-header">
+    <div>
+      <h1 class="header-name">Elena Hartwell</h1>
+      <div class="header-subtitle">Visual Designer &amp; Art Director</div>
+    </div>
+    <nav class="header-nav" aria-label="Main navigation">
+      <a class="header-nav-link" href="#" tabindex="0">Work</a>
+      <a class="header-nav-link" href="#" tabindex="0">About</a>
+      <a class="header-nav-link" href="#" tabindex="0">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-number" data-count="24">0</div>
+      <div class="stat-label">Projects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="6">0</div>
+      <div class="stat-label">Years</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="12">0</div>
+      <div class="stat-label">Clients</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" role="tablist" aria-label="Project category filter">
+    <button class="filter-pill active" role="tab" aria-selected="true" data-filter="all">All</button>
+    <button class="filter-pill" role="tab" aria-selected="false" data-filter="web-design">Web Design</button>
+    <button class="filter-pill" role="tab" aria-selected="false" data-filter="branding">Branding</button>
+    <button class="filter-pill" role="tab" aria-selected="false" data-filter="photography">Photography</button>
+    <button class="filter-pill" role="tab" aria-selected="false" data-filter="motion">Motion</button>
+  </div>
+
+  <!-- Project Grid -->
+  <div class="project-grid" id="projectGrid"></div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox-backdrop" id="lightboxBackdrop" role="dialog" aria-modal="true" aria-label="Project detail">
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close project detail">
+      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="lightbox-image" id="lightboxImage"></div>
+    <div class="lightbox-body">
+      <div class="lightbox-category" id="lightboxCategory"></div>
+      <h2 class="lightbox-title" id="lightboxTitle"></h2>
+      <p class="lightbox-desc" id="lightboxDesc"></p>
+      <div class="lightbox-tags" id="lightboxTags"></div>
+      <a class="lightbox-link" href="#" aria-label="Visit project site">
+        Visit Site
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  // ─── HELPERS: Safe DOM creation ───────────────────────
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function(k) {
+        if (k === 'className') node.className = attrs[k];
+        else if (k === 'textContent') node.textContent = attrs[k];
+        else if (k.indexOf('data-') === 0) node.setAttribute(k, attrs[k]);
+        else if (k === 'style') node.style.cssText = attrs[k];
+        else if (k === 'tabindex') node.setAttribute('tabindex', attrs[k]);
+        else if (k.indexOf('aria-') === 0) node.setAttribute(k, attrs[k]);
+        else if (k === 'role') node.setAttribute('role', attrs[k]);
+        else node[k] = attrs[k];
+      });
+    }
+    if (children) {
+      children.forEach(function(c) {
+        if (typeof c === 'string') node.appendChild(document.createTextNode(c));
+        else if (c) node.appendChild(c);
+      });
+    }
+    return node;
+  }
+
+  function svgNS(tag, attrs, children) {
+    var node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function(k) { node.setAttribute(k, attrs[k]); });
+    }
+    if (children) {
+      children.forEach(function(c) { if (c) node.appendChild(c); });
+    }
+    return node;
+  }
+
+  // ─── PROJECT DATA ──────────────────────────────────────
+  var gradientMap = {
+    olive:  ['#A8B08C', '#7D8A60'],
+    amber:  ['#D4A843', '#B8923A'],
+    clay:   ['#C2785C', '#A86248'],
+    sage:   ['#8AAF7D', '#6E9B5F'],
+    sand:   ['#D4C5A0', '#BDB08A'],
+    stone:  ['#9B928A', '#827A72'],
+    moss:   ['#6B7D50', '#5A6B42'],
+    rust:   ['#B8654A', '#9E5540'],
+  };
+
+  var projects = [
+    { id: 1, title: 'Meridian Brand System', category: 'branding', desc: 'Complete visual identity for a premium skincare line including packaging, typography, and brand guidelines.', tags: ['Identity', 'Packaging', 'Typography'], grad: 'olive', ratio: '3:4', fullDesc: 'A comprehensive brand identity project for Meridian Skincare, a luxury organic beauty line. The system includes a refined wordmark, custom color palette drawn from botanical references, packaging design for 12 SKUs, and a 60-page brand standards manual.' },
+    { id: 2, title: 'Canopy Digital Platform', category: 'web-design', desc: 'Responsive web experience for a sustainable architecture firm with immersive project showcases.', tags: ['UI/UX', 'Responsive', 'Development'], grad: 'sage', ratio: '1:1', fullDesc: 'A fully responsive web platform designed for Canopy Architecture, featuring immersive project galleries with scroll-driven animations, an interactive project map, and a content management system for case studies.' },
+    { id: 3, title: 'Harvest Table Series', category: 'photography', desc: 'Editorial food photography series celebrating seasonal ingredients and artisanal preparation.', tags: ['Editorial', 'Food', 'Styling'], grad: 'amber', ratio: '4:3', fullDesc: 'A 24-image editorial series shot over four seasons for Harvest Table magazine. Each composition highlights a single hero ingredient in its peak season, styled with handmade ceramics and natural linens.' },
+    { id: 4, title: 'Kinetic Brand Motion', category: 'motion', desc: 'Animated logo and brand motion system for a tech startup product launch.', tags: ['Animation', 'Logo', 'After Effects'], grad: 'clay', ratio: '3:4', fullDesc: 'A dynamic motion identity for Kinetic Labs, including an animated logo reveal, lower thirds, transition patterns, and social media templates. The motion language uses organic easing curves and particle effects.' },
+    { id: 5, title: 'Woven Collective Identity', category: 'branding', desc: 'Artisanal textile brand identity with hand-drawn elements and warm earth palette.', tags: ['Identity', 'Illustration', 'Print'], grad: 'sand', ratio: '1:1', fullDesc: 'Brand identity for Woven Collective, a cooperative of textile artisans. The identity features hand-drawn pattern elements that can be mixed and combined, a warm earth-toned palette, and print collateral including hang tags and business cards.' },
+    { id: 6, title: 'Atlas Travel Journal', category: 'web-design', desc: 'Interactive travel journal web app with map integration and rich media storytelling.', tags: ['Web App', 'Maps', 'UI/UX'], grad: 'moss', ratio: '4:3', fullDesc: 'An interactive web application for Atlas Travel, featuring an explorable world map where users can discover curated travel stories. Each destination unfolds as a rich media narrative with scroll-driven photography.' },
+    { id: 7, title: 'Terroir Wine Labels', category: 'branding', desc: 'Premium wine label collection for a boutique vineyard with foil-stamped details.', tags: ['Packaging', 'Print', 'Foil'], grad: 'rust', ratio: '3:4', fullDesc: 'A collection of six wine labels for Terroir Vineyard, each representing a different varietal. The designs feature topographic line illustrations of the vineyard landscape, copper foil-stamped accents, and textured uncoated paper stock.' },
+    { id: 8, title: 'Stillness Portraits', category: 'photography', desc: 'Minimal portrait series exploring quiet moments and natural light in urban spaces.', tags: ['Portrait', 'Natural Light', 'Urban'], grad: 'stone', ratio: '1:1', fullDesc: 'A personal portrait series capturing intimate, unposed moments in urban environments. Shot exclusively with natural light in found locations, the series explores the tension between public space and private emotion.' },
+    { id: 9, title: 'Flux Interface Motion', category: 'motion', desc: 'UI animation library with micro-interactions for a design system.', tags: ['UI Motion', 'Prototyping', 'System'], grad: 'olive', ratio: '4:3', fullDesc: 'A comprehensive UI motion library created for the Flux design system. Includes 40+ micro-interactions for buttons, toggles, cards, modals, and navigation elements, all documented with timing specifications.' },
+  ];
+
+  var activeFilter = 'all';
+
+  // ─── BUILD CARD DOM ────────────────────────────────────
+  function getRatioHeight(ratio) {
+    if (ratio === '3:4') return 533;
+    if (ratio === '1:1') return 400;
+    if (ratio === '4:3') return 300;
+    return 400;
+  }
+
+  function formatCategory(cat) {
+    return cat.split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+  }
+
+  function buildCardElement(p) {
+    var colors = gradientMap[p.grad];
+    var h = getRatioHeight(p.ratio);
+
+    // Build SVG for gradient image
+    var gradId = 'grad' + p.id;
+    var stop1 = svgNS('stop', { offset: '0%', 'stop-color': colors[0] });
+    var stop2 = svgNS('stop', { offset: '100%', 'stop-color': colors[1] });
+    var gradient = svgNS('linearGradient', { id: gradId, x1: '0%', y1: '0%', x2: '100%', y2: '100%' }, [stop1, stop2]);
+    var defs = svgNS('defs', {}, [gradient]);
+    var rect = svgNS('rect', { width: '400', height: String(h), fill: 'url(#' + gradId + ')' });
+    var svg = svgNS('svg', { class: 'project-card-image-bg', viewBox: '0 0 400 ' + h, preserveAspectRatio: 'none' }, [defs, rect]);
+
+    // Overlay title
+    var overlayTitle = el('div', { className: 'project-card-overlay-title', textContent: p.title });
+    var overlay = el('div', { className: 'project-card-overlay' }, [overlayTitle]);
+
+    var imageWrapper = el('div', { className: 'project-card-image' }, [svg, overlay]);
+
+    var body = el('div', { className: 'project-card-body' }, [
+      el('div', { className: 'project-card-category', textContent: formatCategory(p.category) }),
+      el('div', { className: 'project-card-title', textContent: p.title }),
+      el('div', { className: 'project-card-desc', textContent: p.desc }),
+    ]);
+
+    var card = el('div', {
+      className: 'project-card',
+      tabindex: '0',
+      role: 'button',
+      'aria-label': 'View ' + p.title,
+      'data-id': String(p.id),
+      'data-flip-id': 'card-' + p.id,
+    }, [imageWrapper, body]);
+
+    return card;
+  }
+
+  // ─── RENDER GRID ──────────────────────────────────────
+  function renderGrid(filter, animate) {
+    var grid = document.getElementById('projectGrid');
+    var filtered = filter === 'all' ? projects : projects.filter(function(p) { return p.category === filter; });
+
+    if (animate && !UV.prefersReducedMotion) {
+      var existingCards = grid.querySelectorAll('.project-card');
+      var state = Flip.getState(existingCards);
+
+      // Clear and rebuild
+      grid.textContent = '';
+      var frag = document.createDocumentFragment();
+      filtered.forEach(function(p) { frag.appendChild(buildCardElement(p)); });
+      grid.appendChild(frag);
+      attachCardListeners();
+
+      Flip.from(state, {
+        duration: 0.5,
+        ease: 'power2.inOut',
+        stagger: 0.04,
+        absolute: true,
+        onEnter: function(elements) {
+          return gsap.fromTo(elements, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4 });
+        },
+        onLeave: function(elements) {
+          return gsap.to(elements, { opacity: 0, scale: 0.9, duration: 0.3 });
+        },
+      });
+    } else {
+      grid.textContent = '';
+      var frag = document.createDocumentFragment();
+      filtered.forEach(function(p) { frag.appendChild(buildCardElement(p)); });
+      grid.appendChild(frag);
+      attachCardListeners();
+    }
+  }
+
+  // ─── CARD INTERACTIONS ─────────────────────────────────
+  function attachCardListeners() {
+    document.querySelectorAll('.project-card').forEach(function(card) {
+      if (!UV.prefersReducedMotion) {
+        card.addEventListener('mouseenter', function() {
+          gsap.to(card, { scale: 1.02, duration: 0.25, ease: 'power2.out' });
+          gsap.to(card.querySelector('.project-card-overlay'), { opacity: 1, duration: 0.25, ease: 'power2.out' });
+          gsap.to(card.querySelector('.project-card-overlay-title'), { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' });
+        });
+        card.addEventListener('mouseleave', function() {
+          gsap.to(card, { scale: 1, duration: 0.25, ease: 'power2.out' });
+          gsap.to(card.querySelector('.project-card-overlay'), { opacity: 0, duration: 0.2, ease: 'power2.in' });
+          gsap.to(card.querySelector('.project-card-overlay-title'), { y: 10, opacity: 0, duration: 0.2, ease: 'power2.in' });
+        });
+      }
+
+      card.addEventListener('click', function() { openLightbox(parseInt(card.getAttribute('data-id'))); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(parseInt(card.getAttribute('data-id'))); }
+      });
+    });
+  }
+
+  // ─── FILTER ────────────────────────────────────────────
+  document.querySelectorAll('.filter-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var filter = pill.getAttribute('data-filter');
+      if (filter === activeFilter) return;
+
+      activeFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach(function(p) {
+        p.classList.remove('active');
+        p.setAttribute('aria-selected', 'false');
+      });
+      pill.classList.add('active');
+      pill.setAttribute('aria-selected', 'true');
+
+      renderGrid(filter, true);
+    });
+  });
+
+  // ─── LIGHTBOX ──────────────────────────────────────────
+  var lightboxOpen = false;
+
+  function openLightbox(id) {
+    var project = projects.find(function(p) { return p.id === id; });
+    if (!project) return;
+
+    var backdrop = document.getElementById('lightboxBackdrop');
+    var lightbox = document.getElementById('lightbox');
+    var colors = gradientMap[project.grad];
+
+    // Populate lightbox safely
+    document.getElementById('lightboxImage').style.background = 'linear-gradient(135deg, ' + colors[0] + ' 0%, ' + colors[1] + ' 100%)';
+    document.getElementById('lightboxCategory').textContent = formatCategory(project.category);
+    document.getElementById('lightboxTitle').textContent = project.title;
+    document.getElementById('lightboxDesc').textContent = project.fullDesc;
+
+    // Tags
+    var tagsContainer = document.getElementById('lightboxTags');
+    tagsContainer.textContent = '';
+    project.tags.forEach(function(t) {
+      tagsContainer.appendChild(el('span', { className: 'lightbox-tag', textContent: t }));
+    });
+
+    backdrop.classList.add('visible');
+    lightboxOpen = true;
+
+    UV.safeAnimate(function() {
+      gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+      gsap.fromTo(lightbox, { scale: 0.92, opacity: 0, y: 30 }, {
+        scale: 1, opacity: 1, y: 0, duration: 0.4, ease: 'power2.out',
+      });
+    });
+
+    document.getElementById('lightboxClose').focus();
+  }
+
+  function closeLightbox() {
+    if (!lightboxOpen) return;
+    var backdrop = document.getElementById('lightboxBackdrop');
+    var lightbox = document.getElementById('lightbox');
+
+    if (!UV.prefersReducedMotion) {
+      gsap.to(lightbox, { scale: 0.95, opacity: 0, duration: 0.25, ease: 'power2.in' });
+      gsap.to(backdrop, {
+        opacity: 0, duration: 0.3, ease: 'power2.in',
+        onComplete: function() {
+          backdrop.classList.remove('visible');
+          lightboxOpen = false;
+        }
+      });
+    } else {
+      backdrop.classList.remove('visible');
+      lightboxOpen = false;
+    }
+  }
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightboxOpen) closeLightbox();
+  });
+
+  // ─── COUNT-UP ANIMATION ────────────────────────────────
+  function animateStats() {
+    document.querySelectorAll('.stat-number').forEach(function(numEl) {
+      var target = parseInt(numEl.getAttribute('data-count'));
+
+      if (UV.prefersReducedMotion) {
+        numEl.textContent = target;
+        return;
+      }
+
+      var obj = { val: 0 };
+      gsap.to(obj, {
+        val: target,
+        duration: 1.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: numEl,
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        },
+        onUpdate: function() {
+          numEl.textContent = Math.round(obj.val);
+        }
+      });
+    });
+  }
+
+  // ─── SCROLL REVEAL FOR CARDS ───────────────────────────
+  function revealCards() {
+    UV.scrollReveal('.project-card', {
+      trigger: '#projectGrid',
+      y: 30,
+      stagger: 0.06,
+      start: 'top 85%',
+    });
+  }
+
+  // ─── INIT ──────────────────────────────────────────────
+  function init() {
+    renderGrid('all', false);
+
+    UV.initPage({
+      title: '.header-name',
+      subtitle: '.header-subtitle',
+      content: '.header-nav-link, .stats-bar, .filter-bar',
+    });
+
+    animateStats();
+    revealCards();
+
+    UV.hoverScale('.filter-pill:not(.active)', {
+      scale: 1.04,
+      shadow: 'none',
+      restShadow: 'none',
+      duration: 0.2,
+    });
+
+    UV.addControlPanel();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

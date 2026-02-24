@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empty States Collection</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#FFF8E1;
+  --surface:#FFFFFF;
+  --accent:#2F4059;
+  --text:#2F4059;
+  --text-secondary:#7A6F5F;
+  --border:rgba(47,64,89,0.12);
+  --radius:16px;
+  --radius-sm:8px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --yellow:#FFD54F;
+  --yellow-soft:#FFF3C4;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* Dot texture */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(47,64,89,0.06) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Page Layout ---- */
+.page-wrapper{
+  position:relative;
+  z-index:1;
+  max-width:960px;
+  margin:0 auto;
+  padding:60px 24px 120px;
+}
+
+.section-header{
+  text-align:center;
+  margin-bottom:52px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--border);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:var(--surface);
+}
+
+.section-title{
+  font-size:clamp(1.75rem,4vw,2.5rem);
+  font-weight:700;
+  line-height:1.15;
+  text-wrap:balance;
+  letter-spacing:-0.02em;
+  color:var(--text);
+}
+
+.section-subtitle{
+  font-size:1rem;
+  color:var(--text-secondary);
+  margin-top:12px;
+  max-width:50ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Card Grid ---- */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));
+  gap:20px;
+}
+
+/* ---- Empty State Card ---- */
+.empty-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:36px 28px 32px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  box-shadow:0 2px 12px rgba(47,64,89,0.06);
+}
+
+.empty-card-illust{
+  width:96px;
+  height:96px;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--accent);
+}
+
+.empty-card-illust svg{
+  width:100%;
+  height:100%;
+}
+
+.empty-card h3{
+  font-size:1.0625rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+  line-height:1.3;
+}
+
+.empty-card p{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+  margin-bottom:20px;
+  max-width:28ch;
+}
+
+.empty-card-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:10px 22px;
+  background:var(--accent);
+  color:#FFFFFF;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:44px;
+}
+
+.empty-card-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
+
+.empty-card-btn svg{
+  width:14px;
+  height:14px;
+}
+
+/* Confetti particles */
+.confetti-container{
+  position:relative;
+  width:96px;
+  height:96px;
+}
+
+.confetti-particle{
+  position:absolute;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  opacity:0;
+}
+
+/* ---- Responsive ---- */
+@media(max-width:640px){
+  .page-wrapper{padding:40px 16px 100px}
+  .card-grid{grid-template-columns:1fr}
+  .empty-card{padding:28px 20px 24px}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Section Header -->
+  <header class="section-header">
+    <div class="section-label">Empty States</div>
+    <h1 class="section-title">Empty States Collection</h1>
+    <p class="section-subtitle">Six illustrated empty states with idle animations. Each card communicates context, guidance, and a clear call to action.</p>
+  </header>
+
+  <!-- Card Grid -->
+  <div class="card-grid">
+
+    <!-- 1. No Projects -->
+    <article class="empty-card" data-card="projects">
+      <div class="empty-card-illust" id="illustHand">
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Waving hand -->
+          <g id="handGroup">
+            <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+            <g id="handWave" transform-origin="48 60">
+              <!-- Palm -->
+              <path d="M40 62c0-4 2-8 8-8s8 4 8 8" stroke="#2F4059" stroke-width="2" stroke-linecap="round" fill="#FFD54F"/>
+              <!-- Fingers -->
+              <line x1="42" y1="54" x2="40" y2="40" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+              <line x1="46" y1="54" x2="45" y2="37" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+              <line x1="50" y1="54" x2="51" y2="37" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+              <line x1="54" y1="54" x2="56" y2="40" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+              <!-- Thumb -->
+              <line x1="40" y1="58" x2="34" y2="52" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+              <!-- Wrist -->
+              <rect x="41" y="62" width="14" height="10" rx="3" fill="#FFD54F" stroke="#2F4059" stroke-width="1.5"/>
+            </g>
+            <!-- Motion lines -->
+            <line id="motionLine1" x1="60" y1="38" x2="66" y2="35" stroke="#2F4059" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+            <line id="motionLine2" x1="62" y1="44" x2="68" y2="43" stroke="#2F4059" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+          </g>
+        </svg>
+      </div>
+      <h3>No projects yet</h3>
+      <p>Create your first project to start organizing your work.</p>
+      <button class="empty-card-btn" aria-label="Create a new project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create Project
+      </button>
+    </article>
+
+    <!-- 2. No Search Results -->
+    <article class="empty-card" data-card="search">
+      <div class="empty-card-illust" id="illustSearch">
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+          <g id="searchGroup">
+            <!-- Magnifying glass -->
+            <circle cx="44" cy="42" r="14" stroke="#2F4059" stroke-width="2.5" fill="none"/>
+            <line x1="54" y1="52" x2="64" y2="62" stroke="#2F4059" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Handle -->
+            <rect x="60" y="58" width="8" height="4" rx="2" transform="rotate(45 60 58)" fill="#FFD54F" stroke="#2F4059" stroke-width="1.5"/>
+            <!-- Sad face inside glass -->
+            <circle cx="40" cy="40" r="1.5" fill="#2F4059"/>
+            <circle cx="48" cy="40" r="1.5" fill="#2F4059"/>
+            <path d="M40 48c1.5-2 5-2 6.5 0" stroke="#2F4059" stroke-width="1.5" stroke-linecap="round" fill="none" transform="scale(1,-1) translate(0,-90)"/>
+          </g>
+        </svg>
+      </div>
+      <h3>No search results</h3>
+      <p>We could not find anything matching your search. Try different keywords.</p>
+      <button class="empty-card-btn" aria-label="Clear search filters">
+        Clear Filters
+      </button>
+    </article>
+
+    <!-- 3. Empty Inbox -->
+    <article class="empty-card" data-card="inbox">
+      <div class="empty-card-illust" id="illustPlane">
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+          <g id="planeGroup">
+            <!-- Paper plane -->
+            <polygon points="30,56 66,42 50,50" fill="#FFD54F" stroke="#2F4059" stroke-width="1.5" stroke-linejoin="round"/>
+            <polygon points="50,50 66,42 54,60" fill="#EADACE" stroke="#2F4059" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="50" y1="50" x2="54" y2="60" stroke="#2F4059" stroke-width="1.5"/>
+            <!-- Trail dashes -->
+            <line id="trail1" x1="26" y1="58" x2="20" y2="61" stroke="#2F4059" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+            <line id="trail2" x1="22" y1="54" x2="16" y2="56" stroke="#2F4059" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
+          </g>
+        </svg>
+      </div>
+      <h3>Empty inbox</h3>
+      <p>All caught up! New messages will appear here when they arrive.</p>
+      <button class="empty-card-btn" aria-label="Compose a new message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Compose
+      </button>
+    </article>
+
+    <!-- 4. Error State -->
+    <article class="empty-card" data-card="error">
+      <div class="empty-card-illust" id="illustChain">
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+          <g id="chainGroup">
+            <!-- Left link -->
+            <rect x="22" y="40" width="24" height="16" rx="8" stroke="#2F4059" stroke-width="2.5" fill="none"/>
+            <!-- Right link (broken, offset) -->
+            <rect id="chainRight" x="50" y="40" width="24" height="16" rx="8" stroke="#2F4059" stroke-width="2.5" fill="none"/>
+            <!-- Break indicator -->
+            <line id="breakLine1" x1="46" y1="44" x2="50" y2="40" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+            <line id="breakLine2" x1="46" y1="52" x2="50" y2="56" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+            <!-- Yellow accent dots -->
+            <circle cx="34" cy="48" r="2.5" fill="#FFD54F"/>
+            <circle cx="62" cy="48" r="2.5" fill="#FFD54F"/>
+          </g>
+        </svg>
+      </div>
+      <h3>Something went wrong</h3>
+      <p>We could not load this content. Check your connection and try again.</p>
+      <button class="empty-card-btn" aria-label="Retry loading content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Try Again
+      </button>
+    </article>
+
+    <!-- 5. No Notifications -->
+    <article class="empty-card" data-card="notifications">
+      <div class="empty-card-illust" id="illustBell">
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+          <g id="bellGroup">
+            <!-- Bell -->
+            <path d="M48 26c-9 0-16 7-16 16v10l-4 4h40l-4-4V42c0-9-7-16-16-16z" fill="#FFD54F" stroke="#2F4059" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M42 56v2c0 3.3 2.7 6 6 6s6-2.7 6-6v-2" stroke="#2F4059" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="48" cy="26" r="2" fill="#2F4059"/>
+            <!-- ZZZ -->
+            <text id="zzz1" x="62" y="34" font-family="var(--font)" font-size="10" font-weight="700" fill="#2F4059" opacity="0.5">z</text>
+            <text id="zzz2" x="67" y="28" font-family="var(--font)" font-size="8" font-weight="700" fill="#2F4059" opacity="0.35">z</text>
+            <text id="zzz3" x="71" y="23" font-family="var(--font)" font-size="6" font-weight="700" fill="#2F4059" opacity="0.2">z</text>
+          </g>
+        </svg>
+      </div>
+      <h3>No notifications</h3>
+      <p>You are all caught up. We will let you know when something needs your attention.</p>
+      <button class="empty-card-btn" aria-label="Manage notification settings">
+        Settings
+      </button>
+    </article>
+
+    <!-- 6. All Tasks Complete -->
+    <article class="empty-card" data-card="complete">
+      <div class="empty-card-illust" id="illustConfetti">
+        <div class="confetti-container">
+          <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+            <circle cx="48" cy="48" r="38" fill="#FFF3C4" stroke="#2F4059" stroke-width="1.5"/>
+            <!-- Checkmark -->
+            <circle cx="48" cy="48" r="18" fill="#FFD54F" stroke="#2F4059" stroke-width="2"/>
+            <polyline points="38,48 45,56 60,40" stroke="#2F4059" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <!-- Confetti particles (positioned by JS) -->
+          <div class="confetti-particle" id="cp1" style="background:#EF4444;left:10px;top:20px"></div>
+          <div class="confetti-particle" id="cp2" style="background:#3B82F6;left:75px;top:15px"></div>
+          <div class="confetti-particle" id="cp3" style="background:#FFD54F;left:20px;top:70px"></div>
+          <div class="confetti-particle" id="cp4" style="background:#10B981;left:70px;top:65px"></div>
+          <div class="confetti-particle" id="cp5" style="background:#8B5CF6;left:45px;top:10px"></div>
+          <div class="confetti-particle" id="cp6" style="background:#F59E0B;left:80px;top:40px"></div>
+          <div class="confetti-particle" id="cp7" style="background:#EC4899;left:5px;top:45px"></div>
+          <div class="confetti-particle" id="cp8" style="background:#2F4059;left:50px;top:75px"></div>
+        </div>
+      </div>
+      <h3>All tasks complete!</h3>
+      <p>Amazing work! You have finished everything on your list. Time to celebrate.</p>
+      <button class="empty-card-btn" aria-label="View completed tasks archive">
+        View Archive
+      </button>
+    </article>
+
+  </div><!-- /card-grid -->
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  var reduced = UV.prefersReducedMotion;
+
+  // ---- Card Entrance ----
+  UV.initPage({
+    title: '.section-label, .section-title',
+    subtitle: '.section-subtitle'
+  });
+
+  if (!reduced) {
+    gsap.from('.empty-card', {
+      opacity: 0,
+      y: 30,
+      scale: 0.96,
+      duration: 0.55,
+      stagger: 0.09,
+      ease: 'back.out(1.4)',
+      delay: 0.4
+    });
+  }
+
+  // ---- Idle Animations ----
+  if (!reduced) {
+
+    // 1. Waving hand — rotation oscillation
+    gsap.to('#handWave', {
+      rotation: 18,
+      duration: 0.5,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: 0.15,
+      transformOrigin: '50% 85%'
+    });
+
+    gsap.to('#motionLine1', {
+      opacity: 0.6,
+      x: 3,
+      duration: 0.5,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: 0.15
+    });
+
+    gsap.to('#motionLine2', {
+      opacity: 0.5,
+      x: 4,
+      duration: 0.5,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: 0.2,
+      delay: 0.1
+    });
+
+    // 2. Magnifying glass — tilt back and forth
+    gsap.to('#searchGroup', {
+      rotation: 8,
+      duration: 1.8,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+      transformOrigin: '55% 55%'
+    });
+
+    // 3. Paper plane — gentle drift
+    gsap.to('#planeGroup', {
+      x: 4,
+      y: -3,
+      duration: 2.2,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+
+    gsap.to('#trail1', {
+      opacity: 0.5,
+      x: -2,
+      duration: 1.8,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+
+    gsap.to('#trail2', {
+      opacity: 0.4,
+      x: -3,
+      duration: 2,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+      delay: 0.3
+    });
+
+    // 4. Broken chain — jiggle
+    gsap.to('#chainRight', {
+      x: 3,
+      duration: 0.15,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: 2.5
+    });
+
+    gsap.to('#breakLine1, #breakLine2', {
+      opacity: 0.3,
+      duration: 0.8,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+
+    // 5. Bell — rock back and forth
+    gsap.to('#bellGroup', {
+      rotation: 6,
+      duration: 1.5,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+      transformOrigin: '50% 27%'
+    });
+
+    // ZZZ float up
+    var zzzEls = ['#zzz1', '#zzz2', '#zzz3'];
+    zzzEls.forEach(function(sel, i) {
+      gsap.to(sel, {
+        y: -4,
+        opacity: '+=' + (0.15),
+        duration: 1.5 + (i * 0.3),
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+        delay: i * 0.3
+      });
+    });
+
+    // 6. Confetti burst — particles shoot out and fade
+    function confettiBurst() {
+      var particles = document.querySelectorAll('.confetti-particle');
+      var tl = gsap.timeline({ repeat: -1, repeatDelay: 3, delay: 0.5 });
+
+      tl.set(particles, { opacity: 0, scale: 0, x: 0, y: 0 });
+      tl.to(particles, {
+        opacity: 1,
+        scale: 1,
+        x: function() { return gsap.utils.random(-20, 20); },
+        y: function() { return gsap.utils.random(-25, -8); },
+        duration: 0.5,
+        stagger: 0.04,
+        ease: 'back.out(2)'
+      });
+      tl.to(particles, {
+        opacity: 0,
+        y: '+=15',
+        scale: 0.3,
+        duration: 0.8,
+        stagger: 0.03,
+        ease: 'power2.in'
+      }, '+=0.6');
+    }
+    confettiBurst();
+  }
+
+  // ---- CTA Button Hovers ----
+  if (!reduced) {
+    document.querySelectorAll('.empty-card-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.05, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ---- Card Hovers ----
+  UV.hoverLift('.empty-card', {
+    y: -6,
+    shadow: '0 16px 48px rgba(47,64,89,0.12)',
+    restShadow: '0 2px 12px rgba(47,64,89,0.06)'
+  });
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

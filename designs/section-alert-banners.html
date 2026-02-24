@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alert Banner Collection</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#FFFFFF;
+  --surface:#F8FAFB;
+  --accent:#3B82F6;
+  --text:#1F2937;
+  --text-secondary:#6B7280;
+  --border:#E5E7EB;
+  --radius:8px;
+  --radius-sm:4px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+
+  --green:#10B981;
+  --green-bg:#ECFDF5;
+  --green-border:#A7F3D0;
+  --red:#EF4444;
+  --red-bg:#FEF2F2;
+  --red-border:#FECACA;
+  --amber:#F59E0B;
+  --amber-bg:#FFFBEB;
+  --amber-border:#FDE68A;
+  --blue:#3B82F6;
+  --blue-bg:#EFF6FF;
+  --blue-border:#BFDBFE;
+  --gray:#6B7280;
+  --gray-bg:#F3F4F6;
+  --gray-border:#D1D5DB;
+}
+
+body{
+  min-height:100dvh;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+/* Subtle grid background */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:64px 64px;
+  opacity:0.3;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---- Page Layout ---- */
+.page-wrapper{
+  position:relative;
+  z-index:1;
+  max-width:720px;
+  margin:0 auto;
+  padding:60px 24px 120px;
+}
+
+.section-header{
+  text-align:center;
+  margin-bottom:48px;
+}
+
+.section-label{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid var(--blue-border);
+  padding:6px 18px;
+  border-radius:100px;
+  margin-bottom:20px;
+  background:var(--blue-bg);
+}
+
+.section-title{
+  font-size:clamp(1.75rem,4vw,2.5rem);
+  font-weight:700;
+  line-height:1.15;
+  text-wrap:balance;
+  letter-spacing:-0.02em;
+  color:var(--text);
+}
+
+.section-subtitle{
+  font-size:1rem;
+  color:var(--text-secondary);
+  margin-top:12px;
+  max-width:50ch;
+  margin-inline:auto;
+  line-height:1.6;
+}
+
+/* ---- Controls ---- */
+.controls{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-bottom:40px;
+  flex-wrap:wrap;
+}
+
+.ctrl-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 20px;
+  background:var(--surface);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:600;
+  cursor:pointer;
+  min-height:44px;
+}
+
+.ctrl-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.ctrl-btn svg{
+  width:16px;
+  height:16px;
+}
+
+/* ---- Alert Base ---- */
+.alert-stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.alert{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+
+.alert-icon{
+  flex-shrink:0;
+  width:20px;
+  height:20px;
+  margin-top:1px;
+}
+
+.alert-body{
+  flex:1;
+  min-width:0;
+}
+
+.alert-title{
+  font-size:0.875rem;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.3;
+  margin-bottom:2px;
+}
+
+.alert-desc{
+  font-size:0.8125rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+}
+
+.alert-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.alert-action-btn{
+  padding:6px 14px;
+  font-family:var(--font);
+  font-size:0.75rem;
+  font-weight:600;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  border:none;
+  min-height:32px;
+}
+
+.alert-action-btn:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.alert-close{
+  flex-shrink:0;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--text-secondary);
+  border-radius:var(--radius-sm);
+  padding:0;
+}
+
+.alert-close:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.alert-close svg{
+  width:14px;
+  height:14px;
+}
+
+/* ---- Alert Variants ---- */
+.alert--success{
+  background:var(--green-bg);
+  border-color:var(--green-border);
+}
+.alert--success .alert-icon{color:var(--green)}
+.alert--success .alert-action-btn{background:var(--green);color:#fff}
+
+.alert--error{
+  background:var(--red-bg);
+  border-color:var(--red-border);
+}
+.alert--error .alert-icon{color:var(--red)}
+.alert--error .alert-action-btn{background:var(--red);color:#fff}
+
+.alert--warning{
+  background:var(--amber-bg);
+  border-color:var(--amber-border);
+}
+.alert--warning .alert-icon{color:var(--amber)}
+.alert--warning .alert-action-btn{background:var(--amber);color:#fff}
+
+.alert--info{
+  background:var(--blue-bg);
+  border-color:var(--blue-border);
+}
+.alert--info .alert-icon{color:var(--blue)}
+.alert--info .alert-action-btn{background:var(--blue);color:#fff}
+
+.alert--neutral{
+  background:var(--gray-bg);
+  border-color:var(--gray-border);
+}
+.alert--neutral .alert-icon{color:var(--gray)}
+.alert--neutral .alert-action-btn{background:var(--gray);color:#fff}
+
+/* ---- Inline Alert ---- */
+.inline-section{
+  margin-top:32px;
+  margin-bottom:8px;
+}
+
+.inline-section-label{
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--text-secondary);
+  margin-bottom:14px;
+}
+
+.inline-paragraph{
+  font-size:0.9375rem;
+  line-height:1.7;
+  color:var(--text-secondary);
+  margin-bottom:14px;
+}
+
+.alert--inline{
+  margin:16px 0;
+  border-left:3px solid var(--blue);
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+
+/* ---- Banner Alert (top bar) ---- */
+.alert--banner{
+  border-radius:var(--radius);
+  position:relative;
+  overflow:hidden;
+  background:var(--blue-bg);
+  border-color:var(--blue-border);
+}
+
+.alert--banner .alert-icon{color:var(--blue)}
+
+.banner-progress{
+  position:absolute;
+  bottom:0;
+  left:0;
+  height:3px;
+  background:var(--blue);
+  border-radius:0 2px 2px 0;
+  width:100%;
+}
+
+.alert--banner .alert-action-btn{
+  background:var(--blue);
+  color:#fff;
+}
+
+/* ---- Dismiss Animation Target ---- */
+.alert--dismissible{
+  /* height will be animated by GSAP */
+}
+
+/* ---- Responsive ---- */
+@media(max-width:640px){
+  .page-wrapper{padding:40px 16px 100px}
+  .alert{flex-wrap:wrap}
+  .alert-close{position:absolute;top:10px;right:10px}
+  .controls{flex-direction:column;align-items:stretch}
+  .ctrl-btn{justify-content:center}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Section Header -->
+  <header class="section-header">
+    <div class="section-label">Feedback</div>
+    <h1 class="section-title">Alert Banner Collection</h1>
+    <p class="section-subtitle">Eight alert variants for every feedback scenario — success, error, warning, info, neutral, inline, auto-dismiss, and collapsible.</p>
+  </header>
+
+  <!-- Controls -->
+  <nav class="controls" aria-label="Alert controls">
+    <button class="ctrl-btn" id="btnShowAll" aria-label="Show all alerts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Show All
+    </button>
+    <button class="ctrl-btn" id="btnResetDismissed" aria-label="Reset dismissed alerts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Reset Dismissed
+    </button>
+  </nav>
+
+  <!-- Alert Stack -->
+  <div class="alert-stack" id="alertStack">
+
+    <!-- 1. Success -->
+    <div class="alert alert--success" data-alert="success">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">Changes saved successfully</div>
+        <div class="alert-desc">Your profile information has been updated. Changes will take effect immediately.</div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss success alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 2. Error -->
+    <div class="alert alert--error" data-alert="error">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">Payment failed</div>
+        <div class="alert-desc">Your card was declined. Please check your card details and try again, or use a different payment method.</div>
+        <div class="alert-actions">
+          <button class="alert-action-btn" aria-label="Try payment again">Try Again</button>
+        </div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss error alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 3. Warning -->
+    <div class="alert alert--warning" data-alert="warning">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">Storage almost full</div>
+        <div class="alert-desc">You have used 92% of your storage quota. Consider upgrading your plan or removing unused files.</div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss warning alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 4. Info -->
+    <div class="alert alert--info" data-alert="info">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">Scheduled maintenance</div>
+        <div class="alert-desc">Our systems will undergo maintenance on March 2nd from 2:00 AM to 4:00 AM UTC. Service may be temporarily unavailable.</div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss info alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 5. Neutral -->
+    <div class="alert alert--neutral" data-alert="neutral">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">No new updates</div>
+        <div class="alert-desc">You are running the latest version. We will notify you when a new update is available.</div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss neutral alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 6. Inline Contextual -->
+    <div class="inline-section">
+      <div class="inline-section-label">Inline Contextual</div>
+      <p class="inline-paragraph">When building forms, it is often useful to surface validation feedback directly within the content flow rather than in a separate area. This helps users understand issues in context.</p>
+      <div class="alert alert--info alert--inline" data-alert="inline">
+        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div class="alert-body">
+          <div class="alert-title">Pro tip</div>
+          <div class="alert-desc">Use inline alerts sparingly. They work best for contextual guidance rather than critical errors.</div>
+        </div>
+      </div>
+      <p class="inline-paragraph">The inline format removes the outer border-radius on the left side and adds a thick color accent bar, making it visually distinct from standalone alerts.</p>
+    </div>
+
+    <!-- 7. Banner with Auto-Dismiss -->
+    <div class="inline-section">
+      <div class="inline-section-label">Auto-Dismiss Banner</div>
+    </div>
+    <div class="alert alert--banner alert--info" data-alert="banner" id="autoDismissBanner">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">New feature available</div>
+        <div class="alert-desc">Dark mode is now available. Try it out in your settings.</div>
+        <div class="alert-actions">
+          <button class="alert-action-btn" aria-label="Open settings to try dark mode">Update Now</button>
+        </div>
+      </div>
+      <button class="alert-close" aria-label="Dismiss banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="banner-progress" id="bannerProgress"></div>
+    </div>
+
+    <!-- 8. Dismissible with Height Collapse -->
+    <div class="inline-section">
+      <div class="inline-section-label">Collapsible Dismiss</div>
+    </div>
+    <div class="alert alert--success alert--dismissible" data-alert="dismissible" id="dismissibleAlert">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="alert-body">
+        <div class="alert-title">Export complete</div>
+        <div class="alert-desc">Your data export is ready for download. Click dismiss to collapse this alert with a smooth height animation.</div>
+      </div>
+      <button class="alert-close" id="dismissibleClose" aria-label="Dismiss with collapse animation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+  </div><!-- /alert-stack -->
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function() {
+  'use strict';
+
+  var reduced = UV.prefersReducedMotion;
+  var alerts = document.querySelectorAll('.alert');
+  var dismissed = [];
+
+  // ---- Stagger Entrance ----
+  function entranceAll() {
+    if (reduced) return;
+    gsap.fromTo(alerts,
+      { opacity: 0, y: 20, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.07, ease: 'power3.out' }
+    );
+  }
+
+  // ---- Dismiss Alert ----
+  function dismissAlert(el) {
+    if (reduced) {
+      el.style.display = 'none';
+      dismissed.push(el);
+      return;
+    }
+    gsap.to(el, {
+      height: 0,
+      opacity: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginBottom: 0,
+      duration: 0.4,
+      ease: 'power2.inOut',
+      onComplete: function() {
+        el.style.display = 'none';
+        dismissed.push(el);
+      }
+    });
+  }
+
+  // ---- Close Buttons (standard dismiss) ----
+  document.querySelectorAll('.alert-close').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var alert = btn.closest('.alert');
+      if (alert.id === 'autoDismissBanner') {
+        cancelAutoDismiss();
+      }
+      dismissAlert(alert);
+    });
+  });
+
+  // ---- Auto-Dismiss Banner ----
+  var bannerProgress = document.getElementById('bannerProgress');
+  var autoDismissTween = null;
+  var DISMISS_DURATION = 8;
+
+  function startAutoDismiss() {
+    if (reduced) return;
+    gsap.set(bannerProgress, { scaleX: 1, transformOrigin: 'left center' });
+    autoDismissTween = gsap.to(bannerProgress, {
+      scaleX: 0,
+      duration: DISMISS_DURATION,
+      ease: 'none',
+      onComplete: function() {
+        var banner = document.getElementById('autoDismissBanner');
+        if (banner && banner.style.display !== 'none') {
+          dismissAlert(banner);
+        }
+      }
+    });
+  }
+
+  function cancelAutoDismiss() {
+    if (autoDismissTween) {
+      autoDismissTween.kill();
+      autoDismissTween = null;
+    }
+  }
+
+  // ---- Show All / Reset ----
+  document.getElementById('btnShowAll').addEventListener('click', function() {
+    cancelAutoDismiss();
+    dismissed.forEach(function(el) {
+      el.style.display = '';
+      gsap.set(el, { clearProps: 'all' });
+    });
+    dismissed = [];
+    entranceAll();
+    setTimeout(startAutoDismiss, 600);
+  });
+
+  document.getElementById('btnResetDismissed').addEventListener('click', function() {
+    cancelAutoDismiss();
+    dismissed.forEach(function(el) {
+      el.style.display = '';
+      gsap.set(el, { clearProps: 'all' });
+    });
+    dismissed = [];
+    if (!reduced) {
+      gsap.fromTo(alerts, { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.04, ease: 'power2.out' });
+    }
+    setTimeout(startAutoDismiss, 400);
+  });
+
+  // ---- Button Hovers ----
+  if (!reduced) {
+    document.querySelectorAll('.ctrl-btn, .alert-action-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { scale: 1.04, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { scale: 1, duration: 0.2, ease: 'power2.out' });
+      });
+    });
+
+    document.querySelectorAll('.alert-close').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() {
+        gsap.to(btn, { rotation: 90, duration: 0.25, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', function() {
+        gsap.to(btn, { rotation: 0, duration: 0.25, ease: 'power2.out' });
+      });
+    });
+  }
+
+  // ---- Init ----
+  UV.initPage({
+    title: '.section-label, .section-title',
+    subtitle: '.section-subtitle',
+    content: '.ctrl-btn'
+  });
+
+  entranceAll();
+  setTimeout(startAutoDismiss, 800);
+
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>

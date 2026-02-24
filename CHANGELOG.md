@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-02-24
+
+### Added
+
+- 15 new design components (57 total) with distinct color vibes — every design has a unique palette:
+  - Weather Widget (Cards) — Sunrise Warm vibe: orange-to-gold gradient, animated SVG sun, 5-day forecast, C/F toggle
+  - Music Player (Cards) — Midnight Rose vibe: deep navy + rose gold, equalizer bars, playlist, play/pause states
+  - Social Profile Card (Cards) — Ocean Deep vibe: dark teal + turquoise, 3 card variants, follow toggle, countUp stats
+  - Event Calendar (Layouts) — Sage Wellness vibe: warm beige + sage green, month grid, event sidebar, category colors
+  - Onboarding Welcome (Heroes) — Blush Dream vibe: pastel pink + hot pink, 3-step flow, confetti particle burst
+  - Portfolio Showcase (Layouts) — Olive Editorial vibe: warm cream + olive, masonry grid, Flip filter, serif headings
+  - Cookie Consent Banner (Sections) — Terra Cotta vibe: warm brown + peach, 3 variants, GDPR button parity
+  - Alert Banner Collection (Sections) — Crisp Daylight vibe: pure white + semantic colors, 8 alert types, dismiss animations
+  - Empty States Collection (Sections) — Sunny Whimsy vibe: warm yellow + navy, 6 SVG illustrations with idle animations
+  - Tooltip & Popover Showcase (Sections) — Forest Midnight vibe: dark green + emerald, directional tooltips, click popovers
+  - Retro Arcade Dashboard (Dashboards) — Neon Arcade vibe: black + matrix green, CRT scanlines, terminal typewriter
+  - Progress Stepper (Navigation) — Royal Navy vibe: navy + gold, 3 stepper variants, interactive demo, SVG checkmark draw
+  - Modal Dialog Showcase (GSAP) — Liquid Glass vibe: purple mesh + glass layers, 6 entrance types, focus trap
+  - Feature Tour Spotlight (GSAP) — Electric Cyan vibe: charcoal + cyan, clip-path spotlight, 6-step guided tour
+  - Contact Form (Forms) — Peach Split vibe: peach gradient left / dark right, floating labels, submit morph animation
+
+### Changed
+
+- catalog.json version bumped to 5
+- Design count: 42 to 57
+- Category rebalancing: Cards 8→11, Heroes 3→4, Dashboards 3→4, Navigation 6→7, Forms 3→4, Layouts 5→7, Sections 7→11, GSAP 4→6
+
+### Design Philosophy
+
+- Color vibe diversity: every new design has a named, distinct palette (zero overlap with existing 42 designs)
+- Mix of light and dark modes: 5 light-mode designs (Calendar, Onboarding, Portfolio, Alerts, Empty States) vs 10 dark
+- Temperature variety: warm (peach, terra cotta, sunrise), cool (ocean, forest, cyan), neutral (navy, olive)
+
 ## [3.1.0] - 2026-02-23
 
 ### Added

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Arcade Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: #050505;
+  --surface: #0A0A0A;
+  --accent: #39FF14;
+  --text: #39FF14;
+  --text-secondary: #FFB000;
+  --border: rgba(57,255,20,0.2);
+  --radius: 4px;
+  --radius-sm: 2px;
+  --font: 'Courier New', 'Lucida Console', monospace;
+}
+
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  min-height:100dvh;overflow-x:hidden;
+}
+
+/* ── Skip Link ── */
+.skip-link{
+  position:absolute;top:-100%;left:50%;transform:translateX(-50%);
+  padding:8px 20px;background:var(--accent);color:var(--bg);
+  border-radius:0 0 var(--radius) var(--radius);
+  font-weight:700;font-size:14px;z-index:9999;text-decoration:none;
+  font-family:var(--font);
+}
+.skip-link:focus-visible{top:0;outline:none}
+
+/* ── Grid Background ── */
+.grid-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(57,255,20,0.04) 0px, rgba(57,255,20,0.04) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(90deg, rgba(57,255,20,0.04) 0px, rgba(57,255,20,0.04) 1px, transparent 1px, transparent 40px);
+}
+
+/* ── CRT Container ── */
+.crt-frame{
+  position:relative;
+  max-width:1100px;width:100%;margin:24px auto;
+  padding:32px;
+  background:var(--surface);
+  border:2px solid var(--border);
+  border-radius:16px;
+  box-shadow:
+    0 0 40px rgba(57,255,20,0.06),
+    0 0 80px rgba(57,255,20,0.03),
+    inset 0 0 60px rgba(57,255,20,0.02);
+  z-index:1;
+}
+
+/* ── Scanline Overlay ── */
+.scanlines{
+  position:absolute;inset:0;z-index:10;pointer-events:none;
+  border-radius:14px;overflow:hidden;
+}
+.scanlines::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+  );
+}
+
+/* ── Header ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;gap:16px;
+}
+.header-left{display:flex;align-items:center;gap:16px}
+.header-title{
+  font-size:clamp(1.25rem,3vw,1.75rem);font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--accent);text-shadow:0 0 10px rgba(57,255,20,0.4);
+}
+.header-badge{
+  font-size:0.625rem;font-weight:700;
+  padding:3px 8px;border-radius:var(--radius-sm);
+  border:1px solid var(--text-secondary);
+  color:var(--text-secondary);
+  text-transform:uppercase;letter-spacing:0.1em;
+}
+
+/* ── Equalizer ── */
+.equalizer{display:flex;align-items:flex-end;gap:3px;height:24px}
+.eq-bar{
+  width:4px;background:var(--accent);border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  box-shadow:0 0 4px rgba(57,255,20,0.3);
+}
+
+/* ── Stat Cards ── */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-bottom:24px;
+}
+.stat-card{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px 20px;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent);opacity:0.4;
+}
+.stat-label{
+  font-size:0.625rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--text-secondary);margin-bottom:10px;
+}
+.stat-value{
+  font-size:1.75rem;font-weight:700;
+  color:var(--accent);line-height:1;
+  text-shadow:0 0 8px rgba(57,255,20,0.3);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ── Chart Section ── */
+.chart-section{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:24px;
+}
+.chart-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.chart-title{
+  font-size:0.8125rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--accent);
+}
+.chart-period{
+  font-size:0.6875rem;color:var(--text-secondary);
+  letter-spacing:0.05em;
+}
+
+/* ── Bar Chart ── */
+.bar-chart{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-day{
+  font-size:0.6875rem;font-weight:700;
+  width:32px;flex-shrink:0;text-align:right;
+  color:var(--text-secondary);text-transform:uppercase;
+}
+.bar-track{
+  flex:1;height:20px;
+  background:rgba(57,255,20,0.05);
+  border-radius:var(--radius-sm);
+  position:relative;overflow:hidden;
+  /* Grid lines */
+  background-image:
+    repeating-linear-gradient(90deg, rgba(57,255,20,0.06) 0px, rgba(57,255,20,0.06) 1px, transparent 1px, transparent 20%);
+}
+.bar-fill{
+  height:100%;border-radius:var(--radius-sm);
+  background:linear-gradient(90deg, #39FF14, #00AA00);
+  box-shadow:0 0 8px rgba(57,255,20,0.3);
+  transform-origin:left center;
+}
+.bar-val{
+  font-size:0.625rem;font-weight:700;
+  width:36px;flex-shrink:0;
+  color:var(--accent);text-align:left;
+}
+
+/* ── Activity Log ── */
+.log-section{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 24px;
+}
+.log-header{
+  font-size:0.8125rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--accent);margin-bottom:16px;
+}
+.log-entries{
+  display:flex;flex-direction:column;gap:6px;
+  font-size:0.8125rem;line-height:1.6;
+}
+.log-line{
+  display:flex;gap:8px;
+  color:var(--accent);
+}
+.log-prompt{color:var(--text-secondary);flex-shrink:0;font-weight:700}
+.log-time{color:var(--text-secondary);opacity:0.7;flex-shrink:0}
+.log-text{color:var(--accent)}
+
+/* ── Blinking Cursor ── */
+.cursor{
+  display:inline-block;
+  color:var(--accent);font-weight:700;
+  margin-top:8px;font-size:0.875rem;
+}
+
+/* ── Focus Visible ── */
+*:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+/* ── Responsive ── */
+@media(max-width:860px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .crt-frame{margin:16px;padding:20px}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .crt-frame{margin:8px;padding:16px;border-radius:8px}
+  .scanlines{border-radius:6px}
+  .bar-day{width:24px;font-size:0.6rem}
+  .stat-value{font-size:1.375rem}
+}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<!-- Grid Background -->
+<div class="grid-bg" aria-hidden="true"></div>
+
+<!-- CRT Frame -->
+<main class="crt-frame" id="main-content">
+  <!-- Scanline Overlay -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="header-title">Arcade HQ</h1>
+      <span class="header-badge">Live</span>
+      <div class="equalizer" aria-hidden="true">
+        <div class="eq-bar" style="height:8px"></div>
+        <div class="eq-bar" style="height:14px"></div>
+        <div class="eq-bar" style="height:6px"></div>
+        <div class="eq-bar" style="height:18px"></div>
+        <div class="eq-bar" style="height:10px"></div>
+      </div>
+    </div>
+    <div style="font-size:0.6875rem;color:var(--text-secondary);letter-spacing:0.05em">
+      SYS.STATUS: <span style="color:var(--accent)">ONLINE</span>
+    </div>
+  </header>
+
+  <!-- Stats Row -->
+  <section class="stats-row" aria-label="Game statistics">
+    <div class="stat-card">
+      <div class="stat-label">Players Online</div>
+      <div class="stat-value" data-target="1247">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">High Score</div>
+      <div class="stat-value" data-target="89431">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Games Today</div>
+      <div class="stat-value" data-target="342">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Win Rate</div>
+      <div class="stat-value" data-target="67.8" data-suffix="%" data-decimal="1">0%</div>
+    </div>
+  </section>
+
+  <!-- Bar Chart -->
+  <section class="chart-section" aria-label="Weekly activity chart">
+    <div class="chart-header">
+      <span class="chart-title">Weekly Activity</span>
+      <span class="chart-period">Feb 17 - Feb 23</span>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-row"><span class="bar-day">Mon</span><div class="bar-track"><div class="bar-fill" data-width="62"></div></div><span class="bar-val">248</span></div>
+      <div class="bar-row"><span class="bar-day">Tue</span><div class="bar-track"><div class="bar-fill" data-width="78"></div></div><span class="bar-val">312</span></div>
+      <div class="bar-row"><span class="bar-day">Wed</span><div class="bar-track"><div class="bar-fill" data-width="55"></div></div><span class="bar-val">220</span></div>
+      <div class="bar-row"><span class="bar-day">Thu</span><div class="bar-track"><div class="bar-fill" data-width="90"></div></div><span class="bar-val">360</span></div>
+      <div class="bar-row"><span class="bar-day">Fri</span><div class="bar-track"><div class="bar-fill" data-width="100"></div></div><span class="bar-val">401</span></div>
+      <div class="bar-row"><span class="bar-day">Sat</span><div class="bar-track"><div class="bar-fill" data-width="85"></div></div><span class="bar-val">342</span></div>
+      <div class="bar-row"><span class="bar-day">Sun</span><div class="bar-track"><div class="bar-fill" data-width="72"></div></div><span class="bar-val">289</span></div>
+    </div>
+  </section>
+
+  <!-- Activity Log -->
+  <section class="log-section" aria-label="Activity log">
+    <div class="log-header">System Log</div>
+    <div class="log-entries" id="log-entries">
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[14:32]</span><span class="log-text" id="log-1"></span></div>
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[14:28]</span><span class="log-text" id="log-2"></span></div>
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[14:15]</span><span class="log-text" id="log-3"></span></div>
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[13:59]</span><span class="log-text" id="log-4"></span></div>
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[13:41]</span><span class="log-text" id="log-5"></span></div>
+      <div class="log-line"><span class="log-prompt">&gt;</span><span class="log-time">[13:22]</span><span class="log-text" id="log-6"></span></div>
+    </div>
+    <div class="cursor" id="blink-cursor">_</div>
+  </section>
+</main>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="../animations/gsap-utils.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger, Flip, TextPlugin);
+
+(function () {
+  'use strict';
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Log messages ── */
+  var logMessages = [
+    'Player_X achieved new high score: 89,431 pts',
+    'Tournament lobby "NeonCup" opened - 16 slots',
+    'Server latency optimal: 12ms avg response',
+    'Player_Nova unlocked achievement: SPEED_DEMON',
+    'Leaderboard updated - 3 new entries in top 50',
+    'System backup completed successfully'
+  ];
+
+  if (reduced) {
+    /* Reduced motion: show everything immediately */
+    document.querySelectorAll('.stat-value').forEach(function (el) {
+      var target = el.getAttribute('data-target');
+      var suffix = el.getAttribute('data-suffix') || '';
+      var decimal = parseInt(el.getAttribute('data-decimal') || '0', 10);
+      if (decimal > 0) {
+        el.textContent = parseFloat(target).toFixed(decimal) + suffix;
+      } else {
+        el.textContent = parseInt(target, 10).toLocaleString('en-US') + suffix;
+      }
+    });
+    document.querySelectorAll('.bar-fill').forEach(function (bar) {
+      gsap.set(bar, { scaleX: parseInt(bar.dataset.width, 10) / 100 });
+    });
+    logMessages.forEach(function (msg, i) {
+      var el = document.getElementById('log-' + (i + 1));
+      if (el) el.textContent = msg;
+    });
+    gsap.set('#blink-cursor', { opacity: 1 });
+    UV.addControlPanel();
+    return;
+  }
+
+  /* ── 1. Page Entrance Timeline ── */
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  /* CRT frame fades in */
+  tl.from('.crt-frame', { opacity: 0, scale: 0.97, duration: 0.6 });
+
+  /* Header elements */
+  tl.from('.header-title', { opacity: 0, y: -15, duration: 0.4 }, '-=0.2');
+  tl.from('.header-badge', { opacity: 0, scale: 0.8, duration: 0.3 }, '-=0.2');
+
+  /* Stat cards stagger in */
+  tl.from('.stat-card', {
+    opacity: 0, y: 20, duration: 0.4,
+    stagger: 0.08,
+  }, '-=0.1');
+
+  /* Chart section */
+  tl.from('.chart-section', { opacity: 0, y: 20, duration: 0.5 }, '-=0.15');
+
+  /* Log section */
+  tl.from('.log-section', { opacity: 0, y: 20, duration: 0.5 }, '-=0.2');
+
+  /* ── 2. Number Countup (snap-step effect) ── */
+  document.querySelectorAll('.stat-value').forEach(function (el) {
+    var raw = el.getAttribute('data-target');
+    var suffix = el.getAttribute('data-suffix') || '';
+    var decimal = parseInt(el.getAttribute('data-decimal') || '0', 10);
+    var target = parseFloat(raw);
+    if (isNaN(target)) return;
+
+    var obj = { val: 0 };
+    el.textContent = '0' + suffix;
+
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      delay: 0.6,
+      ease: 'power2.out',
+      snap: decimal > 0 ? {} : { val: 1 },
+      onUpdate: function () {
+        if (decimal > 0) {
+          el.textContent = obj.val.toFixed(decimal) + suffix;
+        } else {
+          el.textContent = Math.round(obj.val).toLocaleString('en-US') + suffix;
+        }
+      }
+    });
+  });
+
+  /* ── 3. Bar Chart Animation ── */
+  document.querySelectorAll('.bar-fill').forEach(function (bar, i) {
+    var w = parseInt(bar.dataset.width, 10) / 100;
+    gsap.set(bar, { scaleX: 0 });
+    gsap.to(bar, {
+      scaleX: w,
+      duration: 0.7,
+      ease: 'power2.out',
+      delay: 0.8 + i * 0.08,
+    });
+  });
+
+  /* ── 4. Typewriter Log Lines ── */
+  logMessages.forEach(function (msg, i) {
+    var el = document.getElementById('log-' + (i + 1));
+    if (!el) return;
+    UV.typewriter(el, msg, {
+      duration: 1.2,
+      delay: 1.5 + i * 0.6,
+      ease: 'none',
+    });
+  });
+
+  /* ── 5. Blinking Cursor ── */
+  gsap.to('#blink-cursor', {
+    opacity: 0,
+    duration: 0.5,
+    repeat: -1,
+    yoyo: true,
+    ease: 'steps(1)',
+  });
+
+  /* ── 6. Equalizer Animation ── */
+  document.querySelectorAll('.eq-bar').forEach(function (bar) {
+    gsap.to(bar, {
+      height: function () { return gsap.utils.random(4, 22); },
+      duration: 0.3,
+      repeat: -1,
+      yoyo: true,
+      ease: 'steps(3)',
+      delay: gsap.utils.random(0, 0.5),
+    });
+  });
+
+  /* ── 7. CRT Flicker (every 8-12s) ── */
+  function crtFlicker() {
+    gsap.to('.crt-frame', {
+      opacity: 0.92,
+      duration: 0.06,
+      yoyo: true,
+      repeat: 1,
+      ease: 'none',
+      onComplete: function () {
+        gsap.set('.crt-frame', { opacity: 1 });
+        gsap.delayedCall(gsap.utils.random(8, 12), crtFlicker);
+      }
+    });
+  }
+  gsap.delayedCall(gsap.utils.random(6, 10), crtFlicker);
+
+  /* ── 8. Hover Effects ── */
+  document.querySelectorAll('.stat-card').forEach(function (card) {
+    card.addEventListener('mouseenter', function () {
+      gsap.to(card, {
+        boxShadow: '0 0 16px rgba(57,255,20,0.2), inset 0 0 20px rgba(57,255,20,0.03)',
+        borderColor: 'rgba(57,255,20,0.5)',
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+    card.addEventListener('mouseleave', function () {
+      gsap.to(card, {
+        boxShadow: 'none',
+        borderColor: 'rgba(57,255,20,0.2)',
+        duration: 0.25,
+        ease: 'power2.out',
+      });
+    });
+  });
+
+  /* Chart section hover */
+  var chartEl = document.querySelector('.chart-section');
+  chartEl.addEventListener('mouseenter', function () {
+    gsap.to(chartEl, {
+      boxShadow: '0 0 16px rgba(57,255,20,0.15)',
+      borderColor: 'rgba(57,255,20,0.4)',
+      duration: 0.25,
+      ease: 'power2.out',
+    });
+  });
+  chartEl.addEventListener('mouseleave', function () {
+    gsap.to(chartEl, {
+      boxShadow: 'none',
+      borderColor: 'rgba(57,255,20,0.2)',
+      duration: 0.25,
+      ease: 'power2.out',
+    });
+  });
+
+  /* Log section hover */
+  var logEl = document.querySelector('.log-section');
+  logEl.addEventListener('mouseenter', function () {
+    gsap.to(logEl, {
+      boxShadow: '0 0 16px rgba(57,255,20,0.15)',
+      borderColor: 'rgba(57,255,20,0.4)',
+      duration: 0.25,
+      ease: 'power2.out',
+    });
+  });
+  logEl.addEventListener('mouseleave', function () {
+    gsap.to(logEl, {
+      boxShadow: 'none',
+      borderColor: 'rgba(57,255,20,0.2)',
+      duration: 0.25,
+      ease: 'power2.out',
+    });
+  });
+
+  /* Bar row hover highlight */
+  document.querySelectorAll('.bar-row').forEach(function (row) {
+    var fill = row.querySelector('.bar-fill');
+    row.addEventListener('mouseenter', function () {
+      gsap.to(fill, {
+        boxShadow: '0 0 14px rgba(57,255,20,0.5)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      gsap.to(row.querySelector('.bar-val'), {
+        color: '#39FF14',
+        textShadow: '0 0 6px rgba(57,255,20,0.5)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+    });
+    row.addEventListener('mouseleave', function () {
+      gsap.to(fill, {
+        boxShadow: '0 0 8px rgba(57,255,20,0.3)',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+      gsap.to(row.querySelector('.bar-val'), {
+        color: '#39FF14',
+        textShadow: 'none',
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+    });
+  });
+
+  /* ── Control Panel ── */
+  UV.addControlPanel();
+})();
+</script>
+</body>
+</html>
